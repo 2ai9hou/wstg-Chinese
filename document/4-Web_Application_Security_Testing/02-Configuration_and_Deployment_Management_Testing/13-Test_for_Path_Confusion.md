@@ -1,36 +1,36 @@
-# Test Path Confusion
+# 测试路径混淆
 
 |ID          |
 |------------|
 |WSTG-CONF-13|
 
-## Summary
+## 概述
 
-Proper configuration of application paths is important because, if paths are not configured correctly, they allow an attacker to exploit other vulnerabilities at a later stage using this misconfiguration.
+应用程序路径的正確配置很重要，因为如果路径配置不正确，攻击者可以利用此配置错误在后续阶段利用其他漏洞。
 
-For example, if the routes are not configured correctly and the target also uses a CDN, the attacker can use this misconfiguration to execute web cache deception attacks.
+例如，如果路由配置不正确且目标还使用了 CDN，攻击者可以利用此配置错误执行 Web 缓存欺骗攻击。
 
-As a result, to prevent other attacks, this configuration should be evaluated by the tester.
+因此，为了防止其他攻击，测试人员应评估此配置。
 
-## Test Objectives
+## 测试目标
 
-- Make sure application paths are configured correctly.
+- 确保应用程序路径配置正确。
 
-## How To Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-In a black-box testing scenario, the tester should replace all the existing paths with paths that do not exist, and then examine the behavior and status code of the target.
+在黑盒测试场景中，测试人员应将所有现有路径替换为不存在的路径，然后检查目标的行为和状态码。
 
-For example, there is a path in the application that is a dashboard and shows the amount of the user's account balance (money, game credits, etc).
+例如，应用程序中有一个路径是仪表板，显示用户账户余额（金钱、游戏积分等）。
 
-Assume the path is `https://example.com/user/dashboard`, the tester should test the different modes that the developer may have considered for this path. For Web Cache Deception vulnerabilities the analyst should consider a path such as `https:// example.com/user/dashboard/non.js` if dashboard information is visible, and the target uses a CDN (or other web cache), then Web Cache Deception attacks are likely applicable.
+假设路径是 `https://example.com/user/dashboard`，测试人员应测试开发者可能考虑过的此路径的不同模式。对于 Web 缓存欺骗漏洞，分析师应考虑 `https:// example.com/user/dashboard/non.js` 这样的路径，如果仪表板信息可见且目标使用 CDN（或其他 Web 缓存），则 Web 缓存欺骗攻击可能适用。
 
-### White-Box Testing
+### 白盒测试
 
-Examine the application routing configuration, Most of the time, developers use regular expressions in application routing.
+检查应用程序路由配置，大多数时候，开发人员在应用程序路由中使用正则表达式。
 
-In this example, in the `urls.py` file of a Django framework application, we see an example of Path Confusion. The developer did not use the correct regular expression resulting in a vulnerability:
+在这个例子中，在 Django 框架应用程序的 `urls.py` 文件中，我们看到了路径混淆的一个示例。开发者没有使用正确的正则表达式，导致了漏洞：
 
 ```python
     from django.urls import re_path
@@ -43,21 +43,21 @@ In this example, in the `urls.py` file of a Django framework application, we see
     ]
 ```
 
-If the path `https://example.com/dashboard/none.js` is also opened by the user in the browser, the user dashboard information can be displayed, and if the target uses a CDN or web cache, a Web Cache Deception attack can be implemented.
+如果路径 `https://example.com/dashboard/none.js` 也在浏览器中被用户打开，用户仪表板信息可以被显示，如果目标使用 CDN 或 Web 缓存，则可以实施 Web 缓存欺骗攻击。
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
 
-## Remediation
+## 修复
 
-- Refrain from classify/handling cached based on file extension or path (leverage content-type).
-- Ensure the caching mechanism(s) adhere to cache-control headers specified by your application.
-- Implement RFC compliant File Not Found handling and redirects.
+- 不要根据文件扩展名或路径对缓存进行分类/处理（利用 content-type）。
+- 确保缓存机制遵守应用程序指定的 cache-control 头。
+- 实施符合 RFC 的文件未找到处理和重定向。
 
-## References
+## 参考资料
 
-- [Bypassing Web Cache Poisoning Countermeasures](https://portswigger.net/research/bypassing-web-cache-poisoning-countermeasures)
-- [Path confusion: Web cache deception threatens user information online](https://portswigger.net/daily-swig/path-confusion-web-cache-deception-threatens-user-information-online)
-- [Web Cache Deception Attack](https://omergil.blogspot.com/2017/02/web-cache-deception-attack.html)
+- [绕过 Web 缓存中毒对策](https://portswigger.net/research/bypassing-web-cache-poisoning-countermeasures)
+- [路径混淆：Web 缓存欺骗威胁用户在线信息](https://portswigger.net/daily-swig/path-confusion-web-cache-deception-threatens-user-information-online)
+- [Web 缓存欺骗攻击](https://omergil.blogspot.com/2017/02/web-cache-deception-attack.html)

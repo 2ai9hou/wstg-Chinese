@@ -1,50 +1,50 @@
-# Test for Subdomain Takeover
+# 测试子域名接管
 
 |ID          |
 |------------|
 |WSTG-CONF-10|
 
-## Summary
+## 概述
 
-A successful exploitation of this kind of vulnerability allows an adversary to claim and take control of the victim's subdomain. This attack relies on the following:
+成功利用此类漏洞允许攻击者声明并控制受害者的子域名。此攻击依赖于以下条件：
 
-1. The victim's external DNS server subdomain record is configured to point to a non-existing or non-active resource/external service/endpoint. The proliferation of XaaS (Anything as a Service) products and public cloud services offer a lot of potential targets to consider.
-2. The service provider hosting the resource/external service/endpoint does not handle subdomain ownership verification properly.
+1. 受害者的外部 DNS 服务器子域名记录配置为指向不存在的或非活动的资源/外部服务/端点。XaaS（一切即服务）产品和公共云服务的普及提供了许多可能的目标需要考虑。
+2. 托管资源/外部服务/端点的服务提供商没有正确处理子域名所有权验证。
 
-If the subdomain takeover is successful, a wide variety of attacks are possible (serving malicious content, phishing, stealing user session cookies, credentials, etc.). This vulnerability could be exploited for a wide variety of DNS resource records including: `A`, `CNAME`, `MX`, `NS`, `TXT` etc. In terms of the attack severity, an `NS` subdomain takeover (although less likely) has the highest impact, because a successful attack could result in full control over the whole DNS zone and the victim's domain.
+如果子域名接管成功，可能发生各种攻击（提供恶意内容、网络钓鱼、窃取用户会话 cookie、凭据等）。此漏洞可能针对各种 DNS 资源记录进行利用，包括：`A`、`CNAME`、`MX`、`NS`、`TXT` 等。就攻击严重性而言，`NS` 子域名接管（尽管可能性较小）影响最大，因为成功攻击可能导致对整个 DNS 区域和受害者域名的完全控制。
 
 ### GitHub
 
-1. The victim (victim.com) uses GitHub for development and configured a DNS record (`coderepo.victim.com`) to access it.
-2. The victim decides to migrate their code repository from GitHub to a commercial platform and does not remove `coderepo.victim.com` from their DNS server.
-3. An adversary discovers that `coderepo.victim.com` is hosted on GitHub and claims it using GitHub Pages and their own GitHub account.
+1. 受害者（victim.com）使用 GitHub 进行开发，并配置了 DNS 记录（`coderepo.victim.com`）来访问它。
+2. 受害者决定将代码仓库从 GitHub 迁移到商业平台，但没有从 DNS 服务器中删除 `coderepo.victim.com`。
+3. 攻击者发现 `coderepo.victim.com` 托管在 GitHub 上，并使用自己的 GitHub 账户通过 GitHub Pages 声明它。
 
-### Expired Domain
+### 过期域名
 
-1. The victim (victim.com) owns another domain (victimotherdomain.com) and uses a CNAME record (www) to reference the other domain (`www.victim.com` --> `victimotherdomain.com`)
-2. At some point, victimotherdomain.com expires, becoming available for registration by anyone. Since the CNAME record is not deleted from the victim.com DNS zone, anyone who registers `victimotherdomain.com` has full control over `www.victim.com` until the DNS record is removed or updated.
+1. 受害者（victim.com）拥有另一个域名（victimotherdomain.com），并使用 CNAME 记录（www）引用另一个域名（`www.victim.com` --> `victimotherdomain.com`）
+2. 在某个时候，victimotherdomain.com 过期，任何人都可以注册。由于 CNAME 记录没有从 victim.com DNS 区域中删除，任何注册 `victimotherdomain.com` 的人都可以完全控制 `www.victim.com`，直到 DNS 记录被删除或更新。
 
-## Test Objectives
+## 测试目标
 
-- Enumerate all possible domains (previous and current).
-- Identify any forgotten or misconfigured domains.
+- 枚举所有可能的域名（以前的和当前的）。
+- 识别任何被遗忘或配置错误的域名。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-The first step is to enumerate the victim DNS servers and resource records. There are multiple ways to accomplish this task; for example, DNS enumeration using a list of common subdomains dictionary, DNS brute force or using web search engines and other OSINT data sources.
+第一步是枚举受害者 DNS 服务器和资源记录。有多种方法可以完成此任务；例如，使用常见子域名字典的 DNS 枚举、DNS 暴力破解或使用 Web 搜索引擎和其他 OSINT 数据源。
 
-Using the dig command the tester looks for the following DNS server response messages that warrant further investigation:
+使用 dig 命令，测试人员查找以下值得进一步调查的 DNS 服务器响应消息：
 
 - `NXDOMAIN`
 - `SERVFAIL`
 - `REFUSED`
 - `no servers could be reached.`
 
-#### Testing DNS A, CNAME Record Subdomain Takeover
+#### 测试 DNS A、CNAME 记录子域名接管
 
-Perform a basic DNS enumeration on the victim's domain (`victim.com`) using `dnsrecon`:
+使用 `dnsrecon` 对受害者域（`victim.com`）执行基本 DNS 枚举：
 
 ```bash
 $ ./dnsrecon.py -d victim.com
@@ -56,7 +56,7 @@ $ ./dnsrecon.py -d victim.com
 ...
 ```
 
-Identify which DNS resource records are dead and point to inactive/not-used services. Using the dig command for the `CNAME` record:
+识别哪些 DNS 资源记录已失效并指向不活跃/未使用的服务。使用 dig 命令测试 `CNAME` 记录：
 
 ```bash
 $ dig CNAME fictioussubdomain.victim.com
@@ -67,28 +67,28 @@ $ dig CNAME fictioussubdomain.victim.com
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 ```
 
-The following DNS responses warrant further investigation: `NXDOMAIN`.
+以下 DNS 响应值得进一步调查：`NXDOMAIN`。
 
-To test the `A` record the tester performs a whois database lookup and identifies GitHub as the service provider:
+要测试 `A` 记录，测试人员执行 whois 数据库查询并识别 GitHub 作为服务提供商：
 
 ```bash
 $ whois 192.30.252.153 | grep "OrgName"
 OrgName: GitHub, Inc.
 ```
 
-The tester visits `subdomain.victim.com` or issues a HTTP GET request which returns a "404 - File not found" response which is a clear indication of the vulnerability.
+测试人员访问 `subdomain.victim.com` 或发出 HTTP GET 请求，该请求返回 "404 - File not found" 响应，这是漏洞的明确指示。
 
 ![GitHub 404 File Not Found response](images/subdomain_takeover_ex1.jpeg)\
-*Figure 4.2.10-1: GitHub 404 File Not Found response*
+*图 4.2.10-1：GitHub 404 File Not Found 响应*
 
-The tester claims the domain using GitHub Pages:
+测试人员使用 GitHub Pages 声明该域名：
 
 ![GitHub claim domain](images/subdomain_takeover_ex2.jpeg)\
-*Figure 4.2.10-2: GitHub claim domain*
+*图 4.2.10-2：GitHub 声明域名*
 
-#### Testing NS Record Subdomain Takeover
+#### 测试 NS 记录子域名接管
 
-Identify all nameservers for the domain in scope:
+识别范围内域的所有 nameserver：
 
 ```bash
 $ dig ns victim.com +short
@@ -96,32 +96,32 @@ ns1.victim.com
 nameserver.expireddomain.com
 ```
 
-In this fictitious example, the tester checks if the domain `expireddomain.com` is active with a domain registrar search. If the domain is available for purchase the subdomain is vulnerable.
+在这个虚构的示例中，测试人员检查域 `expireddomain.com` 是否在域名注册商处处于活动状态。如果该域可以购买，则子域名存在漏洞。
 
-The following DNS responses warrant further investigation: `SERVFAIL` or `REFUSED`.
+以下 DNS 响应值得进一步调查：`SERVFAIL` 或 `REFUSED`。
 
-### Gray-Box Testing
+### 灰盒测试
 
-The tester has the DNS zone file available, which means DNS enumeration is not necessary. The testing methodology is the same.
+测试人员可以获得 DNS 区域文件，这意味着不需要 DNS 枚举。测试方法相同。
 
-## Remediation
+## 修复
 
-To mitigate the risk of subdomain takeover, the vulnerable DNS resource record(s) should be removed from the DNS zone. Continuous monitoring and periodic checks are recommended as best practice.
+为了减轻子域名接管的风险，应从 DNS 区域中删除有漏洞的 DNS 资源记录。建议持续监控和定期检查作为最佳实践。
 
-## Tools
+## 工具
 
 - [dig - man page](https://linux.die.net/man/1/dig)
-- [recon-ng - Web Reconnaissance framework](https://github.com/lanmaster53/recon-ng)
-- [theHarvester - OSINT intelligence gathering tool](https://github.com/laramies/theHarvester)
-- [Sublist3r - OSINT subdomain enumeration tool](https://github.com/aboul3la/Sublist3r)
-- [dnsrecon - DNS Enumeration Script](https://github.com/darkoperator/dnsrecon)
-- [OWASP Amass DNS enumeration](https://github.com/OWASP/Amass)
+- [recon-ng - Web 侦察框架](https://github.com/lanmaster53/recon-ng)
+- [theHarvester - OSINT 情报收集工具](https://github.com/laramies/theHarvester)
+- [Sublist3r - OSINT 子域名枚举工具](https://github.com/aboul3la/Sublist3r)
+- [dnsrecon - DNS 枚举脚本](https://github.com/darkoperator/dnsrecon)
+- [OWASP Amass DNS 枚举](https://github.com/OWASP/Amass)
 - [OWASP Domain Protect](https://owasp.org/www-project-domain-protect)
 
-## References
+## 参考资料
 
-- [HackerOne - A Guide To Subdomain Takeovers](https://www.hackerone.com/blog/Guide-Subdomain-Takeovers)
-- [Subdomain Takeover: Basics](https://0xpatrik.com/subdomain-takeover-basics/)
-- [Subdomain Takeover: Going beyond CNAME](https://0xpatrik.com/subdomain-takeover-ns/)
-- [can-i-take-over-xyz - A list of vulnerable services](https://github.com/EdOverflow/can-i-take-over-xyz/)
-- [OWASP AppSec Europe 2017 - Frans Rosén: DNS hijacking using cloud providers – no verification needed](https://2017.appsec.eu/presos/Developer/DNS%20hijacking%20using%20cloud%20providers%20%E2%80%93%20no%20verification%20needed%20-%20Frans%20Rosen%20-%20OWASP_AppSec-Eu_2017.pdf)
+- [HackerOne - 子域名接管指南](https://www.hackerone.com/blog/Guide-Subdomain-Takeovers)
+- [子域名接管：基础知识](https://0xpatrik.com/subdomain-takeover-basics/)
+- [子域名接管：超越 CNAME](https://0xpatrik.com/subdomain-takeover-ns/)
+- [can-i-take-over-xyz - 漏洞服务列表](https://github.com/EdOverflow/can-i-take-over-xyz/)
+- [OWASP AppSec Europe 2017 - Frans Rosén：使用云提供商进行 DNS 劫持 – 无需验证](https://2017.appsec.eu/presos/Developer/DNS%20hijacking%20using%20cloud%20providers%20%E2%80%93%20no%20verification%20needed%20-%20Frans%20Rosen%20-%20OWASP_AppSec-Eu_2017.pdf)

@@ -1,87 +1,87 @@
-# Test Cloud Storage
+# 测试云存储
 
 |ID          |
 |------------|
 |WSTG-CONF-11|
 
-## Summary
+## 概述
 
-Cloud storage services allow web applications and services to store and access objects in the storage service. Improper access control configuration, however, may lead to the exposure of sensitive information, data tampering, or unauthorized access.
+云存储服务允许 Web 应用程序和服务在存储服务中存储和访问对象。然而，访问控制配置不当可能导致敏感信息泄露、数据篡改或未经授权的访问。
 
-A known example is where an Amazon S3 bucket is misconfigured, although the other cloud storage services may also be exposed to similar risks. By default, all S3 buckets are private and can be accessed only by users who are explicitly granted access. Users can grant public access not only to the bucket itself but also to individual objects stored within that bucket. This may lead to an unauthorized user being able to upload new files, modify or read stored files.
+一个众所周知的例子是 Amazon S3 存储桶配置错误，尽管其他云存储服务也可能面临类似风险。默认情况下，所有 S3 存储桶都是私有的，只能由被明确授予访问权限的用户访问。用户可以授予公众访问权限，不仅可以访问存储桶本身，还可以访问存储在该存储桶中的单个对象。这可能导致未经授权的用户能够上传新文件、修改或读取存储的文件。
 
-## Test Objectives
+## 测试目标
 
-- Assess that the access control configuration for the storage services is properly in place.
+- 评估存储服务的访问控制配置是否正确到位。
 
-## How to Test
+## 如何测试
 
-First, identify the URL to access the data in the storage service, and then consider the following tests:
+首先，识别访问存储服务中数据的 URL，然后考虑以下测试：
 
-- read unauthorized data
-- upload a new arbitrary file
+- 读取未授权数据
+- 上传新的任意文件
 
-You may use curl for the tests with the following commands and see if unauthorized actions can be performed successfully.
+您可以使用 curl 进行测试，使用以下命令并查看未经授权的操作是否能成功执行。
 
-To test the ability to read an object:
+要测试读取对象的能力：
 
 ```bash
 curl -X GET https://<cloud-storage-service>/<object>
 ```
 
-To test the ability to upload a file:
+要测试上传文件的能力：
 
 ```bash
 curl -X PUT -d 'test' 'https://<cloud-storage-service>/test.txt'
 ```
 
-In the above command, it is recommended to replace the single quotes (') with double quotes (") when running the command on a Windows machine.
+在上述命令中，在 Windows 机器上运行命令时，建议将单引号（'）替换为双引号（"）。
 
-### Testing for Amazon S3 Bucket Misconfiguration
+### 测试 Amazon S3 存储桶配置错误
 
-The Amazon S3 bucket URLs follow one of two formats, either virtual host style or path-style.
+Amazon S3 存储桶 URL 遵循两种格式之一：虚拟主机样式或路径样式。
 
-- Virtual Hosted Style Access
+- 虚拟主机样式访问
 
 ```text
 https://bucket-name.s3.Region.amazonaws.com/key-name
 ```
 
-In the following example, `my-bucket` is the bucket name, `us-west-2` is the region, and `puppy.png` is the key-name:
+在以下示例中，`my-bucket` 是存储桶名称，`us-west-2` 是区域，`puppy.png` 是 key-name：
 
 ```text
 https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png
 ```
 
-- Path-Style Access
+- 路径样式访问
 
 ```text
 https://s3.Region.amazonaws.com/bucket-name/key-name
 ```
 
-As above, in the following example, `my-bucket` is the bucket name, `us-west-2` is the region, and `puppy.png` is the key-name:
+与上面一样，在以下示例中，`my-bucket` 是存储桶名称，`us-west-2` 是区域，`puppy.png` 是 key-name：
 
 ```text
 https://s3.us-west-2.amazonaws.com/my-bucket/puppy.png
 ```
 
-For some regions, the legacy global endpoint that does not specify a region-specific endpoint can be used. Its format is also either virtual hosted style or path-style.
+对于某些区域，可以使用不指定区域特定端点的旧版全局端点。其格式也是虚拟主机样式或路径样式。
 
-- Virtual Hosted Style Access
+- 虚拟主机样式访问
 
 ```text
 https://bucket-name.s3.amazonaws.com
 ```
 
-- Path-Style Access
+- 路径样式访问
 
 ```text
 https://s3.amazonaws.com/bucket-name
 ```
 
-#### Identify Bucket URL
+#### 识别存储桶 URL
 
-For black-box testing, S3 URLs can be found in the HTTP messages. The following example shows a bucket URL is sent in the `img` tag in an HTTP response.
+对于黑盒测试，S3 URL 可以在 HTTP 消息中找到。以下示例显示存储桶 URL 在 HTTP 响应的 `img` 标签中发送。
 
 ```html
 ...
@@ -89,56 +89,56 @@ For black-box testing, S3 URLs can be found in the HTTP messages. The following 
 ...
 ```
 
-For gray-box testing, you can obtain bucket URLs from Amazon's web interface, documents, source code, and any other available sources.
+对于灰盒测试，您可以从 Amazon 的 Web 界面、文档、源代码和任何其他可用来源获取存储桶 URL。
 
-#### Testing with AWS-CLI
+#### 使用 AWS-CLI 进行测试
 
-In addition to testing with curl, you can also test with the AWS command-line tool. In this case `s3://` URI scheme is used.
+除了使用 curl 进行测试外，您还可以使用 AWS 命令行工具进行测试。在这种情况下，使用 `s3://` URI 方案。
 
-##### List
+##### 列出
 
-The following command lists all the objects of the bucket when it is configured public:
+以下命令在存储桶配置为公共时列出存储桶的所有对象：
 
 ```bash
 aws s3 ls s3://<bucket-name>
 ```
 
-##### Upload
+##### 上传
 
-The following is the command to upload a file:
+以下是上传文件的命令：
 
 ```bash
 aws s3 cp arbitrary-file s3://bucket-name/path-to-save
 ```
 
-This example shows the result when the upload has been successful.
+以下示例显示上传成功时的结果：
 
 ```bash
 $ aws s3 cp test.txt s3://bucket-name/test.txt
 upload: ./test.txt to s3://bucket-name/test.txt
 ```
 
-This example shows the result when the upload has failed.
+以下示例显示上传失败时的结果：
 
 ```bash
 $ aws s3 cp test.txt s3://bucket-name/test.txt
 upload failed: ./test2.txt to s3://bucket-name/test2.txt An error occurred (AccessDenied) when calling the PutObject operation: Access Denied
 ```
 
-##### Remove
+##### 删除
 
-The following is the command to remove an object:
+以下是删除对象的命令：
 
 ```bash
 aws s3 rm s3://bucket-name/object-to-remove
 ```
 
-## Tools
+## 工具
 
 - [AWS CLI](https://aws.amazon.com/cli/)
 
-## References
+## 参考资料
 
-- [Working with Amazon S3 Buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html)
-- [flAWS 2 - Learn AWS Security](http://flaws2.cloud)
-- [curl Tutorial](https://curl.se/docs/manual.html)
+- [使用 Amazon S3 存储桶](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html)
+- [flAWS 2 - 学习 AWS 安全](http://flaws2.cloud)
+- [curl 教程](https://curl.se/docs/manual.html)

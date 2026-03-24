@@ -1,73 +1,73 @@
-# Review Old Backup and Unreferenced Files for Sensitive Information
+# 审查旧备份和未引用文件中的敏感信息
 
 |ID          |
 |------------|
 |WSTG-CONF-04|
 
-## Summary
+## 概述
 
-While most of the files within a web server are directly handled by the server itself, it isn't uncommon to find unreferenced or forgotten files that can be used to obtain important information about the infrastructure or the credentials.
+虽然 Web 服务器中的大多数文件都由服务器本身直接处理，但经常会发现一些未被引用或被遗忘的文件，这些文件可能包含有关基础设施或凭据的重要信息。
 
-Most common scenarios include the presence of renamed old versions of modified files, inclusion files that are loaded into the language of choice and downloaded as source, and even automatic or manual backups in the form of compressed archives. Backup files can also be generated automatically by the underlying file system the application is hosted on, a feature usually referred to as "snapshots".
+最常见的情况包括：修改后的文件的旧版本重命名文件、被加载到所选语言中并作为源代码下载的包含文件，以及以压缩档案形式存在的自动或手动备份。备份文件也可以由应用程序所在底层文件系统自动生成，这种功能通常称为"快照"。
 
-All these files may grant the tester access to inner workings, back doors, administrative interfaces, or even credentials to connect to the administrative interface or the database server.
+所有这些文件都可能使测试人员访问内部运作、后门、管理接口，甚至获取连接管理界面或数据库服务器的凭据。
 
-An important source of vulnerability is found in files unrelated to the application. These files may be created when editing application files, creating on-the-fly backup copies, or leaving old or unreferenced files in the web tree. Performing in-place editing or other administrative actions on production web servers may inadvertently leave backup copies, either generated automatically by the editor while editing files, or by the administrator who is zipping a set of files to create a backup.
+一个重要的漏洞来源是与应用程序无关的文件。这些文件可能是编辑应用程序文件时创建的、即时创建备份副本时留下的，或在 Web 树中遗留的旧文件或未引用文件。在生产 Web 服务器上执行原地编辑或其他管理操作可能会无意中留下备份副本，这些副本可能是编辑器在编辑文件时自动生成的，也可能是管理员将一组文件压缩以创建备份时产生的。
 
-It is easy to forget such files and this may pose a serious security threat to the application. It happens because backup copies may be generated with file extensions differing from those of the original files. A `.tar`, `.zip` or `.gz` archive that we generate (and might forget) has obviously a different extension, and the same happens with automatic copies created by many editors (for example, emacs generates a backup copy named `file~` when editing `file`). Making a copy manually can produce a similar effect, such as when 'file' is copied as 'file.old'. The underlying file system the application is on could be making `snapshots` of your application at different points in time without your knowledge, which may also be accessible via the web, posing a similar but different `backup file` style threat to your application.
+人们很容易忘记这些文件，而这可能会对应用程序造成严重的安全威胁。这是因为备份副本可能使用与原始文件不同的文件扩展名生成。我们生成的（可能会忘记的）`.tar`、`.zip` 或 `.gz` 档案显然具有不同的扩展名，许多编辑器创建的自动副本也是如此（例如，emacs 在编辑 `file` 时会生成名为 `file~` 的备份副本）。手动复制也可能产生类似的效果，例如将 'file' 复制为 'file.old'。应用程序所在的底层文件系统可能正在对应用程序在不同时间点进行"快照"，而您可能对此一无所知，这些快照也可能通过 Web 访问，对应用程序构成类似于"备份文件"但又有所不同的威胁。
 
-As a result, these activities generate files that are not needed by the application and may be handled differently than the original file by the web server. For example, if we make a copy of login.asp and name it login.asp.old without proper security measures, it could potentially allow users to download the source code of login.asp. This is because `login.asp.old` will be typically served as text or plain, rather than being executed because of its extension. In other words, accessing `login.asp` causes the execution of the server-side code of `login.asp`, while accessing `login.asp.old` causes the content of `login.asp.old` (which is, again, server-side code) to be plainly returned to the user and displayed in the browser. This may pose security risks, since sensitive information may be revealed.
+因此，这些活动会生成应用程序不需要的文件，而这些文件可能被 Web 服务器以不同于原始文件的方式处理。例如，如果我们对 `login.asp` 进行复制并将其命名为 `login.asp.old` 而没有采取适当的安全措施，则可能会允许用户下载 `login.asp` 的源代码。这是因为 `login.asp.old` 通常会被作为文本或纯文本提供，而不是被执行，这是因为其扩展名的缘故。换句话说，访问 `login.asp` 会执行 `login.asp` 的服务器端代码，而访问 `login.asp.old` 会导致 `login.asp.old` 的内容（同样是服务器端代码）被直接返回给用户并在浏览器中显示。这可能会带来安全风险，因为敏感信息可能被泄露。
 
-Generally, exposing server-side code is a bad idea. Not only are you unnecessarily exposing business logic, but you may be unknowingly revealing application-related information which may help an attacker (path names, data structures, etc.). Not to mention the fact that there are too many scripts with embedded username and password in clear text (which is a careless and extremely dangerous practice).
+通常，暴露服务器端代码是一个坏主意。这不仅会不必要地暴露业务逻辑，而且可能会在不知不觉中泄露可能帮助攻击者的应用程序相关信息（路径名、数据结构等）。更不用说有太多脚本在明文中嵌入了用户名和密码（这是一种粗心大意且极其危险的做法）。
 
-Other causes of unreferenced files are due to design or configuration choices when they allow diverse kind of application-related files such as data files, configuration files, log files, to be stored in file system directories that can be accessed by the web server. These files have normally no reason to be in a file system space that could be accessed via web, since they should be accessed only at the application level, by the application itself (and not by the casual user browsing around).
+未引用文件的其他原因包括设计或配置选择不当，这些选择允许将各种应用程序相关文件（如数据文件、配置文件、日志文件）存储在可以通过 Web 服务器访问的文件系统目录中。这些文件通常没有理由存在于可以通过 Web 访问的文件系统空间中，因为它们应该只在应用程序层面由应用程序本身访问（而不是由随意浏览的用户访问）。
 
-### Threats
+### 威胁
 
-Old, backup and unreferenced files present various threats to the security of a web application:
+旧文件、备份和未引用文件对 Web 应用程序的安全构成多种威胁：
 
-- Unreferenced files may disclose sensitive information that can facilitate a focused attack against the application; for example, include files containing database credentials, configuration files containing references to other hidden content, absolute file paths, etc.
-- Unreferenced pages may contain powerful functionality that can be used to attack the application; for example, an administration page that is not linked from published content but can be accessed by any user who knows where to find it.
-- Old and backup files may contain vulnerabilities that have been fixed in more recent versions; for example, `viewdoc.old.jsp` may contain a directory traversal vulnerability that has been fixed in `viewdoc.jsp` but can still be exploited by anyone who finds the old version.
-- Backup files may disclose the source code for pages designed to execute on the server; for example, requesting `viewdoc.bak` may return the source code for `viewdoc.jsp`, which can be reviewed for vulnerabilities that may be difficult to find by making blind requests to the executable page. While this threat applies to scripting languages such as Perl, PHP, ASP, shell scripts, JSP, etc., it is not limited to them, as shown in the example provided in the next point.
-- Backup archives may contain copies of all files within (or even outside) the webroot. This allows an attacker to quickly enumerate the entire application, including unreferenced pages, source code, include files, etc. For example, if you forget a file named `myservlets.jar.old` containing a backup copy of your servlet implementation classes, you are exposing a lot of sensitive information which can be decompiled and reverse engineered.
-- In some cases, copying or editing a file modifies the filename but leaves the file extension intact. This is common in Windows environments, where file copying operations generate filenames prefixed with "Copy of " or localized versions of this string. Since the file extension is left unchanged, this is not a case where an executable file is returned as plain text by the web server, and therefore not a case of source code disclosure. However, these files are dangerous too because there is a chance that they include obsolete and incorrect logic that, when invoked, could trigger application errors, which might yield valuable information to an attacker if diagnostic message display is enabled.
-- Log files may contain sensitive information about the activities of application users, for example, sensitive data passed in URL parameters, session IDs, URLs visited (which may disclose additional unreferenced content), etc. Other log files (e.g. ftp logs) may contain sensitive information about the maintenance of the application by system administrators.
-- File system snapshots may contain copies of the code that contain vulnerabilities that have been fixed in more recent versions. For example, `/.snapshot/monthly.1/view.php` may contain a directory traversal vulnerability that has been fixed in `/view.php` but can still be exploited by anyone who finds the old version.
+- 未引用文件可能泄露敏感信息，从而有助于对应用程序进行针对性攻击；例如，包含数据库凭据的包含文件、包含对其他隐藏内容引用的配置文件、绝对文件路径等。
+- 未引用页面可能包含可用于攻击应用程序的强大功能；例如，一个未从已发布内容链接的管理页面，但任何知道在哪里找到它的用户都可以访问。
+- 旧文件和备份文件可能包含在更新版本中已修复的漏洞；例如，`viewdoc.old.jsp` 可能包含一个已在 `viewdoc.jsp` 中修复的目录遍历漏洞，但任何找到旧版本的人仍然可以对其进行利用。
+- 备份文件可能泄露设计用于在服务器上执行的页面的源代码；例如，请求 `viewdoc.bak` 可能返回 `viewdoc.jsp` 的源代码，攻击者可以审查其中的漏洞，而这些漏洞通过盲目请求可执行页面可能很难发现。虽然此威胁适用于 Perl、PHP、ASP、shell 脚本、JSP 等脚本语言，但它并不仅限于这些语言，如下一要点提供的示例所示。
+- 备份档案可能包含 Webroot 内（或甚至外部）所有文件的副本。这允许攻击者快速枚举整个应用程序，包括未引用页面、源代码、包含文件等。例如，如果您忘记了一个名为 `myservlets.jar.old` 的文件，其中包含 servlet 实现类的备份副本，您就会暴露大量敏感信息，这些信息可以被反编译和逆向工程。
+- 在某些情况下，复制或编辑文件会修改文件名但保留文件扩展名不变。这在 Windows 环境中很常见，文件复制操作会生成以"Copy of "或此字符串的本地化版本作为前缀的文件名。由于文件扩展名保持不变，这不是可执行文件作为纯文本由 Web 服务器返回的情况，因此也不是源代码泄露的情况。然而，这些文件也很危险，因为它们可能包含过时且错误的逻辑，当调用时可能会触发应用程序错误，如果启用了诊断消息显示，攻击者可能会从错误信息中获得有价值的信息。
+- 日志文件可能包含应用程序用户活动的敏感信息，例如，URL 参数中传递的敏感数据、会话 ID、访问过的 URL（可能泄露其他未引用内容）等。其他日志文件（如 FTP 日志）可能包含有关系统管理员维护应用程序的敏感信息。
+- 文件系统快照可能包含包含已在更新版本中修复的漏洞的代码副本。例如，`/.snapshot/monthly.1/view.php` 可能包含一个已在 `/view.php` 中修复的目录遍历漏洞，但任何找到旧版本的人仍然可以对其进行利用。
 
-## Test Objectives
+## 测试目标
 
-- Find and analyse unreferenced files that might contain sensitive information.
+- 查找并分析可能包含敏感信息的未引用文件。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-Testing for unreferenced files uses both automated and manual techniques, and typically involves a combination of the following:
+对未引用文件的测试使用自动化和手动技术，通常涉及以下组合：
 
-#### Inference from the Naming Scheme Used for Published Content
+#### 从已发布内容使用的命名方案推断
 
-Enumerate all of the application’s pages and functionality. This can be done manually using a browser, or using an application spidering tool. Most applications use a recognizable naming scheme, and organize resources into pages and directories using words that describe their function. It is often possible to infer the name and location of unreferenced pages from the naming scheme used for published content. For example, if a page titled viewuser.asp is found, one should also look for edituser.asp, adduser.asp, and deleteuser.asp. Similarly, if a directory /app/user is discovered, one should also search for /app/admin and /app/manager.
+枚举应用程序的所有页面和功能。这可以手动使用浏览器或使用应用程序爬虫工具完成。大多数应用程序使用可识别的命名方案，并使用描述其功能的单词将资源组织到页面和目录中。通常可以从不引用页面的命名方案推断出未引用页面的名称和位置。例如，如果找到一个名为 viewuser.asp 的页面，还应该查找 edituser.asp、adduser.asp 和 deleteuser.asp。同样，如果发现目录 /app/user，还应该搜索 /app/admin 和 /app/manager。
 
-#### Other Clues in Published Content
+#### 已发布内容中的其他线索
 
-Many web applications leave clues in published content that can lead to the discovery of hidden pages and functionality. These clues can often be found in the source code of HTML and JavaScript files. The source code for all published content should be manually reviewed to identify clues about other pages and functionality. For example:
+许多 Web 应用程序在已发布内容中留下线索，可能导致发现隐藏页面和功能。这些线索通常可以在 HTML 和 JavaScript 文件的源代码中找到。应该手动审查所有已发布内容的源代码，以识别有关其他页面和功能的线索。例如：
 
-Programmers' comments and commented-out sections of source code may refer to hidden content:
+程序员注释和被注释掉的源代码部分可能引用了隐藏内容：
 
 ```html
 <!-- <A HREF="uploadfile.jsp">Upload a document to the server</A> -->
 <!-- Link removed while bugs in uploadfile.jsp are fixed          -->
 ```
 
-JavaScript may contain page links that are only rendered within the user’s GUI under certain circumstances:
+JavaScript 可能包含仅在特定情况下在用户 GUI 中呈现的页面链接：
 
 ```javascript
 var adminUser=false;
 if (adminUser) menu.add (new menuItem ("Maintain users", "/admin/useradmin.jsp"));
 ```
 
-HTML pages may contain FORMs that have been hidden by disabling the SUBMIT element:
+HTML 页面可能包含通过禁用 SUBMIT 元素而隐藏的表单：
 
 ```html
 <form action="forgotPassword.jsp" method="post">
@@ -76,7 +76,7 @@ HTML pages may contain FORMs that have been hidden by disabling the SUBMIT eleme
 </form>
 ```
 
-Another source of clues about unreferenced directories is the `/robots.txt` file used to provide instructions to web robots:
+关于未引用目录的另一个线索来源是用于向 Web 机器人提供指令的 `/robots.txt` 文件：
 
 ```html
 User-agent: *
@@ -87,9 +87,9 @@ Disallow: /~jbloggs
 Disallow: /include
 ```
 
-#### Blind Guessing
+#### 盲目猜测
 
-In its simplest form, this involves running a list of common filenames through a request engine in an attempt to guess files and directories that exist on the server. The following netcat wrapper script will read a wordlist from stdin and perform a basic guessing attack:
+最简单的形式是，通过列表中的常见文件名运行请求引擎，试图猜测服务器上存在的文件和目录。以下 netcat 包装脚本将从 stdin 读取字典并执行基本的猜测攻击：
 
 ```bash
 #!/bin/bash
@@ -104,60 +104,60 @@ echo -e "GET /$url HTTP/1.0\nHost: $server\n" | netcat $server $port | head -1
 done | tee outputfile
 ```
 
-Depending upon the server, GET may be replaced with HEAD for faster results. The output file specified can be grepped for "interesting" response codes. The response code 200 (OK) usually indicates that a valid resource has been found (provided the server does not deliver a custom "not found" page using the 200 code). But also look out for 301 (Moved), 302 (Found), 401 (Unauthorized), 403 (Forbidden) and 500 (Internal error), which may also indicate resources or directories that are worthy of further investigation.
+根据服务器的不同，可以用 HEAD 替换 GET 以获得更快的结果。指定的输出文件可以 grep "有趣"的响应码。响应码 200（OK）通常表示找到了有效资源（前提是服务器没有使用 200 码提供自定义的"未找到"页面）。但也要注意 301（Moved）、302（Found）、401（Unauthorized）、403（Forbidden）和 500（Internal error），这些也可能表示值得进一步调查的资源或目录。
 
-The basic guessing attack should be run against the webroot, and also against all directories that have been identified through other enumeration techniques. More advanced/effective guessing attacks can be performed as follows:
+基本的猜测攻击应该针对 Web 根目录运行，也应该针对通过其他枚举技术识别的所有目录进行。更高级/更有效的猜测攻击可以按如下方式执行：
 
-- Identify the file extensions in use within known areas of the application (e.g. JSP, ASPX, HTML), and use a basic wordlist appended with each of these extensions (or use a longer list of common extensions if resources permit).
-- For each file identified through other enumeration techniques, create a custom wordlist derived from that filename. Get a list of common file extensions (including ~, bak, txt, src, dev, old, inc, orig, copy, tmp, swp, etc.) and use each extension before, after, and instead of, the extension of the actual filename.
+- 识别应用程序已知区域中使用的文件扩展名（例如 JSP、ASPX、HTML），并使用每个扩展名附加的基本字典（如果资源允许，可以使用更长的常见扩展名列表）。
+- 对于通过其他枚举技术识别的每个文件，从该文件名创建一个自定义字典。获取常见文件扩展名列表（包括 ~、bak、txt、src、dev、old、inc、orig、copy、tmp、swp 等），并使用每个扩展名在实际文件名的扩展名之前、之后或替代扩展名。
 
-Note: Windows file copying operations generate filenames prefixed with "Copy of " or localized versions of this phrase, hence they do not change file extensions. While "Copy of " files typically do not disclose source code when accessed, they might yield valuable information in case they cause errors when invoked.
+注意：Windows 文件复制操作会生成以"Copy of "或此短语本地化版本作为前缀的文件名，因此它们不会更改文件扩展名。虽然"Copy of "文件在访问时通常不会泄露源代码，但如果调用时导致错误，它们可能会在诊断消息显示启用的情况下产生有价值的信息。
 
-#### Information Obtained Through Server Vulnerabilities and Misconfiguration
+#### 通过服务器漏洞和配置错误获取的信息
 
-The most obvious way in which a misconfigured server may disclose unreferenced pages is through directory listing. Request all enumerated directories to identify any which provide a directory listing.
+配置错误的服务器泄露未引用页面的最明显方式是通过目录列表。请求所有已枚举的目录，以识别提供目录列表的目录。
 
-Numerous vulnerabilities have been found in individual web servers which allow an attacker to enumerate unreferenced content, for example:
+已在单个 Web 服务器中发现了许多漏洞，允许攻击者枚举未引用内容，例如：
 
-- Apache ?M=D directory listing vulnerability.
-- Various IIS script source disclosure vulnerabilities.
-- IIS WebDAV directory listing vulnerabilities.
+- Apache ?M=D 目录列表漏洞。
+- 各种 IIS 脚本源代码泄露漏洞。
+- IIS WebDAV 目录列表漏洞。
 
-#### Use of Publicly Available Information
+#### 使用公开可用的信息
 
-Pages and functionality in internet-facing web applications that are not referenced from within the application itself may be referenced from other public domain sources. There are various sources of these references:
+在面向 Internet 的 Web 应用程序中，未在应用程序本身内引用的页面和功能可能来自其他公开域来源。这些引用的来源有多种：
 
-- Pages that used to be referenced may still appear in the archives of internet search engines. For example, `1998results.asp` may no longer be linked from a company’s site, but may remain on the server and in search engine databases. This old script may contain vulnerabilities that could be used to compromise the entire site. The `site:` Google search operator may be used to run a query only against the domain of choice, such as in: `site:www.example.com`. Using search engines in this way has led to a broad array of techniques which you may find useful, and are described in the `Google Hacking` section of this Guide. Check it to hone your testing skills via Google. Backup files are not likely to be referenced by any other files and therefore may have not been indexed by Google, but if they lie in browsable directories the search engine might know about them.
-- In addition, Google and Yahoo keep cached versions of pages found by their robots. Even if `1998results.asp` has been removed from the target server, a version of its output may still be stored by these search engines. The cached version may contain references to, or clues about, additional hidden content that still remains on the server.
-- Content that is not referenced from within a target application may be linked to by third-party sites. For example, an application which processes online payments on behalf of third-party traders may contain a variety of bespoke functionality which can (normally) only be found by following links within the sites of its customers.
+- 曾经被引用的页面可能仍出现在 Internet 搜索引擎的档案中。例如，`1998results.asp` 可能不再从公司网站链接，但可能仍保留在服务器和搜索引擎数据库中。这个旧脚本可能包含可用来危害整个站点的漏洞。`site:` Google 搜索运算符可用于仅针对所选域运行查询，例如：`site:www.example.com`。以这种方式使用搜索引擎产生了一系列广泛的技术，您可能会发现这些技术很有用，并在本指南的"Google Hacking"部分中进行了描述。检查它以通过 Google 提高您的测试技能。备份文件不太可能被任何其他文件引用，因此可能没有被 Google 索引，但如果它们位于可浏览目录中，搜索引擎可能会知道它们。
+- 此外，Google 和 Yahoo 会保留其机器人发现的页面的缓存版本。即使 `1998results.asp` 已从目标服务器删除，其输出版本可能仍被这些搜索引擎存储。缓存版本可能包含对仍保留在服务器上的其他隐藏内容的引用或线索。
+- 未在目标应用程序内引用的内容可能由第三方站点链接。例如，代表第三方交易商处理在线支付的应用程序可能包含各种定制功能，这些功能通常只能通过其客户站点内的链接找到。
 
-#### Filename Filter Bypass
+#### 文件名过滤器绕过
 
-Because deny list filters are based on regular expressions, one can sometimes take advantage of obscure OS filename expansion features which work in ways the developer didn't expect. The tester can sometimes exploit differences in ways that filenames are parsed by the application, web server, and underlying OS and it's filename conventions.
+因为拒绝列表过滤器基于正则表达式，有时可以利用开发者意想不到的方式利用模糊的操作系统文件名扩展功能。测试人员有时可以利用应用程序、Web 服务器和底层操作系统及其文件名约定解析文件名方式的差异。
 
-Example: Windows 8.3 filename expansion `c:\\program files` becomes `C:\\PROGRA\~1`
+示例：Windows 8.3 文件名扩展 `c:\\program files` 变为 `C:\\PROGRA\~1`
 
-- Remove incompatible characters
-- Convert spaces to underscores
-- Take the first six characters of the basename
-- Add `~<digit>` which is used to distinguish files with names using the same six initial characters
-- This convention changes after the first 3 name collisions
-- Truncate file extension to three characters
-- Make all the characters uppercase
+- 删除不兼容的字符
+- 将空格转换为下划线
+- 取基本名的前六个字符
+- 添加 `~<digit>` 用于区分使用相同六个初始字符的文件
+- 此约定在前三个名称冲突后更改
+- 将文件扩展名截断为三个字符
+- 将所有字符转换为大写
 
-### Gray-Box Testing
+### 灰盒测试
 
-Performing gray-box testing against old and backup files necessitates the examination of files within directories that belong to the set of web directories served by the web server(s) comprising the web application infrastructure. Theoretically the examination should be performed by hand to be thorough. However, since in most cases copies of files or backup files tend to be created by using the same naming conventions, the search can be easily scripted. For example, editors leave behind backup copies by naming them with a recognizable extension or ending and humans tend to leave behind files with a `.old` or similar predictable extensions. A useful strategy would be to periodically schedule a background job to check for files with extensions that are likely to be identified as copies or backup files, while also performing manual checks on a longer time basis.
+对旧文件和备份文件执行灰盒测试需要检查属于由组成 Web 应用程序基础设施的 Web 服务器提供的 Web 目录集中的目录内的文件。理论上，检查应该手动进行以确保彻底。但是，由于在大多数情况下，文件副本或备份文件倾向于使用相同的命名约定创建，因此可以轻松编写搜索脚本。例如，编辑器通过可识别的扩展名或结尾命名来留下备份副本，而人类倾向于留下带有 `.old` 或类似可预测扩展名的文件。一个有用的策略是定期安排后台作业检查可能被视为副本或备份文件的扩展名，同时在较长时间基础上执行手动检查。
 
-## Remediation
+## 修复
 
-For an effective protection strategy, testing should be combined with a security policy that clearly forbids dangerous practices, including:
+为了制定有效的保护策略，测试应与明确禁止危险操作的安全策略相结合，包括：
 
-- Editing files in-place on the web server or application server file systems. This is a particularly bad habit, since it is likely to generate backup or temporary files by the editors. It is amazing to see how often this is done, even in large organizations. If you absolutely need to edit files on a production system, do ensure that you don’t leave behind anything that is not explicitly intended, and keep in mind that you are doing it at your own risk.
-- Carefully check any other activity performed on file systems exposed by the web server, such as spot administration activities. For example, if you occasionally need to take a snapshot of a couple of directories (which you should not do on a production system), you may be tempted to zip them first. Be careful not to leave behind such archive files.
-- Appropriate configuration management policies should help prevent obsolete and un-referenced files.
-- Applications should be designed not to create (or rely on) files stored under the web directory trees served by the web server. Data files, log files, configuration files, etc. should be stored in directories not accessible by the web server to counter the possibility of information disclosure, not to mention the potential for data modification if web directory permissions allow writing.
-- File system snapshots should not be accessible via the web if the document root is on a file system using this technology. Configure your web server to deny access to such directories, for example, under Apache, a location directive like this should be used:
+- 不要在 Web 服务器或应用程序服务器文件系统上原地编辑文件。这是一个特别坏的习惯，因为它可能会被编辑器生成备份或临时文件。令人惊讶的是，即使在大组织中，这也经常发生。如果您绝对需要在生产系统上编辑文件，请确保不留下任何非明确预期的内容，并记住您需要自担风险。
+- 仔细检查通过 Web 服务器公开的文件系统执行的任何其他活动，例如临时管理活动。例如，如果您偶尔需要快照几个目录（您不应该在生产系统上执行此操作），您可能想先将它们压缩。首先小心不要留下这样的归档文件。
+- 适当的配置管理策略应有助于防止过时和未引用的文件。
+- 应用程序应设计为不创建（或依赖）存储在 Web 服务器提供的 Web 目录树下的文件。数据文件、日志文件、配置文件等应存储在 Web 服务器无法访问的目录中，以防止信息泄露的可能性，更不用说如果 Web 目录权限允许写入，还有数据被篡改的可能性。
+- 如果文档根目录位于使用此技术的文件系统上，文件系统快照不应通过 Web 访问。配置 Web 服务器拒绝访问此类目录，例如，在 Apache 下，应使用如下位置指令：
 
 ```xml
 <Location ~ ".snapshot">
@@ -166,18 +166,18 @@ For an effective protection strategy, testing should be combined with a security
 </Location>
 ```
 
-## Tools
+## 工具
 
-Vulnerability assessment tools tend to include checks to spot web directories having standard names (such as "admin", "test", "backup", etc.), and to report any web directory which allows indexing. If the tester is unable to find directory listing, they should try to check for probable backup extensions. Some tools that can help with this include:
+漏洞评估工具倾向于包含检查，以发现具有标准名称（如"admin"、"test"、"backup"等）的 Web 目录，并报告任何允许索引的 Web 目录。如果测试人员无法找到目录列表，他们应该尝试检查可能的备份扩展名。一些可以帮助完成此任务的工具包括：
 
 - [Nessus](https://www.tenable.com/products/nessus)
 - [Nikto2](https://cirt.net/Nikto2)
 
-Web spider tools
+Web 爬虫工具
 
 - [wget](https://www.gnu.org/software/wget/)
 - [Spike proxy includes a site crawler function](https://www.spikeproxy.com/)
 - [Xenu](https://home.snafu.de/tilman/xenulink.html)
 - [curl](https://curl.haxx.se)
 
-Some of them are also included in standard Linux distributions. Web development tools usually include facilities to identify broken links and unreferenced files.
+其中一些也包含在标准 Linux 发行版中。Web 开发工具通常包括识别断开链接和未引用文件的设施。

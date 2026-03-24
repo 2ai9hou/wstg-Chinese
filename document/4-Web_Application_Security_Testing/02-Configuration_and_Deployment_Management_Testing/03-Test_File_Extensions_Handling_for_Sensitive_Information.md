@@ -1,33 +1,33 @@
-# Test File Extensions Handling for Sensitive Information
+# 测试敏感信息的文件扩展名处理
 
 |ID          |
 |------------|
 |WSTG-CONF-03|
 
-## Summary
+## 摘要
 
-Web servers commonly use file extensions to determine which technologies, languages, and plugins must be used to fulfill web requests. While this behavior is consistent with RFCs and Web Standards, using standard file extensions provides the penetration tester useful information about the underlying technologies used in a web appliance and greatly simplifies the task of determining the attack scenario to be used on particular technologies. In addition, misconfiguration of web servers could easily reveal confidential information about access credentials.
+Web 服务器通常使用文件扩展名来确定满足 Web 请求所需的技术、语言和插件。虽然此行为与 RFC 和 Web 标准一致，但使用标准文件扩展名为渗透测试人员提供有关底层 Web 设备所用技术的有用信息，并大大简化了在特定技术 上确定攻击场景的任务。此外，Web 服务器的错误配置可能很容易泄露有关访问凭据的机密信息。
 
-File extension checks are often done to validate files before uploading them to the server. Unrestricted file uploads can lead to unforeseen results because the content may not be what is expected, or due to unexpected OS filename handling.
+文件扩展名检查通常在将文件上传到服务器之前进行验证。 unrestricted 文件上传可能导致不可预见的结果，因为内容可能不是预期的，或者由于意外的操作系统文件名处理。
 
-Understanding how web servers handle requests for files with different extensions can clarify server behavior based on the types of files accessed. For example, it can help to understand which file extensions are returned as text or plain versus those that cause server-side execution. The latter are indicative of technologies, languages, or plugins used by web servers or application servers. This information may provide additional insight into how the web application is engineered. For example, while a ".pl" extension is typically associated with server-side Perl support, the file extension alone can be misleading and not entirely indicative of the underlying technology. Take, for instance, server-side resources written in Perl, which might be renamed to disguise the usage of Perl. See the next section on "web server components" for more on identifying server-side technologies and components.
+了解 Web 服务器如何处理具有不同扩展名的文件请求可以澄清基于访问文件类型的服务器行为。例如，它可以帮助理解哪些文件扩展名作为文本或纯文本返回，哪些导致服务器端执行。后者表示 Web 服务器或应用服务器使用的技术、语言或插件。此信息可能提供关于 Web 应用如何构建的其他见解。例如，虽然".pl"扩展名通常与服务器端 Perl 支持相关，但文件扩展名本身可能具有误导性，不能完全指示底层技术。例如，用 Perl 编写的服务器端资源可能已重命名以伪装 Perl 的使用。请参阅关于"Web 服务器组件"的下一节，了解识别服务器端技术和组件的更多信息。
 
-## Test Objectives
+## 测试目标
 
-- Enumerate sensitive file extensions that might contain raw data such as scripts or credentials
-- Validate that no system framework bypasses exist for the rules that have been set
+- 枚举可能包含原始数据（如脚本或凭据）的敏感文件扩展名。
+- 验证为已设置规则不存在系统框架绕过。
 
-## How to Test
+## 如何测试
 
-### Forced Browsing
+### 强制浏览
 
-Submit requests with different file extensions and verify how they are handled. The verification should be on a per web directory basis. Verify directories that allow script execution. Web server directories can be identified by scanning tools which look for the presence of well-known directories. Additionally, mirroring the site structure helps testers reconstruct the directory tree served by the application.
+提交具有不同文件扩展名的请求并验证它们如何被处理。验证应按每个 Web 目录进行。验证允许脚本执行的目录。Web 服务器目录可以通过查找已知目录存在的扫描工具识别。此外，镜像站点结构帮助测试人员重建由应用服务的目录树。
 
-If the web application architecture is load-balanced, it is important to assess all of the web servers. The ease of this task depends on the configuration of the balancing infrastructure. In an infrastructure with redundant components, there may be slight variations in the configuration of individual web or application servers. This may happen if the web architecture employs heterogeneous technologies (think of a set of IIS and Apache web servers in a load-balancing configuration, which may introduce slight asymmetric behavior between them, and possibly different vulnerabilities).
+如果 Web 应用架构是负载平衡的，评估所有 Web 服务器很重要。此任务的难易程度取决于负载平衡基础设施的配置。在具有冗余组件的基础设施中，可能存在单个 Web 或应用服务器配置的细微变化。如果 Web 架构采用异构技术（考虑在负载平衡配置中的 IIS 和 Apache Web 服务器集），这可能发生，可能在它们之间引入细微的不对称行为，并可能导致不同的漏洞。
 
-#### Example
+#### 示例
 
-The tester has identified the existence of a file named `connection.inc`. Trying to access it directly gives back its contents, which are:
+测试人员已识别名为 `connection.inc` 的文件的存在。尝试直接访问它会返回其内容：
 
 ```php
 <?
@@ -36,51 +36,51 @@ The tester has identified the existence of a file named `connection.inc`. Trying
 ?>
 ```
 
-The tester determines the existence of a MySQL DBMS backend and the weak credentials used by the web application to access it.
+测试人员确定 MySQL DBMS 后端和 Web 应用用于访问它的弱凭据的存在。
 
-The following file extensions should never be returned by a web server, as they pertain to files that could contain sensitive information or files that have no valid reason to be served.
+以下文件扩展名永远不应由 Web 服务器返回，因为它们涉及可能包含敏感信息的文件或没有有效理由提供服务的文件。
 
 - `.asa`
 - `.inc`
 - `.config`
 
-The following file extensions are related to files which, when accessed, are either displayed or downloaded by the browser. Therefore, files with these extensions must be checked to verify that they are indeed supposed to be served (and are not leftovers), and that they do not contain sensitive information.
+以下文件扩展名与文件相关，当访问时，这些文件由浏览器显示或下载。因此，具有这些扩展名的文件必须验证以确认它们确实应该被服务（不是遗留物），并且它们不包含敏感信息。
 
-- `.zip`, `.tar`, `.gz`, `.tgz`, `.rar`, etc.: (Compressed) archive files
-- `.java`: No reason to provide access to Java source files
-- `.txt`: Text files
-- `.pdf`: PDF documents
-- `.docx`, `.rtf`, `.xlsx`, `.pptx`, etc.: Office documents
-- `.bak`, `.old` and other extensions indicative of backup files (for example: `~` for Emacs backup files)
+- `.zip`、`.tar`、`.gz`、`.tgz`、`.rar` 等：（压缩）存档文件
+- `.java`：没有理由提供对 Java 源文件的访问
+- `.txt`：文本文件
+- `.pdf`：PDF 文档
+- `.docx`、`.rtf`、`.xlsx`、`.pptx` 等：Office 文档
+- `.bak`、`.old` 和其他指示备份文件的扩展名（例如：`~` 用于 Emacs 备份文件）
 
-The list given above details only a few examples, since file extensions are too many to be comprehensively treated here. Refer to [FILExt](https://filext.com/) for a more thorough database of extensions.
+上面给出的列表仅详细说明了一些示例，因为文件扩展名太多，无法在此全面处理。参考 [FILExt](https://filext.com/) 获取更全面的扩展名数据库。
 
-To identify files with a given extension, a mix of techniques can be employed. These techniques can include using vulnerability scanners, spidering and mirroring tools, and querying search engines (see [Testing: Spidering and googling](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md)). Manual inspection of the application can also be beneficial, as it overcomes limitations in automatic spidering. See also [Testing for Old, Backup and Unreferenced Files](04-Review_Old_Backup_and_Unreferenced_Files_for_Sensitive_Information.md) which deals with the security issues related to "forgotten" files.
+要识别具有给定扩展名的文件，可以采用技术组合。这些技术可以包括使用漏洞扫描器、爬虫和镜像工具以及查询搜索引擎（参见[测试：爬虫和搜索](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md)）。手动检查应用也可能有益，因为它克服了自动爬虫的限制。另请参阅[测试旧文件、备份和未引用文件](04-Review_Old_Backup_and_Unreferenced_Files_for_Sensitive_Information.md)，其中涉及与"遗忘"文件相关的安全问题。
 
-### File Upload
+### 文件上传
 
-Windows 8.3 legacy filename handling on Windows-based systems can affect how files are resolved and accessed by the web server. While this behavior is often discussed in the context of file upload restrictions, it is also relevant when assessing how existing files with non-standard or legacy names may be exposed.
+Windows 8.3 传统文件名处理在基于 Windows 的系统中会影响文件如何被 Web 服务器解析和访问。虽然此行为经常在文件上传限制的背景下讨论，但在评估可能使用非标准或传统名称的现有文件时也相关。
 
-In environments where 8.3 filename generation is enabled, sensitive files that are otherwise not directly accessible using their long filenames may still be reachable through their shortened equivalents. This can lead to unintended disclosure of source code or configuration files if access controls are not consistently enforced.
+在启用 8.3 文件名生成的环境中，否则无法使用其长文件名直接访问的敏感文件仍可能通过其缩短的等价物访问。如果访问控制不一致，这可能导致源代码或配置文件的意外泄露。
 
-Examples of 8.3 filename resolution behavior that may lead to unintended file exposure:
+可能导致意外文件暴露的 8.3 文件名解析行为示例：
 
-1. A file such as `file.phtml` may be processed as PHP code.
-2. A corresponding shortened filename (for example, `FILE~1.PHT`) may be accessible depending on server and handler configuration.
-3. Files with misleading or extended filenames may still resolve to executable handlers once expanded by the operating system.
+1. 诸如 `file.phtml` 之类的文件可能作为 PHP 代码处理。
+2. 相应的缩短文件名（例如，`FILE~1.PHT`）可能取决于服务器和处理器配置被访问。
+3. 具有误导性或扩展名的文件在由操作系统扩展后仍可能解析为可执行处理程序。
 
-Testing should focus on identifying whether legacy filename handling allows access to sensitive files that were not intended to be served. Testing of file upload mechanisms themselves is covered in dedicated File Upload and Business Logic test cases.
+测试应集中于识别传统文件名处理是否允许访问不希望被服务的敏感文件。文件上传机制本身的测试在专门的文件上传和业务逻辑测试用例中涵盖。
 
-### Gray-Box Testing
+### 灰盒测试
 
-White-box testing of file extension handling involves checking the server configurations in the web application architecture and verifying the rules for serving different file extensions.
+文件扩展名处理的 白盒测试涉及检查 Web 应用架构中的服务器配置并验证服务不同文件扩展名的规则。
 
-If the web application relies on a load-balanced, heterogeneous infrastructure, determine whether this may introduce different behavior.
+如果 Web 应用依赖负载平衡的异构基础设施，确定这是否可能引入不同行为。
 
-## Tools
+## 工具
 
-Vulnerability scanners, such as Nessus and Nikto, check for the existence of well-known web directories. They may allow the tester to download the site structure, which is helpful when trying to determine the configuration of web directories and how individual file extensions are served. Other tools that can be used for this purpose include:
+漏洞扫描器（如 Nessus 和 Nikto）检查已知 Web 目录的存在。它们可能允许测试人员下载站点结构，这在尝试确定 Web 目录配置以及单个文件扩展名如何被服务时很有帮助。也可用于此目的的其他工具包括：
 
 - [wget](https://www.gnu.org/software/wget)
 - [cURL](https://curl.haxx.se)
-- Perform a Google search for "web mirroring tools"
+- 执行 Google 搜索"Web 镜像工具"

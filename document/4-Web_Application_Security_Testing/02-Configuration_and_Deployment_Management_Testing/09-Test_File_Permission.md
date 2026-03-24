@@ -1,46 +1,46 @@
-# Test File Permission
+# 测试文件权限
 
 |ID          |
 |------------|
 |WSTG-CONF-09|
 
-## Summary
+## 概述
 
-When a resource is given a permissions setting that provides access to a wider range of actors than required, it could lead to the exposure of sensitive information, or the modification of that resource by unintended parties. This is especially dangerous when the resource is related to program configuration, execution, or sensitive user data.
+当资源的权限设置向比所需更广泛的参与者提供访问权限时，可能导致敏感信息泄露或资源被意外方修改。当资源与程序配置、执行或敏感用户数据相关时，这尤其危险。
 
-A clear example would be an executable file that can be run by unauthorized users. For another example, consider account information or a token value used to access an API. These are increasingly seen in modern web services and microservices, and may be stored in a configuration file that has world-readable permissions by default upon installation. Such sensitive data could be exposed either by malicious internal actors within the host system or by remote attackers. The latter may have compromised the service through other vulnerabilities, while gaining only normal user privileges.
+一个明显的例子是可由未经授权用户运行的可执行文件。另一个例子是用于访问 API 的账户信息或令牌值。这些在现代 Web 服务和微服务中越来越常见，可能存储在默认情况下安装时具有全局可读权限的配置文件中。这类敏感数据可能通过恶意内部参与者或远程攻击者泄露。远程攻击者可能通过其他漏洞危害服务，但仅获得普通用户权限。
 
-## Test Objectives
+## 测试目标
 
-- Review and identify any rogue file permissions.
+- 审查并识别任何有问题的文件权限。
 
-## How to Test
+## 如何测试
 
-In Linux, use `ls` command to check the file permissions. Alternatively, `namei` can also be used to recursively list file permissions.
+在 Linux 中，使用 `ls` 命令检查文件权限。或者，也可以使用 `namei` 递归列出文件权限。
 
 `$ namei -l /PathToCheck/`
 
-The files and directories that require file permission testing can include, but are not limited to, the following:
+需要测试文件权限的文件和目录包括但不限于：
 
-- Web files/directory
-- Configuration files/directory
-- Sensitive files(encrypted data, password, key)/directory
-- Log files(security logs, operation logs, admin logs)/directory
-- Executables(scripts, EXE, JAR, class, PHP, ASP)/directory
-- Database files/directory
-- Temp files/directory
-- Upload files/directory
+- Web 文件/目录
+- 配置文件/目录
+- 敏感文件（加密数据、密码、密钥）/目录
+- 日志文件（安全日志、操作日志、管理日志）/目录
+- 可执行文件（脚本、EXE、JAR、class、PHP、ASP）/目录
+- 数据库文件/目录
+- 临时文件/目录
+- 上传文件/目录
 
-## Remediation
+## 修复
 
-Set the permissions of the files and directories properly so that unauthorized users cannot access critical resources.
+正确设置文件和目录的权限，以防止未经授权的用户访问关键资源。
 
-## Tools
+## 工具
 
 - [Windows AccessEnum](https://technet.microsoft.com/en-us/sysinternals/accessenum)
 - [Windows AccessChk](https://technet.microsoft.com/en-us/sysinternals/accesschk)
 - [Linux namei](https://linux.die.net/man/1/namei)
 
-## References
+## 参考资料
 
-- [CWE-732: Incorrect Permission Assignment for Critical Resource](https://cwe.mitre.org/data/definitions/732.html)
+- [CWE-732：关键资源的权限分配错误](https://cwe.mitre.org/data/definitions/732.html)

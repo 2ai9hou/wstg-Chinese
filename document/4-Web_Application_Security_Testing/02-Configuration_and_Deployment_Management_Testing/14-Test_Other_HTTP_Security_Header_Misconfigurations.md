@@ -1,53 +1,53 @@
-# Test Other HTTP Security Header Misconfigurations
+# 测试其他 HTTP 安全头配置错误
 
-| ID         |
+|ID         |
 |------------|
 |WSTG-CONF-14|
 
-## Summary
+## 概述
 
-Security headers play a vital role in protecting web applications from a wide range of attacks, including Cross-Site Scripting (XSS), Clickjacking, and data injection attacks. These headers instruct the browser on how to handle security-related aspects of a website’s communication, reducing exposure to known attack vectors. However, misconfigurations can lead to vulnerabilities, weakening the intended security protections or rendering them ineffective. This section outlines common security header misconfigurations, their risks, and how to properly test for them.
+安全头在保护 Web 应用程序免受各种攻击（包括跨站脚本（XSS）、点击劫持和数据注入攻击）方面起着至关重要的作用。这些头指示浏览器如何处理与网站通信相关的安全方面，降低已知攻击向量的暴露。然而，配置错误可能导致漏洞，削弱预期的安全保护或使其无效。本节概述了常见的安全头配置错误、其风险以及如何正确测试它们。
 
-## Test Objectives
+## 测试目标
 
-- Identify improperly configured security headers.
-- Assess the impact of misconfigured security headers.
-- Validate the correct implementation of required security headers.
+- 识别配置不当的安全头。
+- 评估配置错误的安全头的影响。
+- 验证所需安全头的正确实现。
 
-## Common Security Header Misconfigurations
+## 常见安全头配置错误
 
-- **Security Header with an Empty Value:** Headers that are present but lack a value may be ignored by browsers, making them ineffective.
-- **Security Header with an Invalid Value or Name (Typos):** Incorrect header names or misspellings result in headers not being recognized or enforced.
-- **Overpermissive Security Headers:** Headers configured too broadly (e.g., using wildcard characters `*` or overly permissive directives) can leak information or allow access to resources beyond the intended scope.
-- **Duplicate Security Headers:** Multiple occurrences of the same header with conflicting values can lead to unpredictable browser behavior, potentially disabling the security measures entirely.
-- **Legacy or Deprecated Headers:** Inclusion of obsolete headers (e.g., HPKP) or directives (e.g., `ALLOW-FROM` in X-Frame-Options) that are no longer supported by modern browsers may create unnecessary risks.
-- **Invalid Placement of Security Headers:** Some headers are only effective under specific conditions. For example, headers like HSTS must be delivered over HTTPS; if sent over HTTP, they become ineffective.
-- **META Tag Handling Mistakes:** In cases where security policies such as Content-Security-Policy (CSP) are enforced via both HTTP headers and META tags (using `http-equiv`), there is a risk that the META tag value might override or conflict with the secure logic defined in the HTTP header. This can lead to a scenario where an insecure policy inadvertently takes precedence, weakening the overall security posture.
-- **Hop-by-Hop Header Injection:** Occurs when intermediaries incorrectly process the `Connection` header, allowing attackers to list and "strip" sensitive internal security headers (like `X-Forwarded-For`) before the request reaches the backend.
+- **值为空的安全头：** 存在但缺少值的安全头可能被浏览器忽略，使其无效。
+- **值或名称无效的安全头（拼写错误）：** 错误的头名称或拼写导致头无法被识别或执行。
+- **过于宽松的安全头：** 配置过于广泛的安全头（如使用通配符 `*` 或过于宽松的指令）可能泄露信息或允许访问超出预期范围的资源。
+- **重复的安全头：** 同一头的多次出现与冲突值可能导致不可预测的浏览器行为，可能完全禁用安全措施。
+- **遗留或已弃用的头：** 包含现代浏览器不再支持的过时头（如 HPKP）或指令（如 `ALLOW-FROM` in X-Frame-Options）可能造成不必要的风险。
+- **安全头放置无效：** 某些头仅在特定条件下有效。例如，HSTS 等头必须通过 HTTPS 传递；如果通过 HTTP 发送，它们将无效。
+- **META 标签处理错误：** 在安全策略（如内容安全策略（CSP））通过 HTTP 头和 META 标签（使用 `http-equiv`）两者都强制执行的情况下，META 标签值可能覆盖或与 HTTP 头中定义的安全逻辑冲突。这可能导致不安全的策略无意中占上风，削弱整体安全态势。
+- **逐跳头注入：** 当中间件错误地处理 `Connection` 头时发生，允许攻击者列出并"剥离"敏感的内部安全头（如 `X-Forwarded-For`），然后再将请求到达后端。
 
-## Risks of Misconfigured Security Headers
+## 配置错误的安全头的风险
 
-- **Reduced Effectiveness:** Misconfigured headers might not provide the intended protection, leaving the application vulnerable to attacks such as XSS, Clickjacking, or CORS-related exploits.
-- **Breakage of Security Measures:** Duplicate headers or conflicting directives can result in browsers ignoring the HTTP security headers entirely, thereby disabling the intended protections.
-- **Introduction of New Attack Vectors:** The use of legacy or deprecated headers may introduce risks rather than mitigate them if modern browsers no longer support the intended security measures.
+- **有效性降低：** 配置错误的头可能无法提供预期保护，使应用程序容易受到 XSS、点击劫持或 CORS 相关利用等攻击。
+- **安全措施破坏：** 重复的头或冲突的指令可能导致浏览器完全忽略 HTTP 安全头，从而禁用预期的保护。
+- **引入新的攻击向量：** 使用遗留或已弃用的头可能带来风险而不是缓解，如果现代浏览器不再支持预期的安全措施。
 
-## How to Test
+## 如何测试
 
-### Fetch and Review HTTP Security Headers
+### 获取并审查 HTTP 安全头
 
-To inspect the security headers used by an application, employ the following methods:
+要检查应用程序使用的安全头，请采用以下方法：
 
-- **Intercepting Proxies:** Use tools such as **Burp Suite** to analyze server responses.
-- **Command-line Tools:** Execute a cURL command to retrieve HTTP response headers: `curl -I https://example.com`
-    - Sometimes the web application will redirect to a new page, in order to follow redirect use the following command:`curl -L -I https://example.com`
-    - Some Firewalls may block cURL's default User-Agent and some TLS/SSL errors will also prevent it from returning the correct information, in this case you could try to use the following command:
+- **拦截代理：** 使用 **Burp Suite** 等工具分析服务器响应。
+- **命令行工具：** 执行 cURL 命令以检索 HTTP 响应头：`curl -I https://example.com`
+    - 有时 Web 应用程序会重定向到新页面，要跟随重定向，请使用以下命令：`curl -L -I https://example.com`
+    - 某些防火墙可能阻止 cURL 的默认 User-Agent，某些 TLS/SSL 错误也会阻止其返回正确信息，在这种情况下，您可以尝试使用以下命令：
     `curl -I -L -k --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36" https://example.com`
-- **Browser Developer Tools:** Open developer tools (F12), navigate to the **Network** tab, select a request, and view the **Headers** section.
+- **浏览器开发人员工具：** 打开开发人员工具（F12），导航到 **Network** 选项卡，选择一个请求，并查看 **Headers** 部分。
 
-### Check for Overly Permissive Security Headers
+### 检查过于宽松的安全头
 
-- **Identify Risky Headers:** Look for headers that could allow excessive access, such as:
-- **Evaluate Directives:** Verify whether strict directives are enforced. For example, an overpermissive setup might appear as:
+- **识别有风险的头：** 查看可能允许过度访问的头，例如：
+- **评估指令：** 验证是否执行了严格指令。例如，过于宽松的设置可能表现为：
 
     ```http
     Access-Control-Allow-Origin: *
@@ -56,7 +56,7 @@ To inspect the security headers used by an application, employ the following met
     Referrer-Policy: unsafe-url
     ```
 
-    A safe configuration would look like:
+    安全配置应如下：
 
     ```http
     Access-Control-Allow-Origin: {theallowedoriginurl}
@@ -64,44 +64,44 @@ To inspect the security headers used by an application, employ the following met
     Referrer-Policy: no-referrer
     ```
 
-- **Cross-Reference Documentation:** Use resources such as the [Mozilla Developer Network: Security Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers) to review secure and insecure directives.
+- **交叉引用文档：** 使用 [Mozilla Developer Network: Security Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers) 等资源审查安全和不安全指令。
 
-### Check for Duplicate, Deprecated / Obsolete Headers
+### 检查重复、已弃用/过时的头
 
-- **Duplicate Headers:** Ensure that the same header is not defined multiple times with conflicting values.
-- **Obsolete Headers:** Identify and remove deprecated headers (e.g., HPKP) and outdated directives (e.g., `ALLOW-FROM` in X-Frame-Options). Refer to sources like [Mozilla Developer Network: X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options) for current standards.
+- **重复头：** 确保同一头没有用冲突值定义多次。
+- **过时的头：** 识别并删除已弃用的头（如 HPKP）和过时指令（如 `ALLOW-FROM` in X-Frame-Options）。请参阅 [Mozilla Developer Network: X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options) 等来源以获取当前标准。
 
-### Confirm Proper Placement of Security Headers
+### 确认安全头的正确放置
 
-- **Protocol-Specific Requirements:** Validate that headers intended for secure contexts (e.g., HSTS) are delivered only under appropriate conditions (i.e., over HTTPS).
-- **Conditional Delivery:** Some headers may only be effective under specific circumstances. Verify that these conditions are met for the header to function as intended.
+- **协议特定要求：** 验证旨在用于安全上下文的头（如 HSTS）仅在适当条件下（即通过 HTTPS）传递。
+- **条件传递：** 某些头可能仅在特定情况下有效。验证这些条件是否满足，以便头按预期工作。
 
-### Evaluate META Tag Handling
+### 评估 META 标签处理
 
-- **Dual Enforcement Checks:** When a security policy like CSP is applied through both an HTTP header and a META tag using `http-equiv`, confirm that the HTTP header (which is generally considered more authoritative) is not inadvertently overridden by the META tag.
-- **Review Browser Behavior:** Test the application in various browsers to see if any differences occur due to the presence of conflicting directives. Where possible, avoid using dual definitions to prevent unintended security lapses.
+- **双重执行检查：** 当安全策略（如 CSP）通过 HTTP 头和使用 `http-equiv` 的 META 标签两者应用时，确认 HTTP 头（通常被视为更权威）不会被 META 标签无意中覆盖。
+- **审查浏览器行为：** 在各种浏览器中测试应用程序，看看是否存在由于冲突指令而导致的差异。在可能的情况下，避免使用双重定义以防止意外的安全漏洞。
 
-### Test for Header Stripping (Hop-by-Hop Injection)
+### 测试头剥离（逐跳注入）
 
-Attackers can exploit this by listing sensitive security headers inside the `Connection` header. The proxy, following the standard, strips these headers before forwarding the request to the backend. This can lead to:
+攻击者可以通过在 `Connection` 头中列出敏感的内部安全头来进行利用。按照标准，代理在将请求转发到后端之前会剥离这些头。这可能导致：
 
-- Bypassing IP-based Access Control Lists (ACLs).
-- Bypassing Identity/Authentication checks performed at the edge.
-- Disabling security features enforced by intermediary headers.
+- 绕过基于 IP 的访问控制列表（ACL）。
+- 绕过在边缘执行的身份验证/身份检查。
+- 禁用由中间头强制执行的安全功能。
 
-#### Identification of Internal/Sensitive Headers (Reconnaissance)
+#### 识别内部/敏感头（侦察）
 
-To perform this test, you first need to identify which headers are used by the internal infrastructure. You can identify them by:
+要执行此测试，首先需要识别内部基础设施使用了哪些头。您可以通过以下方式识别它们：
 
-- **Triggering Error Pages:** Send malformed requests to trigger error pages (404, 500), which might leak internal headers in the response.
-- **Reflection Endpoints:** Search for debugging or "Echo" pages (e.g., `/phpinfo`, `/debug`, `/env`) that display all headers received by the backend.
-- **Header Guessing:** Common targets include `X-Forwarded-For`, `X-Real-IP`, `X-Forwarded-Proto`, and `X-Authenticated-User`.
+- **触发错误页面：** 发送格式错误的请求以触发错误页面（404、500），这些页面可能会在响应中泄露内部头。
+- **反射端点：** 搜索显示后端收到的所有头的调试或"Echo"页面（如 `/phpinfo`、`/debug`、`/env`）。
+- **头猜测：** 常见目标包括 `X-Forwarded-For`、`X-Real-IP`、`X-Forwarded-Proto` 和 `X-Authenticated-User`。
 
-#### Execution of the Injection
+#### 执行注入
 
-Attempt to "strip" a target header by adding it as a value to the `Connection` header.
+尝试通过将目标头添加为 `Connection` 头的值来"剥离"它。
 
-##### Scenario A: Bypassing IP-based Restrictions
+##### 场景 A：绕过基于 IP 的限制
 
 ```http
 GET /admin HTTP/1.1
@@ -110,7 +110,7 @@ X-Forwarded-For: 203.0.113.10
 Connection: close, X-Forwarded-For
 ```
 
-##### Scenario B: Stripping Authentication Context
+##### 场景 B：剥离身份验证上下文
 
 ```http
 GET /api/user/profile HTTP/1.1
@@ -119,33 +119,33 @@ X-Authenticated-User: victim_user
 Connection: close, X-Authenticated-User
 ```
 
-#### Analyzing the Response
+#### 分析响应
 
-- **Vulnerable:** The application behavior changes (e.g., access is granted, or a reflected IP disappears).
-- **Secure:** The application behavior remains unchanged, or the proxy returns a `400 Bad Request`.
+- **有漏洞：** 应用程序行为改变（例如，授予访问权限，或反射的 IP 消失）。
+- **安全：** 应用程序行为保持不变，或者代理返回 `400 Bad Request`。
 
-## Remediation
+## 修复
 
-- **Correct Header Configuration:** Ensure that headers are correctly implemented with proper values and no typos.
-- **Enforce Strict Directives:** Configure headers with the most secure settings that still allow for required functionality. For example, avoid using `*` in CORS policies unless absolutely necessary.
-- **Remove Deprecated Headers:** Replace legacy security headers with modern equivalents and remove any that are no longer supported.
-- **Avoid Conflicting Definitions:** Prevent duplicate header definitions and ensure that META tags do not conflict with HTTP headers for security policies.
-- **Restrict Connection Header:** Configure proxies to ignore client-supplied values in the `Connection` header that match sensitive internal headers.
-- **Zero Trust:** Avoid relying solely on hop-by-hop headers for critical security decisions.
+- **正确的头配置：** 确保头被正确实现，具有正确的值且没有拼写错误。
+- **执行严格指令：** 配置具有最安全设置的头，同时仍允许所需功能。例如，除非绝对必要，否则避免在 CORS 策略中使用 `*`。
+- **删除已弃用的头：** 用现代等价物替换遗留安全头，并删除不再支持的任何头。
+- **避免冲突定义：** 防止重复头定义，并确保 META 标签不与安全策略的 HTTP 头冲突。
+- **限制 Connection 头：** 配置代理忽略 `Connection` 头中与敏感内部头匹配的客户提供的值。
+- **零信任：** 避免完全依赖逐跳头进行关键安全决策。
 
-## Tools
+## 工具
 
 - [Mozilla Observatory](https://observatory.mozilla.org/)
 - [ZAP](https://www.zaproxy.org/)
 - [Burp Suite](https://portswigger.net/burp)
-- Browser Developer Tools (Chrome, Firefox, Edge)
+- 浏览器开发人员工具（Chrome、Firefox、Edge）
 
-## References
+## 参考资料
 
-- [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)
-- [Mozilla Developer Network: Security Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
-- [RFC 6797 - HTTP Strict Transport Security (HSTS)](https://datatracker.ietf.org/doc/html/rfc6797)
-- [Google Web Security Guidelines](https://web.dev/security-headers/)
-- [HPKP is No More](https://scotthelme.co.uk/hpkp-is-no-more/)
-- [RFC 9110 - HTTP Semantics: Connection Header](https://datatracker.ietf.org/doc/html/rfc9110#section-7.6.1)
-- [Abusing HTTP Hop-by-Hop Request Headers](https://nathandavison.com/blog/abusing-http-hop-by-hop-request-headers)
+- [OWASP 安全头项目](https://owasp.org/www-project-secure-headers/)
+- [Mozilla Developer Network：安全头](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
+- [RFC 6797 - HTTP 严格传输安全（HSTS）](https://datatracker.ietf.org/doc/html/rfc6797)
+- [Google Web 安全指南](https://web.dev/security-headers/)
+- [HPKP 不再存在](https://scotthelme.co.uk/hpkp-is-no-more/)
+- [RFC 9110 - HTTP 语义学：Connection 头](https://datatracker.ietf.org/doc/html/rfc9110#section-7.6.1)
+- [滥用 HTTP 逐跳请求头](https://nathandavison.com/blog/abusing-http-hop-by-hop-request-headers)

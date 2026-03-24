@@ -1,7 +1,7 @@
-# Test RIA Cross Domain Policy
+# 测试 RIA 跨域策略
 
 |ID          |
 |------------|
 |WSTG-CONF-08|
 
-This content has been removed.
+此内容已被删除。

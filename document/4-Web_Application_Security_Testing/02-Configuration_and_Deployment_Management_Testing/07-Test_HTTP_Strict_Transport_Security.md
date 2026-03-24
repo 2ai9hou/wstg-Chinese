@@ -1,50 +1,50 @@
-# Test HTTP Strict Transport Security
+# 测试 HTTP 严格传输安全
 
 |ID          |
 |------------|
 |WSTG-CONF-07|
 
-## Summary
+## 概述
 
-The HTTP Strict Transport Security (HSTS) feature enables a web server to inform the user's browser, via a special response header, that it should never establish an unencrypted HTTP connection to the specified domain servers. Instead, it should automatically establish all connection requests to access the site through HTTPS. This also prevents users from overriding certificate errors.
+HTTP 严格传输安全（HSTS）功能使 Web 服务器能够通过特殊的响应头通知用户的浏览器，它应该永远不会与指定域服务器建立未加密的 HTTP 连接。相反，它应该自动通过 HTTPS 建立所有连接请求来访问站点。这还可以防止用户覆盖证书错误。
 
-Considering the importance of this security measure, it is prudent to verify that the site is using this HTTP header in order to ensure that all the data travels encrypted between the web browser and the server.
+考虑到此安全措施的重要性，验证站点是否使用了此 HTTP 头是很重要的，以确保所有数据在 Web 浏览器和服务器之间加密传输。
 
-The HTTP strict transport security header uses three specific directives:
+HTTP 严格传输安全头使用三个特定指令：
 
-- `max-age`: to indicate the number of seconds that the browser should automatically convert all HTTP requests to HTTPS.
-- `includeSubDomains`: to indicate that all related sub-domains must use HTTPS.
-- `preload` Unofficial: to indicate that the domain(s) are on the preload list(s) and that browsers should never connect without HTTPS.
-    - While this is supported by all the major browsers, it is not an official part of the specification. (See [hstspreload.org](https://hstspreload.org/) for more information.)
+- `max-age`：指示浏览器应自动将所有 HTTP 请求转换为 HTTPS 的秒数。
+- `includeSubDomains`：指示所有相关子域必须使用 HTTPS。
+- `preload` 非官方：指示域在预加载列表中，浏览器不应在没有 HTTPS 的情况下连接。
+    - 虽然所有主要浏览器都支持这一点，但它不是规范的一部分。（有关更多信息，请参阅 [hstspreload.org](https://hstspreload.org/)。）
 
-Here's an example of the HSTS header implementation:
+以下是 HSTS 头实现的示例：
 
 `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 
-The presence of this header must be checked, as its absence could lead to security issues such as:
+必须检查此头的存在，因为缺少此头可能导致安全问题，例如：
 
-- Attackers intercepting and accessing the information transferred over an unencrypted network channel.
-- Attackers carrying out manipulator-in-the-middle (MITM) attacks by taking advantage of users who accept untrusted certificates.
-- Users who mistakenly enter an address in the browser using HTTP instead of HTTPS, or users who click on a link in a web application that incorrectly uses the HTTP protocol.
+- 攻击者拦截和访问通过未加密网络通道传输的信息。
+- 攻击者通过利用接受不受信任证书的用户进行中间人（MITM）攻击。
+- 用户错误地在浏览器中输入使用 HTTP 而不是 HTTPS 的地址，或者 Web 应用程序中的链接错误地使用 HTTP 协议。
 
-## Test Objectives
+## 测试目标
 
-- Review the HSTS header and its validity.
+- 审查 HSTS 头及其有效性。
 
-## How to Test
+## 如何测试
 
-- Confirm the presence of the HSTS header by examining the server's response through an intercepting proxy.
-- Use curl as follows:
+- 通过拦截代理检查服务器的响应，确认 HSTS 头的存在。
+- 按如下方式使用 curl：
 
 ```bash
 $ curl -s -D- https://owasp.org | grep -i strict-transport-security:
 Strict-Transport-Security: max-age=31536000
 ```
 
-## References
+## 参考资料
 
-- [OWASP HTTP Strict Transport Security](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html)
-- [OWASP Appsec Tutorial Series - Episode 4: Strict Transport Security](https://www.youtube.com/watch?v=zEV3HOuM_Vw)
-- [HSTS Specification](https://tools.ietf.org/html/rfc6797)
-- [Enable HTTP Strict Transport Security In Apache](https://https.cio.gov/hsts/)
-- [Enable HTTP Strict Transport Security In Nginx](https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/)
+- [OWASP HTTP 严格传输安全速查表](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html)
+- [OWASP Appsec 教程系列 - 第 4 集：严格传输安全](https://www.youtube.com/watch?v=zEV3HOuM_Vw)
+- [HSTS 规范](https://tools.ietf.org/html/rfc6797)
+- [在 Apache 中启用 HTTP 严格传输安全](https://https.cio.gov/hsts/)
+- [在 Nginx 中启用 HTTP 严格传输安全](https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/)
