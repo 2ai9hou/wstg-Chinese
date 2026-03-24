@@ -1,106 +1,104 @@
-# Encoded Injection
+# 编码注入
 
-## Background
+## 背景
 
-Character encoding is the process of mapping characters, numbers and other symbols to a standard format. Typically, this is done to create a message ready for transmission between sender and receiver. It is, in simple terms, the conversion of characters (belonging to different languages like English, Chinese, Greek or any other known language) into bytes. An example of a widely used character encoding scheme is the American Standard Code for Information Interchange (ASCII) that initially used 7-bit codes. More recent examples of encoding schemes would be the Unicode `UTF-8` and `UTF-16` computing industry standards.
+字符编码是将字符、数字和其他符号映射到标准格式的过程。通常，这是为了创建准备在发送者和接收者之间传输的消息。简单来说，它是将字符（属于不同语言如英语、汉语、希腊语或任何其他已知语言）转换为字节的过程。一个广泛使用的字符编码示例是美国信息交换标准代码（ASCII），它最初使用 7 位代码。更新的编码示例包括 Unicode `UTF-8` 和 `UTF-16` 计算行业标准。
 
-In the space of application security and due to the plethora of encoding schemes available, character encoding has a popular misuse. It is being used for encoding malicious injection strings in a way that obfuscates them. This can lead to the bypass of input validation filters, or take advantage of particular ways in which browsers render encoded text.
+在应用安全领域，由于存在大量可用的编码方案，字符编码有一个常见的滥用。它被用于以混淆恶意注入字符串的方式对其进行编码。这可能导致绕过输入验证过滤器，或利用浏览器呈现编码文本的特定方式。
 
-## Input Encoding – Filter Evasion
+## 输入编码 – 过滤器绕过
 
-Web applications usually employ different types of input filtering mechanisms to limit the input that can be submitted by the user. If these input filters are not implemented sufficiently well, it is possible to slip a character or two through these filters. For instance, a `/` can be represented as `2F` (hex) in ASCII, while the same character (`/`) is encoded as `C0` `AF` in Unicode (2 byte sequence). Therefore, it is important for the input filtering control to be aware of the encoding scheme used. If the filter is found to be detecting only `UTF-8` encoded injections, a different encoding scheme may be employed to bypass this filter.
+Web 应用通常采用不同类型的输入过滤机制来限制用户可以提交的输入。如果这些输入过滤器没有充分实施，可能会有一两个字符通过这些过滤器。例如，`/` 在 ASCII 中可以表示为 `2F`（十六进制），而同一字符（`/`）在 Unicode 中编码为 `C0` `AF`（2 字节序列）。因此，输入过滤控制意识到所使用的编码方案是很重要的。如果发现过滤器仅检测 `UTF-8` 编码的注入，则可以采用不同的编码方案来绕过此过滤器。
 
-## Output Encoding – Server & Browser Consensus
+## 输出编码 – 服务器与浏览器共识
 
-Web browsers need to be aware of the encoding scheme used to coherently display a web page. Ideally, this information should be provided to the browser in the HTTP header (`Content-Type`) field, as shown below:
+Web 浏览器需要知道用于一致显示网页的编码方案。理想情况下，此信息应在 HTTP 头（`Content-Type`）字段中提供给浏览器，如下所示：
 
 ```http
 Content-Type: text/html; charset=UTF-8
 ```
 
-or through HTML META tag (`META HTTP-EQUIV`), as shown below:
+或通过 HTML META 标签（`META HTTP-EQUIV`），如下所示：
 
-``` html
+```html
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 ```
 
-It is through these character encoding declarations that the browser understands which set of characters to use when converting bytes to characters. Note that the content type mentioned in the HTTP header has precedence over the META tag declaration.
+正是通过这些字符编码声明，浏览器才能理解在将字节转换为字符时使用哪组字符。请注意，HTTP 头中提到的内容类型优先于 META 标签声明。
 
-CERT describes it here as follows:
+CERT 在此描述如下：
 
-Many web pages leave the character encoding (`charset` parameter in HTTP) undefined. In earlier versions of HTML and HTTP, the character encoding was supposed to default to `ISO-8859-1` if it wasn't defined. In fact, many browsers had a different default, so it was not possible to rely on the default being `ISO-8859-1`. HTML version 4 legitimizes this - if the character encoding isn't specified, any character encoding can be used.
+许多网页未定义字符编码（HTTP 中的 `charset` 参数）。在早期版本的 HTML 和 HTTP 中，如果未定义字符编码，应默认为 `ISO-8859-1`。事实上，许多浏览器有不同的默认值，因此不可能依赖默认为 `ISO-8859-1`。HTML 版本 4 使这一点合法化——如果未指定字符编码，可以使用任何字符编码。
 
-If the web server doesn't specify which character encoding is in use, it can't tell which characters are special. Web pages with unspecified character encoding work most of the time because most character sets assign the same characters to byte values below 128. But which of the values above 128 are special? Some 16-bit `character-encoding` schemes have additional multi-byte representations for special characters such as `<`. Some browsers recognize this alternative encoding and act on it. This is "correct" behavior, but it makes attacks using malicious scripts much harder to prevent. The server simply doesn't know which byte sequences represent the special characters.
+如果 Web 服务器未指定正在使用的字符编码，它就无法判断哪些字符是特殊的。具有未指定字符编码的网页大多数时候都能工作，因为大多数字符集将相同的字符分配给低于 128 的字节值。但是高于 128 的值中有哪些是特殊的？一些 16 位`字符编码`方案对特殊字符（如 `<`）有额外的多字节表示。一些浏览器识别这种替代编码并对其进行处理。这是"正确"的行为，但这使得使用恶意脚本的攻击更难预防。服务器根本不知道哪些字节序列代表特殊字符。
 
-Therefore in the event of not receiving the character encoding information from the server, the browser either attempts to guess the encoding scheme or reverts to a default scheme. In some cases, the user explicitly sets the default encoding in the browser to a different scheme. Any such mismatch in the encoding scheme used by the web page (server) and the browser may cause the browser to interpret the page in a manner that is unintended or unexpected.
+因此，如果未从服务器接收字符编码信息，浏览器要么尝试猜测编码方案，要么恢复到默认方案。在某些情况下，用户在浏览器中明确将默认编码设置为不同的方案。网页（服务器）和浏览器使用的编码方案之间的任何不匹配都可能导致浏览器以非预期或意外的方式解释页面。
 
-### Encoded Injections
+### 编码注入
 
-All the scenarios given below form only a subset of the various ways obfuscation can be achieved to bypass input filters. Also, the success of encoded injections depends on the browser in use. For example, `US-ASCII` encoded injections were previously successful only in IE browser but not in Firefox. Therefore, it may be noted that encoded injections, to a large extent, are browser dependent.
+下面给出的所有场景仅构成了可用于绕过输入过滤器的各种混淆方式的一个子集。此外，编码注入的成功取决于所使用的浏览器。例如，`US-ASCII` 编码的注入以前仅在 IE 浏览器中成功，而非 Firefox。因此，需要注意的是，编码注入在很大程度上取决于浏览器。
 
-### Basic Encoding
+### 基本编码
 
-Consider a basic input validation filter that protects against injection of single quote character. In this case the following injection would easily bypass this filter:
+考虑一个基本的输入验证过滤器，防止单引号字符的注入。在这种情况下，以下注入可以轻易绕过此过滤器：
 
-``` html
+```html
 <script>alert(String.fromCharCode(88,83,83))</script>
 ```
 
-`String.fromCharCode` JavaScript function takes the given Unicode values and returns the corresponding string. This is one of the most basic forms of encoded injections. Another vector that can be used to bypass this filter is:
+`String.fromCharCode` JavaScript 函数获取给定的 Unicode 值并返回相应的字符串。这是最基本的编码注入形式之一。另一个可用于绕过此过滤器的向量是：
 
-``` html
+```html
 <IMG src="" onerror=javascript:alert(&quot;XSS&quot;)>
 ```
 
-Or by using the respective [HTML character codes](https://www.rapidtables.com/code/text/unicode-characters.html):
+或者通过使用各自的 [HTML 字符代码](https://www.rapidtables.com/code/text/unicode-characters.html)：
 
-``` html
+```html
 <IMG src="" onerror="javascript:alert(&#34;XSS&#34;)">
 ```
 
-The above uses HTML Entities to construct the injection string. HTML Entities encoding is used to display characters that have a special meaning in HTML. For instance, `>` works as a closing bracket for a HTML tag. In order to actually display this character on the web page HTML character entities should be inserted in the page source. The injections mentioned above are one way of encoding. There are numerous other ways in which a string can be encoded (obfuscated) in order to bypass the above filter.
+以上使用 HTML 实体来构建注入字符串。HTML 实体编码用于显示在 HTML 中具有特殊含义的字符。例如，`>` 用作 HTML 标签的闭合括号。为了实际在网页上显示此字符，应在页面源代码中插入 HTML 字符实体。上述注入是编码的一种方式。还有许多其他方式可以对字符串进行编码（混淆）以绕过上述过滤器。
 
-### Hex Encoding
+### 十六进制编码
 
-Hex, short for Hexadecimal, is a base 16 numbering system i.e it has 16 different values from `0` to `9` and `A` to `F` to represent various characters. Hex encoding is another form of obfuscation that is sometimes used to bypass input validation filters. For instance, hex encoded version of the string `<IMG SRC=javascript:alert('XSS')>` is
+十六进制（Hexadecimal 的缩写）是一个 base 16 编号系统，即它有 16 个不同的值，从 `0` 到 `9` 和 `A` 到 `F` 来表示各种字符。十六进制编码是另一种混淆形式，有时用于绕过输入验证过滤器。例如，字符串 `<IMG SRC=javascript:alert('XSS')>` 的十六进制编码版本是
 
-``` html
+```html
 <IMG SRC=%6A%61%76%61%73%63%72%69%70%74%3A%61%6C%65%72%74%28%27%58%53%53%27%29>
 ```
 
-A variation of the above string is given below. Can be used in case ‘%’ is being filtered:
+该字符串的变体如下所示。可用于 '%' 被过滤的情况：
 
-``` html
+```html
 <IMG SRC=&#x6A&#x61&#x76&#x61&#x73&#x63&#x72&#x69&#x70&#x74&#x3A&#x61&#x6C&#x65&#x72&#x74&#x28&#x27&#x58&#x53&#x53&#x27&#x29>
 ```
 
-There are other encoding schemes, such as Base64 and Octal, that may be used for obfuscation. Although, every encoding scheme may not work every time, a bit of trial and error coupled with intelligent manipulations would definitely reveal the loophole in a weakly built input validation filter.
+还有其他编码方案，如 Base64 和八进制，可用于混淆。尽管每种编码方案可能并不总是有效，但结合智能操作的反复试验肯定会揭示弱构建输入验证过滤器中的漏洞。
 
-### UTF-7 Encoding
+### UTF-7 编码
 
-UTF-7 encoding of
-
-``` html
+```html
 <SCRIPT>
-    alert(‘XSS’);
+    alert('XSS');
 </SCRIPT>
 ```
 
-is as below
+的 UTF-7 编码如下
 
 `+ADw-SCRIPT+AD4-alert('XSS');+ADw-/SCRIPT+AD4-`
 
-For the above script to work, the browser has to interpret the web page as encoded in `UTF-7`.
+要使上述脚本有效，浏览器必须将网页解释为 `UTF-7` 编码。
 
-### Multi-byte Encoding
+### 多字节编码
 
-Variable-width encoding is another type of character encoding scheme that uses codes of varying lengths to encode characters. Multi-Byte Encoding is a type of variable-width encoding that uses varying number of bytes to represent a character. Multi-byte encoding is primarily used to encode characters that belong to a large character set e.g. Chinese, Japanese and Korean.
+变长编码是另一种使用不同长度代码来编码字符的字符编码方案。多字节编码是一种变长编码，使用不同数量的字节来表示字符。多字节编码主要用于编码属于大字字符集的字符，例如中文、日文和韩文。
 
-Multibyte encoding has been used in the past to bypass standard input validation functions and carry out cross site scripting and SQL injection attacks.
+多字节编码过去曾被用于绕过标准输入验证函数并执行跨站脚本和 SQL 注入攻击。
 
-## References
+## 参考资料
 
-- [Encoding (Semiotics)](https://en.wikipedia.org/wiki/Encoding_(semiotics))
-- [HTML Entities](https://www.w3schools.com/HTML/html_entities.asp)
-- [How to prevent input validation attacks](https://searchsecurity.techtarget.com/answer/How-to-prevent-input-validation-attacks)
-- [Unicode and Character Sets](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+- [编码（符号学）](https://en.wikipedia.org/wiki/Encoding_(semiotics))
+- [HTML 实体](https://www.w3schools.com/HTML/html_entities.asp)
+- [如何防止输入验证攻击](https://searchsecurity.techtarget.com/answer/How-to-prevent-input-validation-attacks)
+- [Unicode 和字符集](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)

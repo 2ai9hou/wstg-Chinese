@@ -1,28 +1,28 @@
-# Fingerprint Web Server
+# 识别 Web 服务器指纹
 
 |ID          |
 |------------|
 |WSTG-INFO-02|
 
-## Summary
+## 摘要
 
-Web server fingerprinting is the task of identifying the type and version of web server that a target is running on. While web server fingerprinting is often encapsulated in automated testing tools, it is important for researchers to understand the fundamentals of how these tools attempt to identify software, and why this is useful.
+Web 服务器指纹识别是识别目标运行的网络服务器类型和版本的任务。虽然 Web 服务器指纹识别通常包含在自动化测试工具中，但对于研究人员来说，理解这些工具尝试识别软件的基础知识以及为什么这有用是很重要的。
 
-Accurately discovering the type of web server that an application runs on can enable security testers to determine if the application is vulnerable to attack. In particular, servers running older versions of software without up-to-date security patches can be susceptible to known version-specific exploits.
+准确发现应用运行的 Web 服务器类型可以使安全测试人员能够确定应用是否容易受到攻击。特别地，运行没有最新安全补丁的软件旧版本的服务器可能容易受到特定版本已知漏洞的影响。
 
-## Test Objectives
+## 测试目标
 
-- Determine the version and type of a running web server to enable further discovery of any known vulnerabilities.
+- 确定运行中的 Web 服务器的版本和类型，以启用进一步发现任何已知漏洞。
 
-## How to Test
+## 如何测试
 
-Techniques used for web server fingerprinting include [banner grabbing](https://en.wikipedia.org/wiki/Banner_grabbing), eliciting responses to malformed requests, and using automated tools to perform more robust scans that use a combination of tactics. The fundamental premise on which all these techniques operate is the same. They all strive to elicit some response from the web server which can then be compared to a database of known responses and behaviors, and thus matched to a known server type.
+用于 Web 服务器指纹识别的技术包括 [banner grabbing](https://en.wikipedia.org/wiki/Banner_grabbing)、对错误请求的响应以及使用自动化工具执行使用多种策略的更健壮扫描。所有这些技术运行的基本前提是相同的。它们都努力从 Web 服务器引发一些响应，然后可以与已知响应和行为的数据库进行比较，从而匹配到已知服务器类型。
 
 ### Banner Grabbing
 
-A banner grab is performed by sending an HTTP request to the web server and examining its [response header](https://developer.mozilla.org/en-US/docs/Glossary/Response_header). This can be accomplished using a variety of tools, including `telnet` for HTTP requests, or `openssl` for requests over TLS/SSL.
+Banner grabbing 通过向 Web 服务器发送 HTTP 请求并检查其[响应头](https://developer.mozilla.org/en-US/docs/Glossary/Response_header)来执行。这可以使用各种工具完成，包括用于 HTTP 请求的 `telnet`，或用于 TLS/SSL 请求的 `openssl`。
 
-For example, here is the response to a request sent to an Apache server.
+例如，这是发送到 Apache 服务器的请求的响应。
 
 ```http
 HTTP/1.1 200 OK
@@ -37,7 +37,7 @@ Content-Type: text/html
 ...
 ```
 
-Here is another response, this time sent by nginx.
+这是另一个响应，这次是由 nginx 发送的。
 
 ```http
 HTTP/1.1 200 OK
@@ -52,7 +52,7 @@ Accept-Ranges: bytes
 ...
 ```
 
-Here's what a response sent by lighttpd looks like.
+这是 lighttpd 发送的响应。
 
 ```sh
 HTTP/1.0 200 OK
@@ -66,7 +66,7 @@ Date: Thu, 05 Sep 2019 17:57:57 GMT
 Server: lighttpd/1.4.54
 ```
 
-In these examples, the server type and version is clearly exposed. However, security-conscious applications may obfuscate their server information by modifying the header. For example, here is an excerpt from the response to a request for a site with a modified header:
+在这些示例中，服务器类型和版本是明确暴露的。然而，注重安全的应用可能通过修改头部来混淆服务器信息。例如，以下是对具有修改头部的站点的请求的响应摘要：
 
 ```sh
 HTTP/1.1 200 OK
@@ -77,7 +77,7 @@ Status: 200 OK
 ...
 ```
 
-In cases where the server information is obscured, testers may guess the type of server based on the ordering of the header fields. Note that in the Apache example above, the fields follow this order:
+在服务器信息被混淆的情况下，测试人员可能根据头部字段的顺序猜测服务器类型。请注意，在上面的 Apache 示例中，字段按以下顺序：
 
 - Date
 - Server
@@ -88,19 +88,19 @@ In cases where the server information is obscured, testers may guess the type of
 - Connection
 - Content-Type
 
-However, in both the nginx and obscured server examples, the fields in common follow this order:
+然而，在 nginx 和被混淆的服务器示例中，公共字段按以下顺序：
 
 - Server
 - Date
 - Content-Type
 
-Testers can use this information to guess that the obscured server is nginx. However, considering that a number of different web servers may share the same field ordering and fields can be modified or removed, this method is not definite.
+测试人员可以使用此信息猜测被混淆的服务器是 nginx。然而，考虑到许多不同的 Web 服务器可能共享相同的字段顺序，并且字段可以被修改或删除，此方法不是确定性的。
 
-### Sending Malformed Requests
+### 发送错误请求
 
-Web servers may be identified by examining their error responses, and in the cases where they have not been customized, their default error pages. One way to compel a server to present these is by sending intentionally incorrect or malformed requests.
+Web 服务器可以通过检查其错误响应来识别，在这些错误响应未被定制的情况下，还包括它们的默认错误页面。强制服务器显示这些的一种方法是发送有意错误或格式错误的请求。
 
-For example, here is the response to a request for the non-existent HTTP version `SANTA CLAUS` from an Apache server.
+例如，以下是对不存在的 HTTP 版本 `SANTA CLAUS` 的请求从 Apache 服务器的响应。
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -123,7 +123,7 @@ Content-Type: text/html; charset=iso-8859-1
 </body></html>
 ```
 
-Here is the response to the same request from nginx.
+这是从 nginx 对相同请求的响应。
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -138,7 +138,7 @@ GET / SANTA CLAUS/1.1
 </html>
 ```
 
-Here is the response to the same request from lighttpd.
+这是从 lighttpd 对相同请求的响应。
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -164,23 +164,22 @@ Server: lighttpd/1.4.54
 </html>
 ```
 
-As default error pages offer many differentiating factors between types of web servers, their examination can be an effective method for fingerprinting even when server header fields are obscured.  
-Furthermore, this [resource](https://0xdf.gitlab.io/cheatsheets/404) can be handy, especially when you come across default error pages that do not disclose the web server type.
+由于默认错误页面提供了 Web 服务器类型之间的许多差异化因素，即使服务器头字段被混淆，它们的检查也可以是一种有效的指纹识别方法。此外，此[资源](https://0xdf.gitlab.io/cheatsheets/404)可以派上用场，特别是当你遇到不披露 Web 服务器类型的默认错误页面时。
 
-### Using Automated Scanning Tools
+### 使用自动化扫描工具
 
-As stated earlier, web server fingerprinting is often included as a functionality of automated scanning tools. These tools are able to make requests similar to those demonstrated above, as well as send other more server-specific probes. Automated tools can compare responses from web servers much faster than manual testing, and utilize large databases of known responses to attempt server identification. For these reasons, automated tools are more likely to produce accurate results.
+如前所述，Web 服务器指纹识别通常作为自动化扫描工具的功能包含在内。这些工具能够发出类似于上面演示的请求，以及发送其他更具服务器特定性的探测。自动化工具可以比手动测试更快地比较 Web 服务器的响应，并利用已知响应的大型数据库来尝试服务器识别。由于这些原因，自动化工具更有可能产生准确的结果。
 
-Here are some commonly-used scan tools that include web server fingerprinting functionality.
+以下是一些常用扫描工具的列表，这些工具包含 Web 服务器指纹识别功能：
 
-- [Netcraft](https://toolbar.netcraft.com/site_report), an online tool that scans sites for information, including web server details.
-- [Nikto](https://github.com/sullo/nikto), an Open Source command-line scanning tool.
-- [Nmap](https://nmap.org/), an Open Source command-line tool that also has a GUI, [Zenmap](https://nmap.org/zenmap/).
+- [Netcraft](https://toolbar.netcraft.com/site_report)，一个在线工具，扫描站点的信息，包括 Web 服务器详情。
+- [Nikto](https://github.com/sullo/nikto)，一个开源命令行扫描工具。
+- [Nmap](https://nmap.org/)，一个也有 GUI [Zenmap](https://nmap.org/zenmap/) 的开源命令行工具。
 
-## Remediation
+## 修复
 
-While exposed server information is not necessarily in itself a vulnerability, it is information that can assist attackers in exploiting other vulnerabilities that may exist. Exposed server information can also lead attackers to find version-specific server vulnerabilities that can be used to exploit unpatched servers. For this reason it is recommended that some precautions be taken. These actions include:
+虽然暴露的服务器信息本身不一定是漏洞，但它是可能帮助攻击者利用其他可能存在的漏洞的信息。暴露的服务器信息也可能导致攻击者发现特定版本的服务器漏洞，这些漏洞可用于利用未修补的服务器。因此，建议采取一些预防措施。这些行动包括：
 
-- Obscuring web server information in headers, such as with Apache's [mod_headers module](https://httpd.apache.org/docs/current/mod/mod_headers.html).
-- Using a hardened [reverse proxy server](https://en.wikipedia.org/wiki/Proxy_server#Reverse_proxies) to create an additional layer of security between the web server and the internet.
-- Ensuring that web servers are kept up-to-date with the latest software and security patches.
+- 在头部中混淆 Web 服务器信息，例如使用 Apache 的 [mod_headers 模块](https://httpd.apache.org/docs/current/mod/mod_headers.html)。
+- 使用强化的[反向代理服务器](https://en.wikipedia.org/wiki/Proxy_server#Reverse_proxies)在 Web 服务器和互联网之间创建额外的安全层。
+- 确保 Web 服务器使用最新软件和安全补丁保持更新。

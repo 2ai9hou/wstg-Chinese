@@ -1,63 +1,63 @@
-# Style Guide
+# 撰写规范
 
-The Web Security Testing Guide (WSTG) is a well-known document trusted by security professionals and organizations all over the world. These guidelines help ensure it reflects well on its many contributors and the security community.
+Web 安全测试指南（WSTG）是一份被全球安全专业人员和组织信赖的知名文档。这些指南有助于确保它能很好地代表其众多贡献者和安全社区。
 
-To maintain the quality of the WSTG, please follow these general rules.
+为保持 WSTG 的质量，请遵循以下通用规则。
 
-1. Be factual, specific, and ensure paragraphs are focused on their heading.
-2. Ensure information is creditable and up to date. Provide links and citations where appropriate.
-3. Avoid duplicating content. To refer to existing content, link to it inline.
+1. 保持事实性、具体性，确保每个段落都聚焦于其标题。
+2. 确保信息可信且最新。在适当的地方提供链接和引用。
+3. 避免重复内容。引用现有内容时，请内联链接。
 
-## Write for the Reader
+## 为读者而写
 
-Readers of the WSTG come from many different countries and have varying levels of technical expertise. Write for an international audience with a basic technical background. Use words that are likely understood by a non-native English speaker. Use short sentences that are easy to understand.
+WSTG 的读者来自许多不同的国家，具有不同的技术专业知识水平。为具有基本技术背景的国际受众而写。使用非英语母语者可能理解的词汇。使用简短的句子以便理解。
 
-The web tool [Hemingway](https://hemingwayapp.com/) can help you write with clarity.
+网络工具 [Hemingway](https://hemingwayapp.com/) 可以帮助您清晰地写作。
 
-## Formatting
+## 格式
 
-Use consistent formatting to help us review and publish content, and help readers to digest information. Write all content using [Markdown syntax](https://guides.github.com/features/mastering-markdown/#examples).
+使用一致的格式来帮助我们审阅和发布内容，并帮助读者消化信息。使用 [Markdown 语法](https://guides.github.com/features/mastering-markdown/#examples) 编写所有内容。
 
-Please follow these further guidelines for formatting.
+请遵循以下格式指南。
 
-### Article Template
+### 文章模板
 
-We use an article template to help ensure topics are complete and easy to understand. Please use the [template materials](template) to structure new content.
+我们使用文章模板来帮助确保主题完整且易于理解。请使用[模板材料](template)来构建新内容的结构。
 
-### Project Folder Structure
+### 项目文件夹结构
 
-When adding articles and images, please place articles in the appropriate sub-section directory. Place images in an `images/` folder within the article directory. Here is an example of the project structure:
+添加文章和图片时，请将文章放在相应的小节目录中。将图片放在文章目录内的 `images/` 文件夹中。以下是项目结构示例：
 
 ```sh
 document/
- ├───0_Foreword/
- │   └───0_Foreword.md
- ├───1_Frontispiece/
- │   ├───images/
- │   │   └───example.jpg
- │   └───1_Frontispiece.md
- ├───2_Introduction/
- │   ├───images/
- │   │   └───example.jpg
- │   └───2_Introduction.md
- ├───3_The_OWASP_Testing_Framework/
- │   ├───images/
- │   │   └───example.jpg
- │   └───3_The_OWASP_Testing_Framework.md
- ├───4_Web_Application_Security_Testing/
- │   ├───4.1_Introduction_and_Objectives/
- │   │   └───4.1_Testing_Introduction_and_Objectives.md
- │   ├───4.2_Information_Gathering/
- │   │   ├───images/
- │   │   │   └───example.jpg
- │   │   ├───4.2_Testing_Information_Gathering.md
- │   │   └───4.2.1_Conduct_Search_Engine_Discovery.md
+  ├───0_Foreword/
+  │   └───0_Foreword.md
+  ├───1_Frontispiece/
+  │   ├───images/
+  │   │   └───example.jpg
+  │   └───1_Frontispiece.md
+  ├───2_Introduction/
+  │   ├───images/
+  │   │   └───example.jpg
+  │   └───2_Introduction.md
+  ├───3_The_OWASP_Testing_Framework/
+  │   ├───images/
+  │   │   └───example.jpg
+  │   └───3_The_OWASP_Testing_Framework.md
+  ├───4_Web_Application_Security_Testing/
+  │   ├───4.1_Introduction_and_Objectives/
+  │   │   └───4.1_Testing_Introduction_and_Objectives.md
+  │   ├───4.2_Information_Gathering/
+  │   │   ├───images/
+  │   │   │   └───example.jpg
+  │   │   ├───4.2_Testing_Information_Gathering.md
+  │   │   └───4.2.1_Conduct_Search_Engine_Discovery.md
 
 ```
 
-### Code Syntax Highlighting
+### 代码语法高亮
 
-Use code fences with syntax highlighting for snippets. For example:
+使用带语法高亮的代码围栏来显示代码片段。例如：
 
 ```md
     ```javascript
@@ -67,188 +67,188 @@ Use code fences with syntax highlighting for snippets. For example:
     ```
 ```
 
-### Caption Images
+### 图片标题
 
-Caption images and figures using title case. Use the section and sub-section numbers, followed by the figure position in the document. Use the format `Figure <section>.<sub-section>-<position>: Caption Title`.
+使用标题大小写为图片和图表添加标题。使用章节和小节编号，后跟文档中的图表位置。使用格式 `Figure <section>.<sub-section>-<position>: Caption Title`。
 
-For example, caption the first image shown in section 4.8, sub-section 19 as follows:
+例如，为第 4.8 节、小节 19 中显示的第一张图片添加标题如下：
 
 ```md
 ![SSTI XVWA Example](images/SSTI_XVWA.jpeg)\
 *Figure 4.7.19-1: SSTI XVWA Example*
 ```
 
-### Inline Links
+### 内联链接
 
-Add links inline. Use words in the sentence to describe them, or include their specific title. For example:
+内联添加链接。使用句子中的词语来描述它们，或包含其具体标题。例如：
 
 ```md
-This project provides a [style guide](style_guide.md). Some style choices are taken from the [Chicago Manual of Style](https://www.chicagomanualofstyle.org/).
+本项目提供了一份[撰写规范](style_guide.md)。一些风格选择取自[芝加哥格式手册](https://www.chicagomanualofstyle.org/)。
 ```
 
-### Inline References
+### 内联引用
 
-For resources where a link is not available, such as a whitepaper or book, we prefer a conversational in-line reference rather than any academic-styled citation. Work the title of the resource as well as its author into your text. For example:
+对于无法获取链接的资源（如白皮书或书籍），我们更倾向于使用会话式的内联引用，而不是任何学术风格的引用。将资源的标题及其作者融入您的文本。例如：
 
-> There are three possible cases: only the whale exists, only the petunias exist, or both the whale and petunias exist simultaneously. These possibilities are referenced in a series of books entitled *The Hitchhiker's Guide to the Galaxy,* by Douglas Adams.
+> 有三种可能的情况：只有鲸鱼存在，只有花束存在，或者鲸鱼和花束同时存在。这些可能性在道格拉斯·亚当斯所著的系列书籍《*银河系漫游指南*》中有所提及。
 
-This format has the advantage of continuing the flow of the article and not inviting readers to jump from paragraph to paragraph, looking for an asterisk, or to another location to find a reference list. It's also easy to read and to maintain since it appears in just one place.
+这种格式的优点是保持了文章的流畅性，不会邀请读者从一段跳到另一段寻找星号，或到另一个位置查找参考文献列表。它也易于阅读和维护，因为它只出现在一个地方。
 
-### Bold, Italic, and Underline
+### 粗体、斜体和下划线
 
-Do not use bold, italic, or underlined text for emphasis.
+不要使用粗体、斜体或下划线文本来强调。
 
-You may italicize a word when referring to the word itself, though the need for this in technical writing is rare. For examples, see the section [Use Correct Words](#use-correct-words). Use asterisks: `*italic*`.
+当指代单词本身时，您可以使用斜体，但在技术写作中这种需要很少。示例见[使用正确的词语](#使用正确的词语)一节。使用星号：`*italic*`。
 
-## Language and Grammar
+## 语言和语法
 
-To make the WSTG consistent and pleasant to read, please check your spelling (we use American English) and use proper grammar.
+为使 WSTG 保持一致性和可读性，请检查您的拼写（我们使用美式英语）并使用正确的语法。
 
-The sections below describe specific style choices to follow.
+以下各节描述了要遵循的具体风格选择。
 
-### Title Case
+### 标题大小写
 
-Use title case for headings, following the [Chicago Manual of Style](https://www.chicagomanualofstyle.org/book/ed17/frontmatter/toc.html). The "Chicago" tab on the website [Capitalize My Title](https://capitalizemytitle.com/#Chicago) may help.
+标题使用标题大小写，遵循[芝加哥格式手册](https://www.chicagomanualofstyle.org/book/ed17/frontmatter/toc.html)。网站 [Capitalize My Title](https://capitalizemytitle.com/#Chicago) 上的 "Chicago" 标签可能会有所帮助。
 
-### Active Voice
+### 主动语态
 
-Avoid using passive voice. For example:
+避免使用被动语态。例如：
 
-> Bad: "Vulnerabilities are found by running tests."  
-> Good: "Run tests to find vulnerabilities."  
+> 差："通过运行测试发现漏洞。"  
+> 好："运行测试以发现漏洞。"
 
-### Second Person
+### 第二人称
 
-Do not write in the first or third person, such as by using *I* or *he*. When giving technical instruction, address the reader in the second person. Use a [zero or implied subject](https://en.wikipedia.org/wiki/Subject_(grammar)#Forms_of_the_subject), or if you must, use *you*.
+不要以第一人称或第三人称写作，例如使用 *I* 或 *he*。在提供技术说明时，请以第二人称称呼读者。使用[零主语或隐含主语](https://en.wikipedia.org/wiki/Subject_(grammar)#Forms_of_the_subject)，或者如果必须，使用 *you*。
 
-> Bad: "He/she/an IT monkey would run this code to test..."  
-> Better: "By running this code, you can test..."  
-> Best: "Run this code to test..."
+> 差："他/她/IT 人员会运行此代码来测试..."  
+> 更好："通过运行此代码，您可以测试..."  
+> 最好："运行此代码来测试..."
 
-### Numbering Conventions
+### 数字约定
 
-For numbers from zero to ten, write the word. For numbers higher than ten, use integers. For example:
+从零到十的数字，拼写出来。十以上的数字，使用整数。例如：
 
-> One broken automated test finds 42 errors if you run it ten times.
+> 一个损坏的自动化测试运行十次会发现 42 个错误。
 
-Describe simple fractions in words. For example:
+用词语描述简单的分数。例如：
 
-> Half of all software developers like petunias, and a third of them like whales.
+> 一半的软件开发者喜欢花束，三分之一喜欢鲸鱼。
 
-When describing an approximate magnitude of monetary value, write the whole word and do not abbreviate. For example:
+描述近似金额时，写出完整单词，不要缩写。例如：
 
-> Bad: "Security testing saves companies $18M in beer every year."  
-> Good: "Security testing saves companies eighteen million dollars in beer every year."
+> 差："安全测试每年为公司节省 1800 万美元的啤酒。"  
+> 好："安全测试每年为公司节省一千八百万美元的啤酒。"
 
-For specific monetary value, use currency symbols and integers. For example:
+对于具体金额，使用货币符号和整数。例如：
 
-> A beer costs $6.75 today, and $8.25 tomorrow.
+> 今天啤酒价格为 6.75 美元，明天为 8.25 美元。
 
-### Abbreviations
+### 缩写
 
-Explain abbreviations the first time they appear in your document. Capitalize the appropriate words to indicate the abbreviated form. For example:
+首次在文档中出现时解释缩写。适当地大写相应词语以指示缩写形式。例如：
 
-> This project contains the source code for the Web Security Testing Guide (WSTG). The WSTG is a nice and accurate book.
+> 本项目包含 Web 安全测试指南（WSTG）的源代码。WSTG 是一本出色且准确的书籍。
 
-### Lists and Punctuation
+### 列表和标点
 
-Use bulleted lists when the order is unimportant. Use numbered lists for sequential steps. For each line, capitalize the first word. If the line is a sentence or completes a sentence, end with a period. For example:
+当顺序不重要时，使用项目符号列表。顺序步骤使用编号列表。每行首字母大写。如果该行是一个句子或完成一个句子，以句号结尾。例如：
 
-> Testing this scenario will:
+> 测试此场景将：
 >
-> - Make the application safer.
-> - Improve overall security posture.
-> - Keep customers happy.
+> - 使应用程序更安全。
+> - 提高整体安全态势。
+> - 让客户满意。
 >
-> To test this scenario:
+> 测试此场景：
 >
-> 1. Copy the code.
-> 2. Open a terminal.
-> 3. Run the code as root.
+> 1. 复制代码。
+> 2. 打开终端。
+> 3. 以 root 身份运行代码。
 >
-> Here are some foods to snack on while testing.
+> 以下是测试时的一些零食。
 >
-> - Apples
-> - Beef jerky
-> - Chocolate
+> - 苹果
+> - 牛肉干
+> - 巧克力
 
-For lists in a sentence, use serial or [Oxford commas](https://www.grammarly.com/blog/what-is-the-oxford-comma-and-why-do-people-care-so-much-about-it/). For example:
+对于句子中的列表，使用序列或[牛津逗号](https://www.grammarly.com/blog/what-is-the-oxford-comma-and-why-do-people-care-so-much-about-it/)。例如：
 
-> Test the application using automated tests, static code review, and penetration tests.
+> 使用自动化测试、静态代码审查和渗透测试来测试应用程序。
 
-### Use Correct Words
+### 使用正确的词语
 
-The following section covers some frequently misused words and instructions on how to correctly use them.
+以下部分涵盖了一些经常被误用的词语以及如何正确使用它们。
 
 #### *and/or*
 
-While sometimes used in legal documents, *and/or* leads to ambiguity and confusion in technical writing. Instead, use *or*, which in the English language includes *and*. For example:
+虽然有时用于法律文档，但 *and/or* 在技术写作中会导致歧义和混淆。相反，使用 *or*，在英语中这已经包含了 *and*。例如：
 
-> Bad: "The code will output an error number and/or description."  
-> Good: "The code will output an error number or description."
+> 差："代码将输出错误编号和/或描述。"  
+> 好："代码将输出错误编号或描述。"
 
-The latter sentence does not exclude the possibility of having both an error number and description.
+后一句不排除同时有错误编号和描述的可能性。
 
-If you need to specify all possible outcomes, use a list:
+如果您需要指定所有可能的结果，请使用列表：
 
-> "The code will output an error number, or a description, or both."
+> "代码将输出错误编号，或描述，或两者兼有。"
 
 #### *frontend, backend*
 
-While it's true that the English language evolves over time, these are not yet words.
+虽然英语确实在不断发展，但这些还不是单词。
 
-When referring to nouns, use *front end* and *back end*. For example:
+当指代名词时，使用 *front end* 和 *back end*。例如：
 
-> Security is equally important on the front end as it is on the back end.
+> 前端和后端的安全性同样重要。
 
-As a descriptive adverb, use the hyphenated *front-end* and *back-end*.
+作为描述性副词，使用带连字符的 *front-end* 和 *back-end*。
 
-> Both front-end developers and back-end developers are responsible for application security.
+> 前端开发人员和后端开发人员都对应用程序安全负责。
 
 #### *whitebox*, *blackbox*, *greybox*
 
-These are not words.
+这些不是单词。
 
-As nouns, use *white box*, *black box*, and *grey box*. These nouns rarely appear in connection with cybersecurity.
+作为名词，使用 *white box*、*black box* 和 *grey box*。这些名词很少与网络安全一起出现。
 
-> My cat enjoys jumping into that grey box.
+> 我的猫喜欢跳进那个灰色盒子里。
 
-As adverbs, use the hyphenated *white-box*, *black-box*, and *grey-box*. Do not use capitalization unless the words are in a title.
+作为副词，使用带连字符的 *white-box*、*black-box* 和 *grey-box*。除非词语在标题中，否则不要使用大写。
 
-> While white-box testing involves knowledge of source code, black-box testing does not. A grey-box test is somewhere in-between.
+> 白盒测试涉及源代码知识，而黑盒测试则不涉及。灰盒测试介于两者之间。
 
 #### *ie*, *eg*
 
-These are letters.
+这些是字母。
 
-The abbreviation *ie* refers to the Latin `id est`, which means "in other words." The abbreviation *eg* is for `exempli gratia`, translating to "for example." To use these in a sentence:
+缩写 *ie* 来自拉丁语 `id est`，意思是"换句话说"。缩写 *eg* 是 `exempli gratia` 的缩写，翻译为"例如"。在句子中使用这些：
 
-> Write using proper English, i.e. correct spelling and grammar. Use common words over uncommon ones, e.g. "learn" instead of "glean."
+> 使用正确的英语写作，即正确的拼写和语法。使用常用词而非生僻词，例如，用"学习"代替"搜集"。
 
 #### *etc*
 
-These are also letters.
+这些也是字母。
 
-The Latin phrase *et cetera* translates to "and the rest." It is abbreviated and typically placed at the end of a list that seems redundant to complete:
+拉丁短语 *et cetera* 翻译为"等等"。它被缩写，通常放在一个似乎冗余的列表末尾：
 
-> WSTG authors like rainbow colors, such as red, yellow, green, etc.
+> WSTG 作者喜欢彩虹色，例如红色、黄色、绿色等等。
 
-In technical writing, the use of *etc* is problematic. It assumes that the reader knows what you're talking about, and they may not. Violet is one of the colors of the rainbow, but the example above does not explicitly tell you if violet is a color that WSTG authors like.
+在技术写作中，使用 *etc* 是有问题的。它假设读者知道你在说什么，但他们可能不知道。紫色是彩虹的颜色之一，但上面的例子没有明确告诉你紫色是否是 WSTG 作者喜欢的颜色。
 
-It is better to be explicit and thorough than to make assumptions of the reader. Only use *etc* to avoid completing a list that was given in full earlier in the document.
+最好明确和彻底，而不是对读者做假设。只有在列表之前在文档中已经完整给出时，才使用 *etc* 来避免完成列表。
 
-#### *...* (ellipsis)
+#### *...*（省略号）
 
-The ellipsis punctuation mark can indicate that words have been left out of a quote:
+省略号标点符号可以表示引文中省略了词语：
 
-> Linus Torvalds once said, "Once you realize that documentation should be laughed at... THEN, and only then, have you reached the level where you can safely read it and try to use it to actually implement a driver. "
+> 林纳斯·托瓦兹曾说："一旦你意识到文档应该被嘲笑... THEN，而且只有 THEN，你才达到可以安全地阅读它并尝试使用它来实现驱动程序的水平。"
 
-As long as the omission does not change the meaning of the quote, this is acceptable usage of ellipsis in the WSTG.
+只要省略不改变引文的含义，这就是 WSTG 中省略号的可接受用法。
 
-All other uses of ellipsis, such as to indicate an unfinished thought, are not.
+省略号的所有其他用法，如表示未完成的想法，都是不可接受的。
 
 #### *ex*
 
-While this is a word, it is likely not the word you are looking for. The word *ex* has particular meaning in the fields of finance and commerce, and may refer to a person if you are discussing your past relationships. None of these topics should appear in the WSTG.
+虽然这是一个单词，但它可能不是你要找的单词。*ex* 这个词在金融和商业领域有特定含义，如果你讨论的是过去的关系，也可能指一个人。这些主题都不应该出现在 WSTG 中。
 
-The abbreviation may be used to mean "example" by lazy writers. Please don't be lazy, and write *example* instead.
+这个缩写可能被懒惰的作者用来表示 "example"。请不要懒惰，而是写 *example*。

@@ -1,21 +1,21 @@
-# Test Scenario Template
+# 测试场景模板
 
-This area provides an [example template](999-Foo_Testing/1-Testing_for_a_Cat_in_a_Box.md) and [explanation of that template](999-Foo_Testing/2-Template_Explanation.md) for use in developing guide content. (They are based on fake chapter `999`.)
+本区域提供了一个[示例模板](999-Foo_Testing/1-Testing_for_a_Cat_in_a_Box.md)及其[模板说明](999-Foo_Testing/2-Template_Explanation.md)，用于开发指南内容。（它们基于虚假的章节 `999`。）
 
-## Formatting Examples
+## 格式示例
 
-This folder also shows how to format specific types of content:
+本文件夹还展示了如何格式化特定类型的内容：
 
-- [HTTP Requests and Responses](999-Foo_Testing/3-Format_for_HTTP_Request_Response.md)
+- [HTTP 请求和响应](999-Foo_Testing/3-Format_for_HTTP_Request_Response.md)
 
-## Merged or Retired Tests
+## 合并或退役的测试
 
-When a test is merged into another test, retain the original file to preserve ID continuity.
+当测试被合并到另一个测试中时，保留原始文件以保持 ID 连续性。
 
-At the end of the file, include the following reference-style metadata marker:
+在文件末尾，包含以下参考式元数据标记：
 
 `[merged]: # (WSTG-XXXX-XX)`
 
-Replace `WSTG-XXXX-XX` with the destination test ID.
+将 `WSTG-XXXX-XX` 替换为目标测试 ID。
 
-This ensures merged tests are explicitly identifiable while keeping the Markdown valid and render-safe.
+这确保合并的测试可以被明确识别，同时保持 Markdown 有效且渲染安全。

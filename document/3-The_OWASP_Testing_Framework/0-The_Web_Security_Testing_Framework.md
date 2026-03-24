@@ -1,132 +1,132 @@
-# The Web Security Testing Framework
+# Web 安全测试框架
 
-## Overview
+## 概述
 
-This section describes a typical testing framework that can be developed within an organization. It can be seen as a reference framework comprised of techniques and tasks that are appropriate at various phases of the software development life cycle (SDLC). Companies and project teams can use this model to develop their own testing framework, and to scope testing services from vendors. This framework should not be seen as prescriptive, but as a flexible approach that can be extended and molded to fit an organization's development process and culture.
+本节描述了一个可在组织内开发的典型测试框架。它可以被视为一个参考框架，由适用于软件开发生命周期（SDLC）各阶段的技术和任务组成。公司和项目团队可以使用此模型来开发自己的测试框架，并为供应商的测试服务确定范围。本框架不应被视为规范性的，而是一种灵活的方法，可以扩展和调整以适应组织的开发流程和文化。
 
-This section aims to help organizations build a complete strategic testing process, and is not aimed at consultants or contractors who tend to be engaged in more tactical, specific areas of testing.
+本节旨在帮助组织构建完整的战略性测试过程，而非针对倾向于参与更战术性、特定测试领域的顾问或承包商。
 
-It is critical to understand why building an end-to-end testing framework is crucial to assessing and improving software security. In *Writing Secure Code*, Howard and LeBlanc note that issuing a security bulletin costs Microsoft at least $100,000, and it costs their customers collectively far more than that to implement the security patches. They also note that the US government's [CyberCrime web site](https://www.justice.gov/criminal-ccips) details recent criminal cases and the loss to organizations. Typical losses far exceed USD $100,000.
+理解构建端到端测试框架对评估和提高软件安全性的关键性至关重要。在《编写安全的代码》中，Howard 和 LeBlanc 指出，发布安全公告至少花费微软 100,000 美元，而其客户集体实施安全补丁的花费远远超过这个数字。他们还指出，美国政府的 [网络犯罪网站](https://www.justice.gov/criminal-ccips) 详细列出了最近的刑事案件和组织的损失。典型损失远远超过 100,000 美元。
 
-With economics like this, it is little wonder why software vendors move from solely performing black-box security testing, which can only be performed on applications that have already been developed, to concentrating on testing in the early cycles of application development, such as during definition, design, and development.
+鉴于此种经济考量，难怪软件供应商从单纯执行黑盒安全测试（只能在已开发的应用上执行）转向专注于在应用开发的早期周期（如定义、设计和开发阶段）进行测试。
 
-Many security practitioners still see security testing in the realm of penetration testing. As discussed in the previous chapter, while penetration testing has a role to play, it is generally inefficient at finding bugs and relies excessively on the skill of the tester. It should only be considered as an implementation technique, or to raise awareness of production issues. To improve the security of applications, the security quality of the software must be improved. That means testing security during the definition, design, development, deployment, and maintenance stages, and not relying on the costly strategy of waiting until code is completely built.
+许多安全从业者仍然将安全测试视为渗透测试的领域。正如前一章所讨论的，虽然渗透测试有其作用，但它在发现缺陷方面通常效率低下，并且过度依赖测试人员的技能。它应该只被视为一种实施技术，或用于提高对生产问题的认识。要提高应用的安全性，必须提高软件的安全质量。这意味着在定义、设计、开发、部署和维护阶段测试安全性，而不是依赖等待代码完全构建的昂贵策略。
 
-As discussed in the introduction of this document, there are many development methodologies, such as the Rational Unified Process, eXtreme and Agile development, and traditional waterfall methodologies. The intent of this guide is to suggest neither a particular development methodology, nor provide specific guidance that adheres to any particular methodology. Instead, we are presenting a generic development model, and the reader should follow it according to their company process.
+正如本文档引言中所讨论的，有许多开发方法论，如 Rational Unified Process、eXtreme 和敏捷开发，以及传统瀑布方法。本指南的目的既不是建议特定的开发方法论，也不提供遵循任何特定方法论的具体指导。相反，我们呈现了一个通用开发模型，读者应根据其公司流程进行遵循。
 
-This testing framework consists of activities that should take place:
+本测试框架包含应进行的活动：
 
-- Before development begins,
-- During definition and design,
-- During development,
-- During deployment, and
-- During maintenance and operations.
+- 开发开始前，
+- 定义和设计期间，
+- 开发期间，
+- 部署期间，以及
+- 维护和运营期间。
 
-## Phase 1 Before Development Begins
+## 第 1 阶段 开发开始前
 
-### Phase 1.1 Define a SDLC
+### 第 1.1 阶段 定义 SDLC
 
-Before application development starts, an adequate SDLC must be defined where security is inherent at each stage.
+在应用开发开始之前，必须定义一个在每个阶段都固有安全性的适当 SDLC。
 
-### Phase 1.2 Review Policies and Standards
+### 第 1.2 阶段 审查政策和标准
 
-Ensure that there are appropriate policies, standards, and documentation in place. Documentation is extremely important as it gives development teams guidelines and policies that they can follow. People can only do the right thing if they know what the right thing is.
+确保有适当的政策、标准 和文档到位。文档非常重要，因为它为开发团队提供了他们可以遵循的指南和政策。人们只有在知道正确的事情是什么时才能做正确的事情。
 
-If the application is to be developed in Java, it is essential that there is a Java secure coding standard. If the application is to use cryptography, it is essential that there is a cryptography standard. No policies or standards can cover every situation that the development team will face. By documenting the common and predictable issues, there will be fewer decisions that need to be made during the development process.
+如果应用要用 Java 开发，那么有 Java 安全编码标准是必不可少的。如果应用要使用加密，那么有加密标准是必不可少的。没有政策或标准可以涵盖开发团队将面临的每种情况。通过记录常见和可预测的问题，可以减少开发过程中需要做出的决策。
 
-### Phase 1.3 Develop Measurement and Metrics Criteria and Ensure Traceability
+### 第 1.3 阶段 开发测量和指标标准并确保可追溯性
 
-Before development begins, plan the measurement program. By defining criteria that need to be measured, it provides visibility into defects in both the process and product. It is essential to define the metrics before development begins, as there may be a need to modify the process in order to capture the data.
+在开发开始之前，规划测量程序。通过定义需要测量的标准，可以提供对流程和产品中缺陷的可见性。在开发开始之前定义指标是必不可少的，因为可能需要修改流程以捕获数据。
 
-## Phase 2 During Definition and Design
+## 第 2 阶段 定义和设计期间
 
-### Phase 2.1 Review Security Requirements
+### 第 2.1 阶段 审查安全需求
 
-Security requirements define how an application works from a security perspective. It is essential that the security requirements are tested. Testing in this case means testing the assumptions that are made in the requirements and testing to see if there are gaps in the requirements definitions.
+安全需求从安全角度定义应用的工作方式。测试安全需求是必不可少的。在这种情况下，测试意味着测试需求中做出的假设，并测试需求定义中是否存在差距。
 
-For example, if there is a security requirement that states that users must be registered before they can get access to the whitepapers section of a website, does this mean that the user must be registered with the system or should the user be authenticated? Ensure that requirements are as unambiguous as possible.
+例如，如果有一个安全需求声明用户必须先注册才能访问网站的 白皮书部分，这是否意味着用户必须在系统中注册，或者用户应该被认证？确保需求尽可能明确。
 
-When looking for requirements gaps, consider looking at security mechanisms such as:
+在寻找需求差距时，考虑查看以下安全机制：
 
-- User management
-- Authentication
-- Authorization
-- Data confidentiality
-- Integrity
-- Accountability
-- Session management
-- Transport security
-- Tiered system segregation
-- Legislative and standards compliance (including privacy, government, and industry standards)
+- 用户管理
+- 认证
+- 授权
+- 数据机密性
+- 完整性
+- 可问责性
+- 会话管理
+- 传输安全
+- 分层系统隔离
+- 法规和标准合规性（包括隐私、政府和行业标准）
 
-### Phase 2.2 Review Design and Architecture
+### 第 2.2 阶段 审查设计和架构
 
-Applications should have a documented design and architecture. This documentation can include models, textual documents, and other similar artifacts. It is essential to test these artifacts to ensure that the design and architecture enforce the appropriate level of security as defined in the requirements.
+应用应有记录在案的设计和架构。此文档可以包括模型、文本文档和其他类似的制品。测试这些制品以确保设计和架构强制执行需求中定义的适当安全级别是必不可少的。
 
-Identifying security flaws in the design phase is not only one of the most cost-efficient places to identify flaws, but can be one of the most effective places to make changes. For example, if it is identified that the design calls for authorization decisions to be made in multiple places, it may be appropriate to consider a central authorization component. If the application is performing data validation at multiple places, it may be appropriate to develop a central validation framework (i.e. fixing input validation in one place, rather than in hundreds of places, is far cheaper).
+在设计阶段识别安全缺陷不仅是最具成本效益的识别缺陷的地方之一，而且可能是进行更改最有效的地方之一。例如，如果识别出设计要求在多个地方做出授权决策，那么考虑一个集中授权组件可能是适当的。如果应用在多个地方执行数据验证，那么开发一个集中验证框架可能是适当的（即在一个地方修复输入验证，而不是在数百个地方，要便宜得多）。
 
-If weaknesses are discovered, they should be given to the system architect for alternative approaches.
+如果发现弱点，应将其交给系统架构师以获取替代方案。
 
-### Phase 2.3 Create and Review UML Models
+### 第 2.3 阶段 创建和审查 UML 模型
 
-Once the design and architecture is complete, build Unified Modeling Language (UML) models that describe how the application works. In some cases, these may already be available. Use these models to confirm with the systems designers an exact understanding of how the application works. If weaknesses are discovered, they should be given to the system architect for alternative approaches.
+一旦设计和架构完成，构建描述应用工作方式的统一建模语言（UML）模型。在某些情况下，这些可能已经可用。使用这些模型来与系统设计者确认对应用工作方式的确切理解。如果发现弱点，应将其交给系统架构师以获取替代方案。
 
-### Phase 2.4 Create and Review Threat Models
+### 第 2.4 阶段 创建和审查威胁模型
 
-Armed with design and architecture reviews and the UML models explaining exactly how the system works, undertake a threat modeling exercise. Develop realistic threat scenarios. Analyze the design and architecture to ensure that these threats have been mitigated, accepted by the business, or assigned to a third party, such as an insurance firm. When identified threats have no mitigation strategies, revisit the design and architecture with the systems architect to modify the design.
+在设计和架构审查以及解释系统工作方式的 UML 模型的支持下，进行威胁建模练习。开发现实的威胁场景。分析和架构以确保这些威胁已被缓解、被业务接受或分配给第三方（如保险公司）。当识别的威胁没有缓解策略时，与系统架构师重新审视设计和架构以修改设计。
 
-## Phase 3 During Development
+## 第 3 阶段 开发期间
 
-Theoretically, development is the implementation of a design. However, in the real world, many design decisions are made during code development. These are often smaller decisions that were either too detailed to be described in the design, or issues where no policy or standard guidance was offered. If the design and architecture were not adequate, the developer will be faced with many decisions. If there were insufficient policies and standards, the developer will be faced with even more decisions.
+从理论上讲，开发是设计的实施。然而，在现实世界中，许多设计决策是在代码开发过程中做出的。这些通常是很小的决策，要么太细节而无法在设计中描述，要么是没有提供政策或标准指导的问题。如果设计和架构不足，开发人员将面临许多决策。如果政策和标准不足，开发人员将面临更多决策。
 
-### Phase 3.1 Code Walkthrough
+### 第 3.1 阶段 代码走读
 
-The security team should perform a code walkthrough with the developers, and in some cases, the system architects. A code walkthrough is a high-level look at the code during which the developers can explain the logic and flow of the implemented code. It allows the code review team to obtain a general understanding of the code, and allows the developers to explain why certain things were developed the way they were.
+安全团队应与开发人员，在某些情况下还有系统架构师，进行代码走读。代码走读是对代码的高级查看，开发人员可以在其中解释已实现代码的逻辑和流程。它允许代码审查团队获得对代码的一般理解，并允许开发人员解释为什么某些事情以他们所做的特定方式开发。
 
-The purpose is not to perform a code review, but to understand at a high level the flow, the layout, and the structure of the code that makes up the application.
+目的不是执行代码审查，而是从高层理解组成应用的代码的流程、布局和结构。
 
-### Phase 3.2 Code Reviews
+### 第 3.2 阶段 代码审查
 
-Armed with a good understanding of how the code is structured and why certain things were coded the way they were, the tester can now examine the actual code for security defects.
+在对代码的结构以及为什么某些事情以特定方式编码有了很好的理解之后，测试人员现在可以检查实际代码中的安全缺陷。
 
-Static code reviews validate the code against a set of checklists, including:
+静态代码审查根据以下检查清单验证代码：
 
-- Business requirements for availability, confidentiality, and integrity;
-- OWASP Guide or Top 10 Checklists for technical exposures (depending on the depth of the review);
-- Specific issues relating to the language or framework in use, such as the Scarlet paper for PHP or [Microsoft Secure Coding checklists for ASP.NET](https://msdn.microsoft.com/en-us/library/ff648269.aspx); and
-- Any industry-specific requirements, such as Sarbanes-Oxley 404, COPPA, ISO/IEC 27002, APRA, HIPAA, Visa Merchant guidelines, or other regulatory regimes.
+- 可用性、机密性和完整性的业务需求；
+- OWASP 指南或 Top 10 检查清单用于技术暴露（取决于审查深度）；
+- 与正在使用的语言或框架相关的特定问题，例如用于 PHP 的 Scarlet 论文或 [用于 ASP.NET 的 Microsoft 安全编码检查清单](https://msdn.microsoft.com/en-us/library/ff648269.aspx)；和
+- 任何特定行业的要求，例如萨班斯-奥克斯利法案 404、COPPA、ISO/IEC 27002、APRA、HIPAA、Visa 商家指南或其他监管制度。
 
-In terms of return on resources invested (mostly time), static code reviews produce far higher quality returns than any other security review method and rely least on the skill of the reviewer. However, they are not a silver bullet and need to be considered carefully within a full-spectrum testing regime.
+就投入资源的回报（主要是时间）而言，静态代码审查比任何其他安全审查方法产生更高质量的回报，并且最少依赖审查人员的技能。然而，它们不是银弹，需要在全面测试制度中仔细考虑。
 
-For more details on OWASP checklists, please refer to the latest edition of the [OWASP Top 10](https://owasp.org/www-project-top-ten/).
+有关 OWASP 检查清单的更多详细信息，请参阅最新版本的 [OWASP Top 10](https://owasp.org/www-project-top-ten/)。
 
-## Phase 4 During Deployment
+## 第 4 阶段 部署期间
 
-### Phase 4.1 Application Penetration Testing
+### 第 4.1 阶段 应用渗透测试
 
-Having tested the requirements, analyzed the design, and performed code review, it might be assumed that all issues have been caught. Hopefully this is the case, but penetration testing the application after it has been deployed provides an additional check to ensure that nothing has been missed.
+在测试需求、分析设计和执行代码审查之后，可能假定所有问题都已被捕获。希望情况确实如此，但在部署后对应用进行渗透测试提供了额外的检查，以确保没有遗漏任何内容。
 
-### Phase 4.2 Configuration Management Testing
+### 第 4.2 阶段 配置管理测试
 
-The application penetration test should include an examination of how the infrastructure was deployed and secured. It is important to review configuration aspects, no matter how small, to ensure that none are left at a default setting that may be vulnerable to exploitation.
+应用渗透测试应包括对基础设施部署和保障方式的检查。无论配置多小，审查配置方面都很重要，以确保没有保留可能被利用的默认设置。
 
-## Phase 5 During Maintenance and Operations
+## 第 5 阶段 维护和运营期间
 
-### Phase 5.1 Conduct Operational Management Reviews
+### 第 5.1 阶段 执行运营管理审查
 
-There needs to be a process in place which details how the operational side of both the application and infrastructure is managed.
+需要有一个详细说明应用和基础设施运营方面如何管理的流程。
 
-### Phase 5.2 Conduct Periodic Health Checks
+### 第 5.2 阶段 执行定期健康检查
 
-Monthly or quarterly health checks should be performed on both the application and infrastructure to ensure no new security risks have been introduced and that the level of security is still intact.
+应每月或每季度对应用和基础设施执行健康检查，以确保没有引入新的安全风险，并且安全级别仍然完好。
 
-### Phase 5.3 Ensure Change Verification
+### 第 5.3 阶段 确保变更验证
 
-After every change has been approved and tested in the QA environment and deployed into the production environment, it is vital that the change is checked to ensure that the level of security has not been affected by the change. This should be integrated into the change management process.
+在每个变更已在 QA 环境中批准和测试并部署到生产环境后，必须检查变更以确保安全级别未受到变更的影响。这应该集成到变更管理流程中。
 
-## A Typical SDLC Testing Workflow
+## 典型 SDLC 测试工作流程
 
-The following figure shows a typical SDLC Testing Workflow.
+下图显示了一个典型的 SDLC 测试工作流程。
 
-![Typical SDLC Testing Workflow](images/Typical_SDLC_Testing_Workflow.gif)\
- *Figure 3-1: Typical SDLC testing workflow*
+![典型 SDLC 测试工作流程](images/Typical_SDLC_Testing_Workflow.gif)\
+*图 3-1：典型 SDLC 测试工作流程*

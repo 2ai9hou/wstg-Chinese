@@ -1,48 +1,48 @@
-# Testing Tools Resource
+# 测试工具资源
 
-## Introduction
+## 引言
 
-This appendix is intended to provide a list of common tools that are used for web application testing. It does not aim to be a complete tool reference, and the inclusion of a tool here should not be seen as a specific endorsement of that tool by OWASP.
+本附录旨在提供 Web 应用测试常用工具的列表。它的目的不是成为完整的工具参考，在此处包含工具不应被视为 OWASP 对该工具的特定认可。
 
-The list contains only tools that are freely available to download and use (although they may have licenses restricting their use for commercial activity).
+列表仅包含可免费下载和使用的工具（尽管它们可能有限制商业使用许可的许可证）。
 
-## General Web Testing
+## 通用 Web 测试
 
-### Web Proxies
+### Web 代理
 
 - [ZAP](https://www.zaproxy.org)
-    - The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications. It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing.
-        - ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.
-- [Burp Suite Community Edition](https://portswigger.net/burp/communitydownload)
-    - Burp Suite is an intercepting proxy for security testing. It allows intercepting and modifying all HTTP(S) traffic passing in both directions, it can work with custom TLS certificates and non-proxy-aware clients.
+    - Zed Attack Proxy（ZAP）是一款易于使用的集成渗透测试工具，用于发现 Web 应用中的漏洞。它专为具有广泛安全经验的人群设计，因此非常适合渗透测试新手开发人员和功能测试人员。
+        - ZAP 提供自动扫描器以及一组工具，允许您手动发现安全漏洞。
+- [Burp Suite 社区版](https://portswigger.net/burp/communitydownload)
+    - Burp Suite 是用于安全测试的拦截代理。它允许拦截和修改双向通过的所有 HTTP(S) 流量，它可以处理自定义 TLS 证书和非代理感知客户端。
 - [Telerik Fiddler](https://www.telerik.com/fiddler)
-    - Fiddler is an intercepting web proxy that is primarily aimed at developers rather than penetration testers, but still provides useful functionality. It also hooks directly into the Windows HTTP APIs, allowing it to intercept traffic from some software that doesn't allow custom proxies to be set.
+    - Fiddler 是一个拦截式 Web 代理，主要面向开发人员而非渗透测试人员，但仍提供有用的功能。它还直接挂钩到 Windows HTTP API，允许它拦截某些不允许设置自定义代理的软件的流量。
 
-### Firefox Extensions
+### Firefox 扩展
 
 - [Firefox HTTP Header Live](https://addons.mozilla.org/en-US/firefox/addon/http-header-live)
-    - View HTTP headers of a page and while browsing.
+    - 随时浏览时查看页面的 HTTP 头。
 - [Firefox Multi-Account Containers](https://addons.mozilla.org/en-GB/firefox/addon/multi-account-containers/)
-    - Create multiple containers, each of which have their own isolated cookies and sessions. Useful for testing access control between different users.
+    - 创建多个容器，每个容器都有自己隔离的 cookie 和会话。用于测试不同用户之间的访问控制。
 - [Firefox Tamper Data](https://addons.mozilla.org/en-US/firefox/addon/tamper-data-for-ff-quantum/)
-    - Use Tamper Data to view and modify HTTP/HTTPS headers and post parameters
+    - 使用 Tamper Data 查看和修改 HTTP/HTTPS 头和 post 参数
 - [Firefox Web Developer](https://addons.mozilla.org/en-US/firefox/addon/web-developer/)
-    - The Web Developer extension adds various web developer tools to the browser.
+    - Web Developer 扩展向浏览器添加各种 Web 开发人员工具。
 
-### Chrome Extensions
+### Chrome 扩展
 
 - [Chrome Web Developer](https://chrome.google.com/webstore/detail/bfbameneiokkgbdmiekhjnmfkcnldhhm)
-    - The Web Developer extension adds a toolbar button to the browser with various web developer tools. This is the official port of the Web Developer extension for Chrome.
+    - Web Developer 扩展向浏览器添加工具栏按钮，其中包含各种 Web 开发人员工具。这是 Chrome 版 Web Developer 扩展的官方移植版本。
 - [Cookie Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
-    - A powerful and easy to use browser extension that allows you to quickly create, edit and delete cookies for the current tab. Useful for developing, testing, or manually managing cookies.
+    - 一个强大且易于使用的浏览器扩展，允许您快速创建、编辑和删除当前标签页的 cookie。用于开发、测试或手动管理 cookie。
 
-### Testing for Specific Vulnerabilities
+### 特定漏洞测试
 
-#### Testing for SQL Injection
+#### 测试 SQL 注入
 
 - [sqlmap](https://sqlmap.org)
 
-#### Testing TLS
+#### 测试 TLS
 
 - [OWASP O-Saft](https://owasp.org/www-project-o-saft/)
 - [sslyze](https://github.com/nabla-c0d3/sslyze)
@@ -50,85 +50,85 @@ The list contains only tools that are freely available to download and use (alth
 - [SSLScan](https://github.com/rbsec/sslscan)
 - [SSLLabs](https://www.ssllabs.com/ssltest/)
 
-#### Testing for Brute Force Attacks
+#### 测试暴力攻击
 
-##### Hash Crackers
+##### 哈希破解器
 
 - [John the Ripper](https://github.com/openwall/john)
 - [hashcat](https://hashcat.net/hashcat/)
 
-##### Remote Brute Force
+##### 远程暴力破解
 
 - [ZAP](https://www.zaproxy.org)
 - [Patator](https://github.com/lanjelot/patator)
 - [THC Hydra](https://github.com/vanhauser-thc/thc-hydra)
-- [Burp Suite Community Edition (Intruder)](https://portswigger.net/burp/communitydownload)
+- [Burp Suite 社区版（Intruder）](https://portswigger.net/burp/communitydownload)
 
-#### Fuzzers
+#### 模糊测试器
 
 - [Ffuf](https://github.com/ffuf/ffuf)
 - [Wfuzz](https://github.com/xmendez/wfuzz)
 - [Jdam](https://gitlab.com/michenriksen/jdam)
 
-#### Google Hacking
+#### Google 黑客
 
-- [Google Hacking database](https://www.exploit-db.com/google-hacking-database/)
+- [Google Hacking 数据库](https://www.exploit-db.com/google-hacking-database/)
 
-#### Slow HTTP
+#### 慢速 HTTP
 
 - [Slowloris](https://github.com/gkbrk/slowloris)
 - [slowhttptest](https://github.com/shekyan/slowhttptest)
 
-### Site Mirroring
+### 网站镜像
 
 - [wget](https://www.gnu.org/software/wget/)
 - [wget for windows](https://gnuwin32.sourceforge.net/packages/wget.htm)
 - [cURL](https://curl.haxx.se)
 
-### Content Discovery
+### 内容发现
 
 - [Gobuster](https://github.com/OJ/gobuster)
 - [Waybackurls](https://github.com/tomnomnom/waybackurls)
-    - Waybackurls fetches all URLs known to the Wayback Machine for a given domain, useful for reconnaissance.
-    - **Usage:**
+    - Waybackurls 获取 Wayback Machine 中已知的给定域名的所有 URL，用于侦察。
+    - **用法：**
 
 ```bash
 waybackurls example.com
 ```
 
-- [GAU (Get All URLs)](https://github.com/lc/gau)
-    - GAU collects URLs from multiple public archives, including the Wayback Machine and Common Crawl.
-    - **Usage:**
+- [GAU（获取所有 URL）](https://github.com/lc/gau)
+    - GAU 从多个公共档案馆收集 URL，包括 Wayback Machine 和 Common Crawl。
+    - **用法：**
 
 ```bash
 gau example.com
 ```
 
 - [Unfurl](https://github.com/tomnomnom/unfurl)
-    - Unfurl extracts subdomains, paths, and parameters from URLs for deeper analysis.
-    - **Usage:**
+    - Unfurl 从 URL 中提取子域、路径和参数，以便进行更深入的分析。
+    - **用法：**
 
 ```bash
 unfurl "https://example.com/page?query=123"
 ```
 
-### Port and Service Discovery
+### 端口和服务发现
 
 - [Nmap](https://nmap.org/)
 
-## Vulnerability Scanners
+## 漏洞扫描器
 
 - [ZAP](https://www.zaproxy.org)
 - [Nikto](https://cirt.net/Nikto2)
 - [Nuclei](https://nuclei.projectdiscovery.io/)
 - [SecOps Solution](https://secopsolution.com)
 
-## Exploitation Frameworks
+## 利用框架
 
 - [Metasploit](https://github.com/rapid7/metasploit-framework)
 - [BeEF](https://github.com/beefproject/beef/)
 
-## Linux Distributions
+## Linux 发行版
 
 - [Kali](https://www.kali.org)
 - [Parrot](https://www.parrotsec.org)
@@ -136,50 +136,50 @@ unfurl "https://example.com/page?query=123"
 - [Santoku](https://sourceforge.net/projects/santoku/)
 - [BlackArch](https://blackarch.org/downloads.html)
 
-## Source Code Analyzers
+## 源代码分析器
 
 - [Spotbugs](https://spotbugs.github.io)
 - [Find Security Bugs](https://find-sec-bugs.github.io)
 - [phpcs-security-audit](https://github.com/squizlabs/PHP_CodeSniffer)
 - [PMD](https://pmd.github.io)
-- [Microsoft's .NET Analyzers](https://docs.microsoft.com/en-us/visualstudio/code-quality/install-net-analyzers)
-- [SonarQube Community Edition](https://www.sonarqube.org)
+- [Microsoft 的 .NET 分析器](https://docs.microsoft.com/en-us/visualstudio/code-quality/install-net-analyzers)
+- [SonarQube 社区版](https://www.sonarqube.org)
 
-## Browser Automation Tools
+## 浏览器自动化工具
 
-Browser Automation tools are used to validate the functionality of web applications. Some follow a scripted approach and typically make use of a Unit Testing framework to construct test suites and test cases. Most, if not all, can be adapted to perform security specific tests in addition to functional tests.
+浏览器自动化工具用于验证 Web 应用的功能。一些采用脚本方法，通常利用单元测试框架来构建测试套件和测试用例。如果不是全部，大多数可以改编为执行安全特定测试以及功能测试。
 
-### Open Source Tools
+### 开源工具
 
-- [HtmlUnit](https://htmlunit.sourceforge.io) - HtmlUnit is a GUI-less browser for Java programs. It models HTML documents and provides an API to invoke pages, fill out forms, click links, and interact with JavaScript and complex AJAX libraries. It can simulate Chrome, Firefox, or Edge depending on configuration, and is typically used for automated testing or web scraping. HtmlUnit can also be used as a Selenium-compatible browser via the [htmlunit-driver](https://github.com/SeleniumHQ/htmlunit-driver). The latest stable release is 4.21.0 (`org.htmlunit:htmlunit:4.21.0`).
-    - GitHub Repository: [HtmlUnit/htmlunit](https://github.com/HtmlUnit/htmlunit)
+- [HtmlUnit](https://htmlunit.sourceforge.io) - HtmlUnit 是 Java 程序的无 GUI 浏览器。它对 HTML 文档建模，并提供 API 来调用页面、填写表单、点击链接以及与 JavaScript 和复杂 AJAX 库交互。它可以根据配置模拟 Chrome、Firefox 或 Edge，通常用于自动化测试或 Web 抓取。HtmlUnit 也可以通过 [htmlunit-driver](https://github.com/SeleniumHQ/htmlunit-driver) 用作 Selenium 兼容浏览器。最新的稳定版本是 4.21.0（`org.htmlunit:htmlunit:4.21.0`）。
+    - GitHub 仓库：[HtmlUnit/htmlunit](https://github.com/HtmlUnit/htmlunit)
 - [Selenium](https://www.selenium.dev)
-    - JavaScript based testing framework, cross-platform and provides a GUI for creating tests.
+    - 基于 JavaScript 的测试框架，跨平台并提供用于创建测试的 GUI。
 
-## Online Resources for Security Testing Tool Comparison
+## 安全测试工具比较在线资源
 
-In addition to individual tools listed in this appendix, practitioners often need resources that help compare and evaluate security testing tools across categories such as SAST, DAST, SCA, and API security.
+除了本附录中列出的各个工具外，从业人员通常需要帮助跨类别（如 SAST、DAST、SCA 和 API 安全）比较和评估安全测试工具的资源。
 
-The following freely available resources provide curated comparisons and evaluation guidance.
+以下免费资源提供精心策划的比较和评估指导。
 
-### AppSec Santa Tool Comparison
+### AppSec Santa 工具比较
 
 - [AppSec Santa](https://appsecsanta.com)
-    - A curated comparison of more than 160 application security tools across categories such as SAST, DAST, SCA, API Security, container security, and more.
+    - 精心策划的比较，涵盖 160 多种应用安全工具，类别包括 SAST、DAST、SCA、API 安全、容器安全等。
 
-### Security Headers Analyzer
+### 安全头分析器
 
 - [SecurityHeaders](https://securityheaders.com)
-    - A free online tool that analyzes HTTP response headers and highlights missing or misconfigured security protections such as Content Security Policy, HSTS, and X-Frame-Options.
+    - 一个免费在线工具，分析 HTTP 响应头并突出显示缺失或配置错误的安全保护，如内容安全策略、HSTS 和 X-Frame-Options。
 
-### ZAP (Zed Attack Proxy) Documentation
+### ZAP（Zed Attack Proxy）文档
 
-Official documentation and learning resources for the ZAP (Zed Attack Proxy) dynamic application security testing tool.
+ZAP（Zed Attack Proxy）动态应用安全测试工具的官方文档和学习资源。
 
-- [ZAP Documentation](https://www.zaproxy.org/docs/)
+- [ZAP 文档](https://www.zaproxy.org/docs/)
 
-### Nuclei Templates Project
+### Nuclei 模板项目
 
-A large open-source repository of vulnerability detection templates used for automated security scanning.
+一个大型开源漏洞检测模板仓库，用于自动化安全扫描。
 
-- [Nuclei Templates](https://github.com/projectdiscovery/nuclei-templates)
+- [Nuclei 模板](https://github.com/projectdiscovery/nuclei-templates)

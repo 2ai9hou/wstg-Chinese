@@ -1,85 +1,85 @@
 # OWASP Web Security Testing Guide
 
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/OWASP/wstg/issues)
-[![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects/)
-[![Twitter Follow](https://img.shields.io/twitter/follow/owasp_wstg?style=social)](https://x.com/owasp_wstg)
+[![欢迎贡献](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/OWASP/wstg/issues)
+[![OWASP 旗舰项目](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects/)
+[![Twitter 关注](https://img.shields.io/twitter/follow/owasp_wstg?style=social)](https://x.com/owasp_wstg)
 
-[![Creative Commons License](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/ "CC BY-SA 4.0")
+[![知识共享许可](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/ "CC BY-SA 4.0")
 
-Welcome to the official repository for the Open Worldwide Application Security Project® (OWASP®) Web Security Testing Guide (WSTG). The WSTG is a comprehensive guide to testing the security of web applications and web services. Created by the collaborative efforts of security professionals and dedicated volunteers, the WSTG provides a framework of best practices used by penetration testers and organizations all over the world.
+欢迎来到开放全球应用安全项目®（OWASP®）Web 安全测试指南（WSTG）的官方仓库。WSTG 是一份全面的 Web 应用和 Web 服务安全测试指南。由安全专业人员和志愿者的协作努力创建，WSTG 提供了一套被全球渗透测试人员和组织使用的最佳实践框架。
 
-We are currently working on release version 5.0. You can [read the current document here on GitHub](https://github.com/OWASP/wstg/tree/master/document).
+我们目前正在进行 5.0 版本的开发。您可以[在 GitHub 上阅读当前文档](https://github.com/OWASP/wstg/tree/master/document)。
 
-For the last stable release, [check release 4.2](https://github.com/OWASP/wstg/releases/tag/v4.2). Also available [online](https://owasp.org/www-project-web-security-testing-guide/v42/).
+如需查看最新稳定版本，请[查看 4.2 版本](https://github.com/OWASP/wstg/releases/tag/v4.2)。也可以[在线访问](https://owasp.org/www-project-web-security-testing-guide/v42/)。
 
-- [How To Reference WSTG Scenarios](#how-to-reference-wstg-scenarios)
-    - [Linking](#linking)
-- [Contributions, Feature Requests, and Feedback](#contributions-feature-requests-and-feedback)
-- [Chat With Us](#chat-with-us)
-- [Project Leaders](#project-leaders)
-- [Core Team](#core-team)
-- [Translations](#translations)
+- [如何引用 WSTG 场景](#如何引用-wstg-场景)
+    - [链接](#链接)
+- [贡献、功能请求和反馈](#贡献功能请求和反馈)
+- [与我们交流](#与我们交流)
+- [项目负责人](#项目负责人)
+- [核心团队](#核心团队)
+- [翻译](#翻译)
 
-## How To Reference WSTG Scenarios
+## 如何引用 WSTG 场景
 
-Each scenario has an identifier in the format `WSTG-<category>-<number>`, where: 'category' is a 4 character upper case string that identifies the type of test or weakness, and 'number' is a zero-padded numeric value from 01 to 99. For example:`WSTG-INFO-02` is the second Information Gathering test.
+每个场景都有一个格式为 `WSTG-<category>-<number>` 的标识符，其中：'category' 是一个 4 字符大写字符串，用于标识测试或弱点的类型，'number' 是一个从 01 到 99 的零填充数值。例如：`WSTG-INFO-02` 是第二个信息收集测试。
 
-The identifiers may change between versions. Therefore, it is preferable that other documents, reports, or tools use the format: `WSTG-<version>-<category>-<number>`, where: 'version' is the version tag with punctuation removed. For example: `WSTG-v42-INFO-02` would be understood to mean specifically the second Information Gathering test from version 4.2.
+标识符可能在不同版本之间发生变化。因此，其他文档、报告或工具最好使用格式：`WSTG-<version>-<category>-<number>`，其中：'version' 是去掉标点符号的版本标签。例如：`WSTG-v42-INFO-02` 将被理解为特指 4.2 版中第二个信息收集测试。
 
-If identifiers are used without including the `<version>` element, they should be assumed to refer to the latest Web Security Testing Guide content. As the guide grows and changes this becomes problematic, which is why writers or developers should include the version element.
+如果使用的标识符不包括 `<version>` 元素，则应假定它们指的是最新版的 Web 安全测试指南内容。显然，随着指南的发展和变化，这可能会变得有问题，这就是为什么作者或开发人员应该包括版本元素。
 
-### Linking
+### 链接
 
-Linking to Web Security Testing Guide scenarios should be done using versioned links not `stable` or `latest`, which will change with time. However, it is the project team's intention that versioned links do not change. For example: `https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server.html`. Note: the `v42` element refers to version 4.2.
+链接到 Web 安全测试指南场景应使用版本化链接，而不是 `stable` 或 `latest`，后者肯定会随时间变化。但是，项目团队的意图是版本化链接不会改变。例如：`https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server.html`。注意：`v42` 元素指的是 4.2 版。
 
-## Contributions, Feature Requests, and Feedback
+## 贡献、功能请求和反馈
 
-We are actively inviting new contributors! To start, read the [contribution guide](CONTRIBUTING.md).
+我们正在积极邀请新的贡献者！首先，请阅读[贡献指南](CONTRIBUTING.md)。
 
-First time here? Here are [GitHub's suggestions for first-time contributors](https://github.com/OWASP/wstg/contribute) to this repository.
+第一次来这里？以下是 [GitHub 为首次贡献者提供的建议](https://github.com/OWASP/wstg/contribute)。
 
-This project is only possible thanks to the work of many dedicated volunteers. Everyone is encouraged to help in ways large and small. Here are a few ways you can help:
+这个项目离不开许多志愿者的辛勤工作。鼓励每个人以各种方式提供帮助。以下是您可以提供帮助的一些方式：
 
-- Read the current content and help us fix any spelling mistakes or grammatical errors.
-- Help with [translation](CONTRIBUTING.md#translation) efforts.
-- Choose an existing issue and submit a pull request to fix it.
-- Open a new issue to report an opportunity for improvement.
+- 阅读当前内容，帮助我们修复任何拼写错误或语法错误。
+- 帮助[翻译](CONTRIBUTING.md#translation)工作。
+- 选择一个现有议题，提交 Pull Request 来修复。
+- 提交一个新的议题来报告改进机会。
 
-To learn how to contribute successfully, read the [contribution guide](CONTRIBUTING.md).
+要了解如何成功贡献，请阅读[贡献指南](CONTRIBUTING.md)。
 
-Successful contributors appear on [the project's list of authors, reviewers, or editors](document/1-Frontispiece/README.md).
+成功贡献者的名单会显示在[项目的作者、审校者或编辑列表](document/1-Frontispiece/README.md)中。
 
-## Chat With Us
+## 与我们交流
 
-We're easy to find on Slack:
+您可以在 Slack 上轻松找到我们：
 
-1. Join the OWASP Group Slack with this [invitation link](https://owasp.org/slack/invite).
-2. Join this project's [channel, #testing-guide](https://app.slack.com/client/T04T40NHX/CJ2QDHLRJ).
+1. 使用此[邀请链接](https://owasp.org/slack/invite)加入 OWASP Group Slack。
+2. 加入本项目的[频道，#testing-guide](https://app.slack.com/client/T04T40NHX/CJ2QDHLRJ)。
 
-Feel free to ask questions, suggest ideas, or share your best recipes.
+欢迎提问、提出想法或分享您的最佳实践。
 
-You can @ us on 𝕏 (Twitter) [@owasp_wstg](https://x.com/owasp_wstg).
+您可以在 𝕏（Twitter）上 @ 我们 [@owasp_wstg](https://x.com/owasp_wstg)。
 
-You can also join our [Google Group](https://groups.google.com/a/owasp.org/forum/#!forum/testing-guide-project).
+您也可以加入我们的 [Google Group](https://groups.google.com/a/owasp.org/forum/#!forum/testing-guide-project)。
 
-## Project Leaders
+## 项目负责人
 
 - [Rick Mitchell](https://github.com/kingthorin)
 - [Elie Saad](https://github.com/ThunderSon)
 
-## Core Team
+## 核心团队
 
 - [Rejah Rehim](https://github.com/rejahrehim)
 - [Victoria Drake](https://github.com/victoriadrake)
 
-## Translations
+## 翻译
 
-- [Portuguese-BR](https://github.com/doverh/wstg-translations-pt)
-- [Russian](https://github.com/andrettv/WSTG/tree/master/WSTG-ru)
-- [Persian (Farsi)](https://github.com/whoismh11/owasp-wstg-fa)
-- [Turkish](https://github.com/enoskom/Owasp-wstg)
-- [Spanish](https://github.com/frangelbarrera/wstg)
+- [葡萄牙语-BR](https://github.com/doverh/wstg-translations-pt)
+- [俄语](https://github.com/andrettv/WSTG/tree/master/WSTG-ru)
+- [波斯语（法尔斯语）](https://github.com/whoismh11/owasp-wstg-fa)
+- [土耳其语](https://github.com/enoskom/Owasp-wstg)
+- [西班牙语](https://github.com/frangelbarrera/wstg)
 
 ---
 
-Open Worldwide Application Security Project and OWASP are registered trademarks of the OWASP Foundation, Inc.
+开放全球应用安全项目和 OWASP 是 OWASP 基金会的注册商标。

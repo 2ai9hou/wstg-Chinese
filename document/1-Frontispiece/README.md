@@ -1,30 +1,30 @@
-# Frontispiece
+# 卷首
 
-## Welcome
+## 欢迎辞
 
-> As we focus on incremental improvement, this release introduces numerous updates. We've standardized scenario formats to create a better reading experience, added objectives for each testing scenario, merged sections, and added new scenarios on some modern testing topics.
+> 在专注于持续改进的过程中，本版本推出了大量更新。我们标准化了场景格式以创造更好的阅读体验，为每个测试场景添加了目标说明，合并了部分章节，并就一些现代测试主题添加了新的场景。
 >
 > — Rick Mitchell
 
-OWASP thanks the many authors, reviewers, and editors for their hard work in bringing this guide to where it is today. If you have any comments or suggestions on the Testing Guide, please feel free to open an Issue or submit a fix/contribution via Pull Request to our [GitHub repository](https://github.com/OWASP/wstg/).
+OWASP 感谢众多作者、审校者和编辑为将本指南打造至今日水平所付出的辛勤努力。如果你对测试指南有任何意见或建议，请随时在我们的 [GitHub 仓库](https://github.com/OWASP/wstg/) 上提交 Issue 或通过 Pull Request 提交修改。
 
-## Copyright and Licensee
+## 版权与许可
 
-Copyright (c) 2025 The OWASP Foundation.
+版权所有 (c) 2025 OWASP 基金会。
 
-This document is released under the [Creative Commons 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/). Please read and understand the license and copyright conditions.
+本文档遵循 [知识共享署名-相同方式共享 4.0 国际许可](https://creativecommons.org/licenses/by-sa/4.0/)。请阅读并理解许可协议和版权条件。
 
-## Leaders
+## 项目负责人
 
 - Elie Saad
 - Rick Mitchell
 
-## Core Team
+## 核心团队
 
 - Rejah Rehim
 - Victoria Drake
 
-## Authors
+## 作者
 
 - Aaron Williams
 - Alessia Michela Di Campi
@@ -52,14 +52,14 @@ This document is released under the [Creative Commons 4.0 License](https://creat
 - Tal Argoni
 - Victoria Drake
 
-## Graphic Designers
+## 平面设计师
 
 - Hugo Costa
 - Jishnu Vijayan C K
 - Muhammed Anees
 - Ramzi Fazah
 
-## Reviewers or Editors
+## 审校者或编辑
 
 - Abhi M Balakrishnan
 - Asharaf Ali
@@ -84,24 +84,24 @@ This document is released under the [Creative Commons 4.0 License](https://creat
 - Tom Bowyer
 - Victoria Drake
 
-## Trademarks
+## 商标
 
-- Java, Java Web Server, and JSP are registered trademarks of Sun Microsystems, Inc.
-- Merriam-Webster is a trademark of Merriam-Webster, Inc.
-- Microsoft is a registered trademark of Microsoft Corporation.
-- Octave is a service mark of Carnegie Mellon University.
-- Open Worldwide Application Security Project and OWASP are registered trademarks of the OWASP Foundation, Inc.
-- VeriSign and Thawte are registered trademarks of VeriSign, Inc.
-- Visa is a registered trademark of VISA USA.
+- Java、Java Web Server 和 JSP 是 Sun Microsystems, Inc. 的注册商标。
+- Merriam-Webster 是 Merriam-Webster, Inc. 的商标。
+- Microsoft 是 Microsoft Corporation 的注册商标。
+- Octave 是卡内基梅隆大学的服务标志。
+- 开放 Web 应用安全项目和 OWASP 是 OWASP 基金会的注册商标。
+- VeriSign 和 Thawte 是 VeriSign, Inc. 的注册商标。
+- Visa 是 VISA USA 的注册商标。
 
-All other products and company names may be trademarks of their respective owners. Use of a term in this document should not be regarded as affecting the validity of any trademark or service mark.
+所有其他产品和公司名称可能是其各自所有者的商标。本文档中对某术语的使用不应被视为影响任何商标或服务标志的有效性。
 
-## Contacting OWASP
+## 联系 OWASP
 
-Contact details for the [OWASP Foundation](https://owasp.org/) are available [online](https://owasp.org/contact/). If you have a question concerning a particular project, we strongly recommend using the [Google Group](https://groups.google.com/a/owasp.org/forum/) for that project. Many questions can also be answered by searching the [OWASP](https://owasp.org/) site, so please check there first.
+[OWASP 基金会](https://owasp.org/) 的联系方式可在[线获取](https://owasp.org/contact/)。如果你对某个特定项目有疑问，我们强烈建议你使用该项目的 [Google Group](https://groups.google.com/a/owasp.org/forum/)。许多问题也可以通过搜索 [OWASP](https://owasp.org/) 网站来解答，所以请首先查看那里。
 
-### Follow Us
+### 关注我们
 
-[![Follow OWASP on LinkedIn](images/follow_badge.png)](https://www.linkedin.com/company/owasp/)
+[![在 LinkedIn 上关注 OWASP](images/follow_badge.png)](https://www.linkedin.com/company/owasp/)
 
-[![Follow @owasp_wstg on twitter](https://img.shields.io/twitter/follow/owasp_wstg?style=social)](https://twitter.com/owasp_wstg)
+[![关注 twitter 上的 @owasp_wstg](https://img.shields.io/twitter/follow/owasp_wstg?style=social)](https://twitter.com/owasp_wstg)

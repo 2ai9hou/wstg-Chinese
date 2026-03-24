@@ -1,78 +1,78 @@
-# 4.0 Introduction and Objectives
+# 4.0 引言与目标
 
-This section describes the OWASP web application security testing methodology and explains how to test for evidence of vulnerabilities within the application due to deficiencies with identified security controls.
+本节描述了 OWASP Web 应用安全测试方法论，并解释如何测试应用中因已识别安全控制缺陷而导致的漏洞证据。
 
-## What is Web Application Security Testing?
+## 什么是 Web 应用安全测试？
 
-A security test is a method of evaluating the security of a computer system or network by methodically validating and verifying the effectiveness of application security controls. A web application security test focuses only on evaluating the security of a web application. The process involves an active analysis of the application for any weaknesses, technical flaws, or vulnerabilities. Any security issues that are found will be presented to the system owner, together with an assessment of the impact, a proposal for mitigation or a technical solution.
+安全测试是通过系统验证和验证应用安全控制有效性来评估计算机系统或网络安全性的方法。Web 应用安全测试仅专注于评估 Web 应用的安全性。该过程涉及对应用的任何弱点、技术缺陷或漏洞的主动分析。任何发现的安全问题都将连同影响评估、缓解建议或技术解决方案一起呈现给系统所有者。
 
-## What is a Vulnerability?
+## 什么是漏洞？
 
-A vulnerability is a flaw or weakness in a system's design, implementation, operation or management that could be exploited to compromise the system's security objectives.
+漏洞是系统设计、实施、操作或管理中的缺陷或弱点，可能被利用来损害系统的安全目标。
 
-## What is a Threat?
+## 什么是威胁？
 
-A threat is anything (a malicious external attacker, an internal user, a system instability, etc) that may harm the assets owned by an application (resources of value, such as the data in a database or in the file system) by exploiting a vulnerability.
+威胁是任何可能通过利用漏洞来损害应用资产（有价值资源，如数据库或文件系统中的数据）的东西（恶意外部攻击者、内部用户、系统不稳定等）。
 
-## What is a Test?
+## 什么是测试？
 
-A test is an action to demonstrate that an application meets the security requirements of its stakeholders.
+测试是证明应用满足其利益相关者安全要求的行动。
 
-## The Approach in Writing this Guide
+## 编写本指南的方法
 
-The OWASP approach is open and collaborative:
+OWASP 方法是开放和协作的：
 
-- Open: every security expert can participate with their experience in the project. Everything is free.
-- Collaborative: brainstorming is performed before the articles are written so the team can share ideas and develop a collective vision of the project. That means rough consensus, a wider audience and increased participation.
+- 开放：每个安全专家都可以凭经验参与项目。一切都是免费的。
+- 协作：在撰写文章之前进行头脑风暴，以便团队可以分享想法并形成项目的共同愿景。这意味着粗糙的共识、更广泛的受众和增加参与度。
 
-This approach tends to result in a defined Testing Methodology that will be:
+这种方法往往会产生一个定义的测试方法论，它将是：
 
-- Consistent
-- Reproducible
-- Rigorous
-- Under quality control
+- 一致的
+- 可重复的
+- 严格的
+- 在质量控制下
 
-The problems to be addressed are fully documented and tested. It is important to use various methods to test all the known vulnerabilities and document all the security test activities.
+要解决的问题被完整记录和测试。使用各种方法测试所有已知漏洞并记录所有安全测试活动是很重要的。
 
-## What Is the OWASP Testing Methodology?
+## 什么是 OWASP 测试方法论？
 
-Security testing will never be an exact science where a complete list of all possible issues that should be tested can be defined. In fact, security testing is only one of the several suitable techniques for testing the security of web applications under certain circumstances. The goal of this project is to collect all the possible testing techniques, explain these techniques, and keep the guide updated. The OWASP Web Application Security Testing methodology is based on the black box approach. The tester has little to no information about the application to be tested.
+安全测试永远不会是门精确的科学，无法定义应测试的所有可能问题的完整列表。事实上，安全测试只是在某些情况下测试 Web 应用安全性的几种合适技术之一。本项目的目标是收集所有可能的测试技术，解释这些技术，并保持指南更新。OWASP Web 应用安全测试方法论基于黑盒方法。测试人员几乎没有关于要测试的应用的信息。
 
-The testing model consists of:
+测试模型包括：
 
-- Tester: Who performs the testing activities
-- Tools and methodology: The core of this Testing Guide project
-- Application: The black box to test
+- 测试人员：执行测试活动的人
+- 工具和方法论：本测试指南项目的核心
+- 应用：要测试的黑盒
 
-Testing can be categorized as passive or active:
+测试可分为被动测试或主动测试：
 
-### Passive Testing
+### 被动测试
 
-During passive testing, a tester tries to understand the application's logic and explores the application as an end user. Tools can be used for information gathering. For example, an HTTP(S) proxy can be used to observe all the HTTP(S) requests and responses. At the end of this phase, the tester should generally understand all the access points and functionality of the system (e.g., HTTP headers, parameters, cookies, APIs, technology usage/patterns, etc). The [Information Gathering](../01-Information_Gathering/README.md) section explains how to perform passive testing.
+在被动测试期间，测试人员尝试理解应用逻辑并作为最终用户探索应用。工具可用于信息收集。例如，HTTP(S) 代理可用于观察所有 HTTP(S) 请求和响应。在这个阶段结束时，测试人员通常应理解系统的所有访问点和功能（例如，HTTP 头、参数、cookies、API、技术使用/模式等）。[信息收集](../01-Information_Gathering/README.md) 部分解释瞭如何执行被动测试。
 
-For example, a tester may find a page at the following URL: `https://www.example.com/login/auth_form`
+例如，测试人员可能在以下 URL 找到一个页面：`https://www.example.com/login/auth_form`
 
-This may indicate an authentication form where the application requests a username and password.
+这可能表示一个身份验证表单，应用在其中请求用户名和密码。
 
-The following parameters represent two access points to the application: `https://www.example.com/appx?a=1&b=1`
+以下参数代表应用的两个访问点：`https://www.example.com/appx?a=1&b=1`
 
-In this case, the application has two access points (parameters `a` and `b`). All the input points found in this phase represent targets for testing. Keeping track of the directory or call tree of the application and all the access points can be useful during active testing.
+在这种情况下，应用有两个访问点（参数 `a` 和 `b`）。在此阶段发现的所有输入点都代表测试目标。跟踪应用的目录或调用树以及所有访问点在主动测试期间很有用。
 
-### Active Testing
+### 主动测试
 
-During active testing, a tester uses the methodologies described in the following sections.
+在主动测试期间，测试人员使用以下章节中描述的方法论。
 
-The set of active tests have been split into 12 categories:
+主动测试集已分为 12 个类别：
 
-- Information Gathering
-- Configuration and Deployment Management Testing
-- Identity Management Testing
-- Authentication Testing
-- Authorization Testing
-- Session Management Testing
-- Input Validation Testing
-- Testing for Error Handling
-- Testing for Weak Cryptography
-- Business Logic Testing
-- Client-side Testing
-- API Testing
+- 信息收集
+- 配置与部署管理测试
+- 身份管理测试
+- 认证测试
+- 授权测试
+- 会话管理测试
+- 输入验证测试
+- 错误处理测试
+- 弱加密测试
+- 业务逻辑测试
+- 客户端测试
+- API 测试

@@ -1,27 +1,27 @@
-# Article Template Explanation
+# 文章模板说明
 
 |ID          |
 |------------|
 |WSTG-FOO-002|
 
-## How to Name Your File
+## 如何命名文件
 
-The filename format is:
+文件名格式为：
 
 `<number>-Article_Name.md`
 
-To name your file:
+命名文件的方法：
 
-- Replace `<number>` with the appropriate integer. If you are unsure which section your article belongs in, post a comment in your [new content issue](https://github.com/OWASP/wstg/issues?q=is%3Aopen+is%3Aissue+label%3ANew) asking for input.
-- Write the article name in title case spaced with underscores for better URL encoding. If the article is titled, "Testing Foo Bypass in Bars" the filename component is: `Testing_Foo_Bypass_in_Bars` (with a hyphen separating the `<number>` from the title).
+- 将 `<number>` 替换为适当的整数。如果您不确定您的文章属于哪个章节，请在您的新内容议题中发表评论，请求指导。
+- 将文章名称用标题大小写并用下划线分隔，以获得更好的 URL 编码。如果文章标题为"测试 Foo 在 Bar 中的绕过"，则文件名组件为：`Testing_Foo_Bypass_in_Bars`（用连字符将 `<number>` 与标题分开）。
 
-## Article Sections
+## 文章章节
 
-The remainder of this document explains each section in the [article example](1-Testing_for_a_Cat_in_a_Box.md).
+本文档的其余部分解释[文章示例](1-Testing_for_a_Cat_in_a_Box.md)中的每个章节。
 
-## Title
+## 标题
 
-The first line of the document is a title at level H1. Followed by a Markdown table that includes the ID of the testing scenario. For example:
+文档的第一行是 H1 级别的标题。后面是一个 Markdown 表格，包含测试场景的 ID。例如：
 
 ```md
 |ID          |
@@ -29,24 +29,24 @@ The first line of the document is a title at level H1. Followed by a Markdown ta
 |WSTG-FOO-002|
 ```
 
-## Summary
+## 摘要
 
-Fully describe the reason for the test. Name specific vulnerabilities. Give the background information necessary for a reader with basic technical expertise. Explain terminology and abbreviations. See the [style guide](../../style_guide.md) for more.
+完整描述测试的原因。命名特定漏洞。为具有基本技术专业知识的读者提供必要的背景信息。解释术语和缩写。参见[撰写规范](../../style_guide.md)了解更多。
 
-## Test Objectives
+## 测试目标
 
-Use an [active voice](../../style_guide.md#active-voice) to describe the goal of the test.
+使用[主动语态](../../style_guide.md#active-voice)来描述测试的目标。
 
-## How to Test
+## 如何测试
 
-Provide specific instructions for performing one or more tests that satisfy the stated objective above. Use individual headings for different tests or methods. Be concise and complete. Use code snippets or images where necessary.
+提供执行满足上述声明目标的测试的具体说明。使用单独的标题来区分不同的测试或方法。要简洁而完整。必要时使用代码片段或图片。
 
-## Remediation
+## 修复
 
-Give a short overview of preventative measures. You may use bullet points. Provide leads to solutions that the reader can follow, but do not try to describe the entire solution itself. Remediation is outside the scope of the testing guide project.
+简要概述预防措施。您可以使用项目符号。提供读者可以遵循的解决方案线索，但不要试图描述整个解决方案本身。修复超出了测试指南项目的范围。
 
-Avoid duplicating content from other OWASP projects. Provide inline links to outside content as needed. Consider the following OWASP resources: [Application Security Verification Standard (ASVS)](https://github.com/OWASP/ASVS), [Top 10](https://github.com/OWASP/Top10), [Proactive Controls](https://owasp.org/www-project-proactive-controls/), or the [Cheat Sheet Series](https://cheatsheetseries.owasp.org).
+避免重复其他 OWASP 项目的内容。根据需要提供指向外部内容的内联链接。考虑以下 OWASP 资源：[应用安全验证标准（ASVS）](https://github.com/OWASP/ASVS)、[Top 10](https://github.com/OWASP/Top10)、[主动控制](https://owasp.org/www-project-proactive-controls/)或[备忘单系列](https://cheatsheetseries.owasp.org)。
 
-## References
+## 参考资料
 
-If the article contains information sourced from other documents that you could not gracefully link inline, include them here in a bulleted list of links.
+如果文章包含来自您无法优雅地内联链接的其他文档的信息，请在此处将它们包含在链接的项目符号列表中。

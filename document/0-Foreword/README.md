@@ -1,56 +1,56 @@
-# Foreword
+# 前言
 
-The problem of insecure software is perhaps the most important technical challenge of our time. The dramatic rise of web applications enabling business, social networking etc has only compounded the requirements to establish a robust approach to writing and securing our internet, web applications, and data.
+软件安全问题或许是当代最为重要的技术挑战。Web 应用在推动商业发展、社交网络等方面呈现出爆发式增长，这进一步加剧了对构建可靠方法的需求，以保障互联网、Web 应用及数据的安全。
 
-At the Open Worldwide Application Security Project® (OWASP®), we're trying to make the world a place where insecure software is the anomaly, not the norm. The OWASP Testing Guide has an important role to play in solving this serious issue. It is vitally important that our approach to testing software for security issues is based on the principles of engineering and science. We need a consistent, repeatable and defined approach to testing web applications. A world without some minimal standards in terms of engineering and technology is a world in chaos.
+开放 Web 应用安全项目（OWASP）致力于让不安全软件成为罕见的例外，而非常态。OWASP 安全测试指南在解决这一严峻问题上发挥着重要作用。至关重要的是，我们测试软件安全问题的思路必须基于工程和科学原理。我们需要一种一致的、可重复的、定义明确的 Web 应用测试方法。若在工程和技术层面缺乏某些最低标准，世界将陷入混乱。
 
-It goes without saying that you can't build a secure application without performing security testing on it. Testing is part of a wider approach to build a secure system. Many software development organizations do not include security testing as part of their standard software development process. What is even worse is that many security vendors deliver testing with varying degrees of quality and rigor.
+不言而喻，不进行安全测试就无法构建安全应用。测试是构建安全系统这一更大工作中的重要组成部分。许多软件开发组织并未将安全测试纳入其标准软件开发流程。更糟糕的是，许多安全供应商提供的测试服务质量参差不齐。
 
-Security testing, by itself, isn't a particularly good stand alone measure of how secure an application is, because there are an infinite number of ways that an attacker might be able to make an application break, and it simply isn't possible to test them all. We can't hack ourselves secure as we only have a limited time to test and defend where an attacker does not have such constraints.
+单独进行安全测试并非衡量应用安全程度的良方，因为攻击者可能有无穷无尽的方式让应用出现安全问题，我们不可能测试所有这些可能性。我们无法通过自我攻击来确保安全——我们只有有限的测试和防御时间，而攻击者则没有这种限制。
 
-In conjunction with other OWASP projects such as the Code Review Guide, the Development Guide and tools such as [ZAP](https://www.zaproxy.org/), this is a great start towards building and maintaining secure applications. This Testing Guide will show you how to verify the security of your running application. I highly recommend using these guides as part of your application security initiatives.
+结合其他 OWASP 项目（如代码审查指南、开发指南）以及 [ZAP](https://www.zaproxy.org/) 等工具，这将是构建和维护安全应用的一个良好开端。本测试指南将向您展示如何验证运行中应用的安全性。我强烈建议您将这些指南作为应用安全工作的组成部分。
 
-## Why OWASP?
+## 为何选择 OWASP？
 
-Creating a guide like this is a huge undertaking, requiring the expertise of hundreds of people around the world. There are many different ways to test for security flaws and this guide captures the consensus of the leading experts on how to perform this testing quickly, accurately, and efficiently. OWASP gives like minded security folks the ability to work together and form a leading practice approach to a security problem.
+编写这样一份指南是一项浩大的工程，需要汇聚全球数百位专家的智慧。有许多不同的方法来测试安全漏洞，本指南凝聚了领先专家们关于如何快速、准确、高效地进行此类测试的共识。OWASP 为志同道合的安全从业者提供了协作机会，形成应对安全问题的领先实践方法。
 
-The importance of having this guide available in a completely free and open way is important for the foundation's mission. It gives anyone the ability to understand the techniques used to test for common security issues. Security should not be a black art or closed secret that only a few can practice. It should be open to all and not exclusive to security practitioners but also QA, Developers and Technical Managers. The project to build this guide keeps this expertise in the hands of the people who need it - you, me and anyone that is involved in building software.
+以完全免费和开放的方式提供本指南，对于基金会的使命意义重大。它使任何人都能够理解用于测试常见安全问题的方法。安全不应是一门黑艺术或仅限于少数人才能实践的封闭秘技。它应当向所有人开放，不仅面向安全从业者，也面向 QA（质量保障）人员、开发人员和技术经理。构建本指南的项目将专业知识交到需要它的人手中——你、我以及所有参与软件开发的人。
 
-This guide must make its way into the hands of developers and software testers. There are not nearly enough application security experts in the world to make any significant dent in the overall problem. The initial responsibility for application security must fall on the shoulders of the developers because they write the code. It shouldn't be a surprise that developers aren't producing secure code if they're not testing for it or consider the types of bugs which introduce vulnerability.
+本指南必须送达开发人员和小美测试人员手中。全球范围内的应用安全专家数量远远不足以对整体问题产生实质性影响。应用安全的首要责任必须落在开发人员肩上，因为他们是代码的编写者。如果开发人员不进行安全测试或不考虑引入漏洞的缺陷类型，他们无法生产出安全代码也就不足为奇了。
 
-Keeping this information up to date is a critical aspect of this guide project. By adopting the wiki approach, the OWASP community can evolve and expand the information in this guide to keep pace with the fast moving application security threat landscape.
+保持这些信息的时效性是本指南项目的关键要素。通过采用 Wiki 协作方式，OWASP 社区能够不断发展和扩展本指南中的信息，以跟上快速变化的 应用安全威胁态势。
 
-This Guide is a great testament to the passion and energy our members and project volunteers have for this subject. It shall certainly help to change the world a line of code at a time.
+本指南充分证明了我们的成员和项目志愿者在这一主题上的热情与精力。它必将有助于改变世界——从每一行代码做起。
 
-## Tailoring and Prioritizing
+## 定制与优先级排序
 
-You should adopt this guide in your organization. You may need to tailor the information to match your organization's technologies, processes, and organizational structure.
+您应当在组织中采用本指南。您可能需要根据组织的技术、流程和组织结构对内容进行定制。
 
-In general there are several different roles within organizations that may use this guide:
+一般来说，组织内可能有以下几种角色会使用本指南：
 
-- Developers should use this guide to ensure that they are producing secure code. These tests should be a part of normal code and unit testing procedures.
-- Software testers and QA should use this guide to expand the set of test cases they apply to applications. Catching these vulnerabilities early saves considerable time and effort later.
-- Security specialists should use this guide in combination with other techniques as one way to verify that no security holes have been missed in an application.
-- Project Managers should consider the reason this guide exists and that security issues are manifested via bugs in code and design.
+- 开发人员应使用本指南以确保他们正在编写安全的代码。这些测试应成为正常代码和单元测试流程的组成部分。
+- 软件测试人员和 QA 人员应使用本指南来扩展他们对应用执行的测试用例集。在早期发现这些漏洞可以节省大量后续时间和精力。
+- 安全专家应将本指南与其他技术结合使用，作为验证应用中不存在安全漏洞的多种方法之一。
+- 项目经理应理解本指南存在的缘由，以及安全问题是通过代码和设计中的缺陷表现出来的。
 
-The most important thing to remember when performing security testing is to continuously re-prioritize. There are infinite ways that an application could fail, and organizations always have limited testing time and resources. Be sure time and resources are spent wisely. Try to focus on the security holes that are a real risk to your business. Try to contextualize risk in terms of the application and its use cases.
+进行安全测试时最重要的一点是持续重新排序优先级。应用失败的方式有无穷多种，而组织的测试时间和资源总是有限的。务必明智地分配时间和资源。尝试将注意力集中在对业务构成真实风险的安全漏洞上。尝试根据应用及其使用场景来诠释风险。
 
-This guide is best viewed as a set of techniques that you can use to find different types of security holes. But not all the techniques are equally important. Try to avoid using the guide as a checklist, new vulnerabilities are always manifesting and no guide can be an exhaustive list of "things to test for", but rather a great place to start.
+本指南最好被视为一组可用于发现不同类型安全漏洞的技术。但并非所有技术都同等重要。尝试避免将本指南当作检查清单使用——新的漏洞总是在不断出现，没有任何指南能够成为"需要测试的内容"的详尽列表，而只是一个绝佳的起点。
 
-## The Role of Automated Tools
+## 自动化工具的作用
 
-There are a number of companies selling automated security analysis and testing tools. Remember the limitations of these tools so that you can use them for what they're good at. As Michael Howard put it at the 2006 OWASP AppSec Conference in Seattle, "Tools do not make software secure! They help scale the process and help enforce policy."
+有许多公司销售自动化安全分析和测试工具。请牢记这些工具的局限性，以便您能够将它们用于擅长的领域。正如 Michael Howard 在 2006 年西雅图 OWASP AppSec 大会上所言："工具不能让软件变得安全！它们有助于扩大流程规模并有助于强制执行策略。"
 
-Most importantly, these tools are generic - meaning that they are not designed for your custom code, but for applications in general. That means that while they can find some generic problems, they do not have enough knowledge of your application to allow them to detect most flaws. In my experience, the most serious security issues are the ones that are not generic, but deeply intertwined in your business logic and custom application design.
+最重要的是，这些工具是通用的——这意味着它们并非为您自定义代码而设计，而是为通用应用而设计。这意味着，尽管它们能够发现一些通用问题，但由于对你的应用了解不足，它们无法检测出大多数缺陷。以我的经验来看，最严重的安全问题往往不是通用问题，而是与你的业务逻辑和自定义应用设计深度交织的问题。
 
-These tools can also be very useful, since they do find lots of potential issues. While running the tools doesn't take much time, each one of the potential problems takes time to investigate and verify. If the goal is to find and eliminate the most serious flaws as quickly as possible, consider whether your time is best spent with automated tools or with the techniques described in this guide. Still, these tools are certainly part of a well-balanced application security program. Used wisely, they can support your overall processes to produce more secure code.
+这些工具也确实非常有用，因为它们确实能够发现大量潜在问题。运行工具本身不需要太多时间，但每个潜在问题都需要时间来调查和验证。如果目标是尽快发现并消除最严重的缺陷，那么需要考虑是将时间更好地用于自动化工具还是本指南中描述的技术。当然，这些工具仍然是一个均衡的应用安全方案的组成部分。明智地使用，它们可以支持你的整体流程，以生产更安全的代码。
 
-## Call to Action
+## 行动号召
 
-If you're building, designing or testing software, we strongly encourage you to get familiar with the security testing guidance in this document. It is a great road map for testing the most common issues that applications are facing today, but it is not exhaustive. If you find errors, please add a note to the discussion page or make the change yourself. You'll be helping thousands of others who use this guide.
+如果你正在构建、设计或测试软件，我们强烈建议你熟悉本文档中的安全测试指南。它是测试当今应用面临的最常见问题的一条绝佳路径，但它并非面面俱到。如果你发现错误，请在讨论页面上添加注释，或者自己动手进行修改。你将帮助成千上万使用本指南的人。
 
-Please consider [joining us](https://owasp.org/membership/) as an individual or corporate member so that we can continue to produce materials like this testing guide and all the other great projects at OWASP.
+请考虑[加入我们](https://owasp.org/membership/)成为个人会员或企业会员，这样我们才能继续制作此类测试指南以及 OWASP 所有其他伟大的项目。
 
-Thank you to all the past and future contributors to this guide, your work will help to make applications worldwide more secure.
+感谢本指南所有过去和未来的贡献者，你的工作将有助于使全球应用更加安全。
 
-Open Worldwide Application Security Project and OWASP are registered trademarks of the OWASP Foundation, Inc.
+开放 Web 应用安全项目和 OWASP 是 OWASP 基金会的注册商标。

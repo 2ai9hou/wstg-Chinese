@@ -1,126 +1,126 @@
-# Reporting
+# 报告
 
-Performing the technical side of the assessment is only half of the overall assessment process. The final product is the production of a well written and informative report. A report should be easy to understand and should highlight all the risks found during the assessment phase. The report should appeal to both executive management and technical staff.
+完成评估的技术方面只是整个评估过程的一半。最终产品是编写一份内容丰富且易于理解的报告。报告应易于理解，并应突出评估阶段发现的所有风险。报告应同时面向高管管理层和技术人员。
 
-## About This Section
+## 关于本节
 
-This guide provides only suggestions about one possible approach to reporting, and should not be treated as strict rules that must be followed. When considering any of the recommendations below, always ask yourself whether the recommendation would improve your report.
+本指南仅提供关于一种可能的报告方法建议，不应被视为必须遵循的严格规则。在考虑以下任何建议时，请始终问自己该建议是否会改进您的报告。
 
-This guide to reporting is a best fit for consultancy-based reports. It may be overkill for internal or bug bounty reports.
+本报告指南最适合咨询类报告。对于内部报告或漏洞赏金报告来说可能过于详尽。
 
-Regardless of the audience, it's advisable to secure the report and encrypt it to ensure that only the receiving party is able to use it.
+无论受众如何，建议对报告进行安全处理和加密，以确保只有接收方能够使用。
 
-A good report helps your client understand your findings and highlights the quality of your technical testing. The quality of the technical testing is completely irrelevant if the client can't understand your findings.
+一份好的报告可以帮助客户理解您的发现，并突出您技术测试的质量。如果客户无法理解您的发现，那么技术测试的质量就完全无关紧要了。
 
-## 1. Introduction
+## 1. 引言
 
-### 1.1 Version Control
+### 1.1 版本控制
 
-Sets report changes, mostly presented in a table format such as the below.
+记录报告变更，通常以如下表格形式呈现。
 
-| Version | Description | Date | Author |
+| 版本 | 描述 | 日期 | 作者 |
 |:-------:|-------------|------|--------|
-| 1.0 | Initial report | DD/MM/YYYY | J. Doe |
+| 1.0 | 初始报告 | DD/MM/YYYY | J. Doe |
 
-### 1.2 Table of Contents
+### 1.2 目录
 
-A table of contents page for the document.
+文档的目录页。
 
-### 1.3 The Team
+### 1.3 团队
 
-A list of the team members detailing their expertise and qualifications.
+列出团队成员的详细信息，包括他们的专业知识和资质。
 
-### 1.4 Scope
+### 1.4 范围
 
-The boundaries and the needs of the engagement agreed upon with the organization.
+与组织商定的参与边界和需求。
 
-### 1.5 Limitations
+### 1.5 局限性
 
-Limitations can be:
+局限性可能包括：
 
-- Out-of-bounds areas in relation to testing.
-- Broken functionality.
-- Lack of cooperation.
-- Lack of time.
-- Lack of access or credentials.
+- 与测试相关的范围外区域。
+- 功能损坏。
+- 缺乏配合。
+- 时间不足。
+- 缺乏访问权限或凭据。
 
-### 1.6 Timeline
+### 1.6 时间线
 
-The duration of the engagement.
+参与持续时间。
 
-### 1.7 Disclaimer
+### 1.7 免责声明
 
-You may wish to provide a disclaimer for your service. Always consult a legal professional in order to create a legally-binding document.
+您可能希望为您的服务提供免责声明。请务必咨询法律专业人员以创建具有法律约束力的文档。
 
-The following example is for illustrative purposes only. It should not be used as-is and does not constitute legal advice.
+以下示例仅供说明之用。不应原样使用，也不构成法律建议。
 
-*This test is a "point in time" assessment and as such the environment could have changed since the test was run. There is no guarantee that all possible security issues have been identified, and that new vulnerabilities may have been discovered since the tests were run. As such, this report serves as a guiding document and not a warranty that the report provides a full representation of the risks threatening the systems at hand.*
+*此测试是"时间点"评估，因此自测试运行以来环境可能已发生变化。不保证已识别所有可能的安全问题，并且自测试运行以来可能已发现新漏洞。因此，本报告作为指导性文档，而非对报告全面反映手头系统所面临风险的担保。*
 
-## 2. Executive Summary
+## 2. 执行摘要
 
-This is like the elevator pitch of the report, it aims at providing executives with:
+这就像报告的电梯演讲一样，旨在为高管提供：
 
-- The objective of the test.
-    - Describe the business need behind the security test.
-    - Describe how the tests helped the organization understand their systems.
-- Key findings in a business context, such as possible compliance issues, reputation damage, etc. Focus on the business impact and leave out technical details for now.
-- The strategic recommendations on how the business can stop the issues from happening again. Describe these in a non-technical context and leave specific technical recommendations out for now.
+- 测试的目标。
+    - 描述安全测试背后的业务需求。
+    - 描述测试如何帮助组织理解其系统。
+- 以业务上下文呈现的关键发现，例如可能的合规问题、声誉损害等。专注于业务影响，暂时搁置技术细节。
+- 关于业务如何防止问题再次发生的战略建议。以非技术上下文描述这些内容，暂时搁置具体技术建议。
 
-The summary should be constructive and meaningful. Avoid jargon and negative speculation. If figures, graphs, or illustrations are used, ensure they help deliver a message in a clearer way than text would.
+摘要应具有建设性和意义。避免行话和负面推测。如果使用图表、图形或插图，请确保它们以比文本更清晰的方式帮助传达信息。
 
-## 3. Findings
+## 3. 发现
 
-This section is aimed at the technical team. It should include all the necessary information to understand the vulnerability, replicate it, and resolve it. Logical separation can help improve the readability of the report. For example, you might have separate sections titled "External Access" and "Internal Access".
+本节面向技术团队。它应包括理解漏洞、复现漏洞并解决漏洞所需的所有必要信息。逻辑分离有助于提高报告的可读性。例如，您可能有标题为"外部访问"和"内部访问"的单独部分。
 
-If this is a re-test, you might create a subsection that summarizes findings of the previous test, the updated status of previously identified vulnerabilities, and any cross-references with the current test.
+如果是重新测试，您可能需要创建一个子节，总结上次测试的发现、先前识别漏洞的更新状态，以及与当前测试的任何交叉引用。
 
-### 3.1 Findings Summary
+### 3.1 发现摘要
 
-A list of the findings with their risk level. A table can be used for ease of use by both teams.
+包含其风险级别的发现列表。表格可用于双方方便使用。
 
-| Ref. ID |  Title | Risk Level |
+| 参考 ID | 标题 | 风险级别 |
 |:------------:|--------|------------|
-| 1 | User Authentication Bypass | High |
+| 1 | 用户认证绕过 | 高 |
 
-### 3.2 Findings Details
+### 3.2 发现详情
 
-Each finding should be detailed with the following information:
+每个发现应包含以下详细信息：
 
-- Reference ID, which can be used for communication between parties and for cross-references across the report.
-- The vulnerability title, such as "User Authentication Bypass".
-- The likelihood or exploitability of the issue, based on various factors such as:
-    - How easy it is to exploit.
-    - Whether there is working exploit code for it.
-    - The level of access required.
-    - Attacker motivation to exploit it.
-- The impact of the vulnerability on the system.
-- Risk of the vulnerability on the application.
-    - Some suggested values are: Informational, Low, Medium, High, and Critical. Ensure that you detail the values you decide to use in an appendix. This allows the reader to understand how each score is determined.
-    - On certain engagements it is required to have a [CVSS](https://www.first.org/cvss/) score. If not required, sometimes it is good to have, and other times it just adds complexity to the report.
-- Detailed description of what the vulnerability is, how to exploit it, and the damage that may result from its exploitation. Any possibly-sensitive data should be masked, for example, passwords, personal information, or credit card details.
-- Detailed steps on how to remediate the vulnerability, possible improvements that could help strengthen the security posture, and missing security practices.
-- Additional resources that could help the reader to understand the vulnerability, such as an image, a video, a CVE, an external guide, etc.
+- 参考 ID，可用于各方之间的沟通以及报告中的交叉引用。
+- 漏洞标题，例如"用户认证绕过"。
+- 问题的可能性或可利用性，基于各种因素，例如：
+    - 利用的容易程度。
+    - 是否有可用的利用代码。
+    - 所需的访问级别。
+    - 攻击者利用它的动机。
+- 漏洞对系统的影响。
+- 漏洞对应用的风险。
+    - 一些建议的值为：信息性、低、中、高和严重。确保在附录中详细说明您决定使用的值。这允许读者了解每个分数是如何确定的。
+    - 在某些参与中，需要有 [CVSS](https://www.first.org/cvss/) 评分。如果不需要，有时有它是好的，有时只会增加报告的复杂性。
+- 关于漏洞是什么、如何利用它以及可能导致什么损害的详细描述。任何可能敏感的数据都应被屏蔽，例如密码、个人信息或信用卡详细信息。
+- 如何修复漏洞的详细步骤、可能有助于加强安全态势的改进，以及缺失的安全实践。
+- 可能帮助读者理解漏洞的其他资源，例如图片、视频、CVE、外部指南等。
 
-Format this section in a way that best delivers your message.
+以最能传达信息的方式格式化此部分。
 
-Always ensure that your descriptions provide enough information for the engineer reading this report to take action based on it. Explain the finding thoroughly and provide as much technical detail as might be necessary to remedy it.
+始终确保您的描述为阅读本报告的工程师提供足够的信息以根据其采取行动。彻底解释发现，并提供可能必要的尽可能多的技术细节来修复它。
 
-## Appendices
+## 附录
 
-Multiple appendices can be added, such as:
+可以添加多个附录，例如：
 
-- Test methodology used.
-- Severity and risk rating explanations.
-- Relevant output from tools used.
-    - Make sure to clean the output and not just dump it.
-- A checklist of all the tests conducted, such as the [WSTG checklists](https://github.com/OWASP/wstg/tree/master/checklists). These can be provided as attachments to the report.
+- 使用的测试方法论。
+- 严重程度和风险评级说明。
+- 所使用工具的相关输出。
+    - 确保清理输出，而不仅仅是转储。
+- 所有已执行测试的检查清单，例如 [WSTG 检查清单](https://github.com/OWASP/wstg/tree/master/checklists)。这些可以作为报告的附件提供。
 
-## References
+## 参考资料
 
-This section is not part of the suggested report format. The below links provide more guidance to writing your reports.
+本节不属于建议的报告格式。以下链接提供了编写报告的更多指导。
 
-- [SANS: Tips for Creating a Strong Cybersecurity Assessment Report](https://www.sans.org/blog/tips-for-creating-a-strong-cybersecurity-assessment-report/)
-- [SANS: Writing a Penetration Testing Report](https://www.sans.org/reading-room/whitepapers/bestprac/paper/33343)
-- [Infosec Institute: The Art of Writing Penetration Test Reports](https://resources.infosecinstitute.com/topic/writing-penetration-testing-reports/)
-- [Dummies: How to Structure a Pen Test Report](https://www.dummies.com/computers/macs/security/how-to-structure-a-pen-test-report/)
-- [Rhino Security Labs: Four Things Every Penetration Test Report Should Have](https://rhinosecuritylabs.com/penetration-testing/four-things-every-penetration-test-report/)
+- [SANS：创建强大网络安全评估报告的提示](https://www.sans.org/blog/tips-for-creating-a-strong-cybersecurity-assessment-report/)
+- [SANS：编写渗透测试报告](https://www.sans.org/reading-room/whitepapers/bestprac/paper/33343)
+- [Infosec Institute：编写渗透测试报告的艺术](https://resources.infosecinstitute.com/topic/writing-penetration-testing-reports/)
+- [Dummies：如何构建笔测试报告](https://www.dummies.com/computers/macs/security/how-to-structure-a-pen-test-report/)
+- [Rhino Security Labs：每个渗透测试报告都应具备的四个要点](https://rhinosecuritylabs.com/penetration-testing/four-things-every-penetration-test-report/)

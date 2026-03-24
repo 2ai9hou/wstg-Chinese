@@ -1,27 +1,27 @@
-# Review Webserver Metafiles for Information Leakage
+# 审查 Web 服务器元文件以发现信息泄露
 
 |ID          |
 |------------|
 |WSTG-INFO-03|
 
-## Summary
+## 摘要
 
-This section describes how to test various metadata files for information leakage of the web application's path(s), or functionality. Furthermore, the list of directories that are to be avoided by Spiders, Robots, or Crawlers can also be created as a dependency for [Map execution paths through application](07-Map_Execution_Paths_Through_Application.md). Other information may also be collected to identify attack surface, technology details, or for use in social engineering engagement.
+本节描述如何测试各种元数据文件以发现 Web 应用路径或功能的信息泄露。此外，要被 Spiders、Robots 或 Crawlers 避免的目录列表也可以创建为[通过应用映射执行路径](07-Map_Execution_Paths_Through_Application.md)的依赖项。其他信息也可能被收集以识别攻击面、技术细节或用于社交工程参与。
 
-## Test Objectives
+## 测试目标
 
-- Identify hidden or obfuscated paths and functionality through the analysis of metadata files.
-- Extract and map other information that could lead to a better understanding of the systems at hand.
+- 通过分析元数据文件识别隐藏或混淆的路径和功能。
+- 提取和映射其他可能导致对手更好地理解手头系统的信息。
 
-## How to Test
+## 如何测试
 
-> Any of the actions performed below with `wget` could also be done with `curl`. Many Dynamic Application Security Testing (DAST) tools such as ZAP and Burp Suite include checks or parsing for these resources as part of their spider/crawler functionality. They can also be identified using various [Google Dorks](https://en.wikipedia.org/wiki/Google_hacking) or leveraging advanced search features such as `inurl:`.
+> 下面使用 `wget` 执行的任何操作也可以使用 `curl` 完成。许多动态应用安全测试（DAST）工具，如 ZAP 和 Burp Suite，包括检查或解析这些资源作为其 spider/crawler 功能的一部分。它们也可以使用各种 [Google Dorks](https://en.wikipedia.org/wiki/Google_hacking) 或利用 `inurl:` 等高级搜索功能来识别。
 
 ### Robots
 
-Web Spiders, Robots, or Crawlers retrieve a web page and then recursively traverse hyperlinks to retrieve further web content. Their accepted behavior is specified by the [Robots Exclusion Protocol](https://www.robotstxt.org) of the [robots.txt](https://www.robotstxt.org/) file in the web root directory.
+Web Spiders、Robots 或 Crawlers 检索网页，然后递归遍历超链接以检索进一步的 Web 内容。它们的可接受行为由 Web 根目录中 [robots.txt](https://www.robotstxt.org/) 文件的 [Robots Exclusion Protocol](https://www.robotstxt.org) 指定。
 
-As an example, the beginning of the `robots.txt` file from [Google](https://www.google.com/robots.txt) sampled on 2020 May 5 is quoted below:
+例如，下面引用了 2020 年 5 月 5 日从 [Google](https://www.google.com/robots.txt) 采样的 `robots.txt` 文件的开头：
 
 ```text
 User-agent: *
@@ -33,9 +33,9 @@ Disallow: /sdch
 ...
 ```
 
-The [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) directive refers to the specific web spider/robot/crawler. For example, the `User-Agent: Googlebot` refers to the spider from Google while `User-Agent: bingbot` refers to a crawler from Microsoft. `User-Agent: *` in the example above applies to all [web spiders/robots/crawlers](https://support.google.com/webmasters/answer/6062608?visit_id=637173940975499736-3548411022&rd=1).
+[User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) 指令指特定的 Web spider/robot/crawler。例如，`User-Agent: Googlebot` 指来自 Google 的 spider，而 `User-Agent: bingbot` 指来自 Microsoft 的 crawler。上面示例中的 `User-Agent: *` 适用于所有 [Web spiders/robots/crawlers](https://support.google.com/webmasters/answer/6062608?visit_id=637173940975499736-3548411022&rd=1)。
 
-The `Disallow` directive specifies which resources are prohibited by spiders/robots/crawlers. In the example above, the following are prohibited:
+`Disallow` 指令指定哪些资源被 spiders/robots/crawlers 禁止。在上面的示例中，以下是被禁止的：
 
 ```text
 ...
@@ -45,9 +45,9 @@ Disallow: /sdch
 ...
 ```
 
-Web spiders/robots/crawlers can [intentionally ignore](https://blog.isc2.org/isc2_blog/2008/07/the-attack-of-t.html) the `Disallow` directives specified in a `robots.txt` file. Hence, `robots.txt` should not be considered as a mechanism to enforce restrictions on how web content is accessed, stored, or republished by third parties.
+Web spiders/robots/crawlers 可以[故意忽略](https://blog.isc2.org/isc2_blog/2008/07/the-attack-of-t.html) `robots.txt` 文件中指定的 `Disallow` 指令。因此，`robots.txt` 不应被视为强制执行第三方如何访问、存储或重新发布 Web 内容限制的机制。
 
-The `robots.txt` file is retrieved from the web root directory of the web server. For example, to retrieve the `robots.txt` from `www.google.com` using `wget` or `curl`:
+`robots.txt` 文件从 Web 服务器的根目录检索。例如，使用 `wget` 或 `curl` 从 `www.google.com` 检索 `robots.txt`：
 
 ```bash
 $ curl -O -Ss https://www.google.com/robots.txt && head -n5 robots.txt
@@ -59,27 +59,27 @@ Allow: /search/howsearchworks
 ...
 ```
 
-#### Analyze robots.txt Using Google Webmaster Tools
+#### 使用 Google Webmaster Tools 分析 robots.txt
 
-Site owners can use the Google "Analyze robots.txt" function to analyze the site as part of its [Google Webmaster Tools](https://www.google.com/webmasters/tools). This tool can assist with testing and the procedure is as follows:
+站点所有者可以使用 Google "Analyze robots.txt" 功能作为其 [Google Webmaster Tools](https://www.google.com/webmasters/tools) 的一部分来分析站点。此工具可协助测试，程序如下：
 
-1. Sign into Google Webmaster Tools with a Google account.
-2. On the dashboard, enter the URL for the site to be analyzed.
-3. Choose between the available methods and follow the on screen instruction.
+1. 使用 Google 账户登录 Google Webmaster Tools。
+2. 在仪表板上，输入要分析的站点的 URL。
+3. 在可用方法之间进行选择，然后按照屏幕上的指示进行操作。
 
-### META Tags
+### META 标签
 
-`<META>` tags are located within the `HEAD` section of each HTML document and should be consistent across a site in the event that the robot/spider/crawler start point does not begin from a document link other than webroot i.e. a [deep link](https://en.wikipedia.org/wiki/Deep_linking). The Robots directive can also be specified using a specific [META tag](https://www.robotstxt.org/meta.html).
+`<META>` 标签位于每个 HTML 文档的 `<HEAD>` 部分中，并且应在整个站点中保持一致，以防 robot/spider/crawler 起始点不是从 webroot 即 [deep link](https://en.wikipedia.org/wiki/Deep_linking) 开始的文档链接。Robots 指令也可以使用特定的 [META 标签](https://www.robotstxt.org/meta.html) 指定。
 
-#### Robots META Tag
+#### Robots META 标签
 
-If there is no `<META NAME="ROBOTS" ... >` entry, then the "Robots Exclusion Protocol" defaults to `INDEX,FOLLOW` respectively. Therefore, the other two valid entries defined by the "Robots Exclusion Protocol" are prefixed with `NO...` i.e. `NOINDEX` and `NOFOLLOW`.
+如果没有 `<META NAME="ROBOTS" ... >` 条目，则"Robots Exclusion Protocol"默认值分别为 `INDEX,FOLLOW`。因此，"Robots Exclusion Protocol"定义的另外两个有效条目以 `NO...` 为前缀，即 `NOINDEX` 和 `NOFOLLOW`。
 
-Based on the Disallow directive(s) listed within the `robots.txt` file in webroot, a regular expression search for `<META NAME="ROBOTS"` is undertaken within each web page. The result is then compared to the robots.txt file in the webroot.
+基于 webroot 中 `robots.txt` 文件中列出的 Disallow 指令，在每个网页中执行 `<META NAME="ROBOTS"` 的正则表达式搜索。然后将结果与 webroot 中的 robots.txt 文件进行比较。
 
-#### Miscellaneous META Information Tags
+#### 其他 META 信息标签
 
-Organizations often embed informational META tags in web content to support various technologies such as screen readers, social networking previews, search engine indexing, etc. Such meta-information can be of value to testers in identifying technologies used, and additional paths/functionality to explore and test. The following meta information was retrieved from `www.whitehouse.gov` via View Page Source on 2020 May 05:
+组织经常在 Web 内容中嵌入信息性 META 标签以支持各种技术，如屏幕阅读器、社交网络预览、搜索引擎索引等。此类 meta 信息对于测试人员识别使用的技术以及要探索和测试的其他路径/功能可能很有价值。以下 meta 信息是通过 2020 年 5 月 05 日的查看页面源代码从 `www.whitehouse.gov` 检索的：
 
 ```html
 ...
@@ -106,11 +106,11 @@ Organizations often embed informational META tags in web content to support vari
 ...
 ```
 
-### Sitemaps
+### 站点地图
 
-A sitemap is a file where a developer or organization can provide information about the pages, videos, and other files offered by the site or application, and the relationship between them. Search engines can use this file to navigate your site more efficiently. Likewise, testers can utilize 'sitemap.xml' files to gain deeper insights into the site or application under investigation.
+站点地图是开发者或组织提供关于站点或应用提供的页面、视频和其他文件的信息以及它们之间关系的文件。搜索引擎可以使用此文件更高效地导航站点。同样，测试人员可以利用 'sitemap.xml' 文件来更深入地了解正在调查的站点或应用。
 
-The following excerpt is from Google's primary sitemap retrieved 2020 May 05.
+以下是 2020 年 5 月 05 日检索的 Google 主站点地图的摘要。
 
 ```bash
 $ wget --no-verbose https://www.google.com/sitemap.xml && head -n8 sitemap.xml
@@ -127,7 +127,7 @@ $ wget --no-verbose https://www.google.com/sitemap.xml && head -n8 sitemap.xml
 ...
 ```
 
-Exploring from there a tester may wish to retrieve the gmail sitemap `https://www.google.com/gmail/sitemap.xml`:
+从那里探索，测试人员可能希望检索 gmail 站点地图 `https://www.google.com/gmail/sitemap.xml`：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -141,21 +141,21 @@ Exploring from there a tester may wish to retrieve the gmail sitemap `https://ww
 ...
 ```
 
-### Security TXT
+### 安全 TXT
 
-[security.txt](https://securitytxt.org) was ratified by the IETF as [RFC 9116 - A File Format to Aid in Security Vulnerability Disclosure](https://www.rfc-editor.org/rfc/rfc9116.html) which allows sites to define security policies and contact details. There are multiple reasons why this might be of interest in testing scenarios, which include, but are not limited to:
+[security.txt](https://securitytxt.org) 由 IETF 批准为 [RFC 9116 - 用于安全漏洞披露的文件格式](https://www.rfc-editor.org/rfc/rfc9116.html)，允许站点定义安全策略和联系详情。在测试场景中，这可能引起兴趣的原因有多种，包括但不限于：
 
-- Identifying further paths or resources to include in discovery/analysis.
-- Open Source intelligence gathering.
-- Finding information on Bug Bounties, etc.
-- Social Engineering.
+- 识别进一步包含在发现/分析中的路径或资源。
+- 开源情报收集。
+- 查找 Bug Bounties 等信息。
+- 社交工程。
 
-The file may be present either in the root of the webserver or in the `.well-known/` directory, for example:
+该文件可能存在于 Web 服务器的根目录或 `.well-known/` 目录中，例如：
 
 - `https://example.com/security.txt`
 - `https://example.com/.well-known/security.txt`
 
-Here is a real world example retrieved from LinkedIn 2020 May 05:
+以下是 2020 年 5 月 05 日从 LinkedIn 检索的真实世界示例：
 
 ```bash
 $ wget --no-verbose https://www.linkedin.com/.well-known/security.txt && cat security.txt
@@ -168,21 +168,21 @@ Canonical: https://www.linkedin.com/.well-known/security.txt
 Policy: https://www.linkedin.com/help/linkedin/answer/62924
 ```
 
-OpenPGP Public Keys contain some metadata that can provide information about the key itself. Here are some common metadata elements that can be extracted from an OpenPGP Public Key:
+OpenPGP 公钥包含一些可提供关于密钥本身信息的元数据。以下是可以从 OpenPGP 公钥提取的一些常见元数据元素：
 
-- **Key ID**: The Key ID is a short identifier derived from the public key material. It helps identify the key and is often displayed as an eight-character hexadecimal value.
-- **Key Fingerprint**: The Key Fingerprint is a longer and more unique identifier derived from the key material. It is often displayed as a 40-character hexadecimal value. Key fingerprints are commonly used to verify the integrity and authenticity of a public key.
-- **Key Algorithm**: The Key Algorithm represents the cryptographic algorithm used by the public key. OpenPGP supports various algorithms such as RSA, DSA, and ECC (Elliptic Curve Cryptography).
-- **Key Size**: The Key Size refers to the length or size of the cryptographic key in bits. It indicates the strength of the key and determines the level of security provided by the key.
-- **Key Creation Date**: The Key Creation Date indicates when the key was generated or created.
-- **Key Expiration Date**: OpenPGP Public Keys can have an expiration date set, after which they are considered invalid. The Key Expiration Date specifies when the key is no longer valid.
-- **User IDs**: Public keys can have one or more associated User IDs that identify the owner or entity associated with the key. User IDs typically include information such as the name, email address, and optional comments of the key owner.
+- **密钥 ID**：密钥 ID 是从公钥材料派生的短标识符。它有助于识别密钥，通常显示为八个字符的十六进制值。
+- **密钥指纹**：密钥指纹是从密钥材料派生的更长且更唯一的标识符。它通常显示为 40 个字符的十六进制值。密钥指纹通常用于验证公钥的完整性和真实性。
+- **密钥算法**：密钥算法表示公钥使用的加密算法。OpenPGP 支持各种算法，如 RSA、DSA 和 ECC（椭圆曲线加密）。
+- **密钥大小**：密钥大小是指加密密钥的位数长度。它表示密钥的强度并决定密钥提供的安全级别。
+- **密钥创建日期**：密钥创建日期表示密钥生成或创建的时间。
+- **密钥过期日期**：OpenPGP 公钥可以设置过期日期，之后它们被视为无效。密钥过期日期指定密钥不再有效的时间。
+- **用户 ID**：公钥可以有一个或多个关联的用户 ID，用于识别与密钥关联的所有者或实体。用户 ID 通常包括密钥所有者的姓名、电子邮件地址和可选注释等信息。
 
 ### Humans TXT
 
-`humans.txt` is an initiative for knowing the people behind a site. It takes the form of a text file that contains information about the different people who have contributed to building the site. This file often (but not always) contains information related to career or job sites/paths.
+`humans.txt` 是了解站点背后人们的倡议。它采用文本文件的形式，包含关于参与构建站点的不同人员的信息。此文件通常（但不总是）包含与职业或工作站点/路径相关的信息。
 
-The following example was retrieved from Google 2020 May 05:
+以下示例于 2020 年 5 月 05 日从 Google 检索：
 
 ```bash
 $ wget --no-verbose  https://www.google.com/humans.txt && cat humans.txt
@@ -190,15 +190,15 @@ $ wget --no-verbose  https://www.google.com/humans.txt && cat humans.txt
 Google is built by a large team of engineers, designers, researchers, robots, and others in many different sites across the globe. It is updated continuously, and built with more tools and technologies than we can shake a stick at. If you'd like to help us out, see careers.google.com.
 ```
 
-### Other .well-known Information Sources
+### 其他 .well-known 信息来源
 
-There are other RFCs and internet drafts which suggest standardized uses of files within the `.well-known/` directory. Lists of these can be found [here on WikiPedia](https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers) or [here via IANA](https://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml).
+还有其他 RFC 和互联网草案建议 `.well-known/` 目录中文件的标准化用法。这些列表可以在 [WikiPedia 上这里](https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers) 或 [通过 IANA 这里](https://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml) 找到。
 
-It would be fairly simple for a tester to review the RFC/drafts and create a list to be supplied to a crawler or fuzzer, in order to verify the existence or content of such files.
+对于测试人员来说，审查 RFC/草案并创建列表提供给 crawler 或 fuzzer 以验证此类文件的存在或内容是相当简单的。
 
-## Tools
+## 工具
 
-- Browser (View Source or Dev Tools functionality)
+- 浏览器（查看源代码或 Dev Tools 功能）
 - cURL
 - wget
 - Burp Suite
