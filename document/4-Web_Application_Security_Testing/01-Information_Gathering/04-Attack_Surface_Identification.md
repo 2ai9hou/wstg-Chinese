@@ -1,75 +1,75 @@
-# Attack Surface Identification
+# 攻击面识别
 
 |ID          |
 |------------|
 |WSTG-INFO-04|
 
-## Summary
+## 摘要
 
-Identifying the attack surface of a web application involves discovering all applications, domains, virtual hosts, and externally exposed services associated with the target infrastructure. This process extends beyond identifying hosted applications and includes DNS enumeration, subdomain discovery, virtual host analysis, non-standard ports, and the review of digital certificates and Certificate Transparency logs.
+识别 Web 应用的攻击面涉及发现与目标基础设施相关的所有应用、域名、虚拟主机和外部暴露的服务。此过程超出识别托管应用的范畴，包括 DNS 枚举、子域名发现、虚拟主机分析、非标准端口以及数字证书和证书透明度日志的审查。
 
-With the proliferation of virtual hosting and shared infrastructure, the traditional 1:1 relationship between an IP address and a web server has largely disappeared. A single IP address may host multiple applications across different domains, environments, or administrative interfaces. Failing to identify these assets can result in incomplete assessments and overlooked vulnerabilities.
+随着虚拟托管和共享基础设施的普及，IP 地址与 Web 服务器之间的传统一对一关系已在很大程度上消失。单个 IP 地址可能托管跨不同域名、环境或管理接口的多个应用。未能识别这些资产可能导致评估不完整和遗漏漏洞。
 
-Security professionals are sometimes given a set of IP addresses as a target to test. It is arguable that this scenario is more akin to a penetration test-type engagement, but in any case it is expected that such an assignment would test all web applications accessible through this target. The problem is that the given IP address hosts an HTTP service on port 80, but if a tester should access it by specifying the IP address (which is all they know) it reports "No web server configured at this address" or a similar message. But that system could "hide" a number of web applications, associated to unrelated symbolic (DNS) names. Obviously, the extent of the analysis is deeply affected depending on whether the tester tests all the applications or only tests the applications that they are aware of.
+安全专业人员有时会获得一组 IP 地址作为测试目标。可以说，这种场景更类似于渗透测试类型的参与，但无论如何，预期是这样的任务将测试通过此目标可访问的所有 Web 应用。问题是给定的 IP 地址在端口 80 上托管 HTTP 服务，但如果测试人员通过指定 IP 地址访问它（这是他们所知道的全部），它会报告"此地址未配置 Web 服务器"或类似消息。但该系统可能"隐藏"多个与不相关符号（DNS）名称关联的 Web 应用。显然，测试人员是测试所有应用还是只测试他们知道的应用，会深度影响分析的范围。
 
-Sometimes, the target specification is richer. The tester may be given a list of IP addresses and their corresponding symbolic names. Nevertheless, this list might convey partial information, i.e., it could omit some symbolic names and the client may not even be aware of that (this is more likely to happen in large organizations).
+有时，目标规范更丰富。测试人员可能获得 IP 地址及其对应符号名称的列表。然而，此列表可能传达部分信息，即它可能省略一些符号名称，而客户甚至可能不知道这一点（这更可能发生在大型组织中）。
 
-Other issues affecting the scope of the assessment are represented by web applications published at non-obvious URLs (e.g., `https://www.example.com/some-strange-URL`), which are not referenced elsewhere. This may happen either by error (due to misconfigurations), or intentionally (for example, unadvertised administrative interfaces).
+影响评估范围的其他问题包括在非显而易见 URL（如 `https://www.example.com/some-strange-URL`）上发布的 Web 应用，这些 URL 在其他地方没有被引用。这可能由于错误（由于配置错误）或故意（例如，未公开的管理接口）而发生。
 
-To address these issues, a comprehensive attack surface identification process must be performed.
+为解决这些问题，必须执行全面的攻击面识别过程。
 
-## Test Objectives
+## 测试目标
 
-- Enumerate all web applications within scope.
-- Identify DNS names, domains, and virtual hosts associated with the target.
-- Discover additional domains and subdomains using passive and active DNS techniques.
-- Analyze digital certificates and Certificate Transparency logs for additional hostnames.
+- 枚举范围内的所有 Web 应用。
+- 识别与目标关联的 DNS 名称、域名和虚拟主机。
+- 使用被动和主动 DNS 技术发现其他域名和子域名。
+- 分析数字证书和证书透明度日志以获取其他主机名。
 
-## How to Test
+## 如何测试
 
-Web application discovery is a process that aims to identify web applications on a given infrastructure. The latter is usually specified as a set of IP addresses (maybe a net block), but may consist of a set of DNS symbolic names or a mix of the two. This information is handed out prior to the execution of an assessment, be it a classic-style penetration test or an application-focused assessment. In both cases, unless the rules of engagement specify otherwise (e.g., test only the application located at the URL `https://www.example.com/`), the assessment should strive to be the most comprehensive in scope, i.e. it should identify all the applications accessible through the given target. The following examples examine a few techniques that can be employed to achieve this goal.
+Web 应用发现是旨在识别给定基础设施上的 Web 应用的过程。后者通常指定为一组 IP 地址（可能是网段），但可能包括一组 DNS 符号名称或两者的混合。此信息在评估执行之前提供，无论是经典式渗透测试还是应用重点评估。在这两种情况下，除非参与规则另有规定（例如，仅测试位于 URL `https://www.example.com/` 的应用），否则评估应努力成为范围最全面的，即应识别通过给定目标可访问的所有应用。以下示例检查了一些可用于实现此目标的技术。
 
-> Some of the following techniques apply to Internet-facing web servers, namely DNS and reverse-IP web-based search services and the use of search engines. Examples make use of private IP addresses (such as `192.168.1.100`), which, unless indicated otherwise, represent *generic* IP addresses and are used only for anonymity purposes.
+> 以下一些技术适用于面向互联网的 Web 服务器，即 DNS 和基于反向 IP 的 Web 搜索服务以及搜索引擎的使用。示例使用私有 IP 地址（如 `192.168.1.100`），除非另有说明，这些地址代表 *通用* IP 地址，仅用于匿名目的。
 
-There are three factors influencing how many applications are related to a given DNS name (or an IP address):
+有三个因素影响多少应用与给定 DNS 名称（或 IP 地址）相关：
 
-1. **Different Base URL**
+1. **不同的基础 URL**
 
-    The obvious entry point for a web application is `www.example.com`, i.e., with this shorthand notation we think of the web application originating at `https://www.example.com/` (the same applies for HTTPS). However, even though this is the most common situation, there is nothing forcing the application to start at `/`.
+    Web 应用最明显的入口点是 `www.example.com`，即我们用这种简写表示起源于 `https://www.example.com/` 的 Web 应用（HTTPS 同样适用）。然而，尽管这是最常见的情况，但没有什么能强制应用从 `/` 开始。
 
-    For example, the same symbolic name may be associated to three web applications such as: `https://www.example.com/app1` `https://www.example.com/app2` `https://www.example.com/app3`
+    例如，同一符号名称可能与三个 Web 应用关联：`https://www.example.com/app1` `https://www.example.com/app2` `https://www.example.com/app3`
 
-    In this case, the URL `https://www.example.com/` would not be associated with a meaningful page. The three applications would remain **hidden** unless the tester explicitly knows how to access them, i.e., the tester knows *app1*, *app2* or *app3*. There is usually no need to publish web applications in this way, unless the owner doesn’t want them to be accessible in a standard way, and is prepared to inform the users about their exact location. This doesn’t mean that these applications are secret, just that their existence and location is not explicitly advertised.
+    在这种情况下，URL `https://www.example.com/` 不会与有意义的页面关联。三个应用将保持 **隐藏**，除非测试人员明确知道如何访问它们，即测试人员知道 *app1*、*app2* 或 *app3*。通常没有必要以这种方式发布 Web 应用，除非所有者不希望它们以标准方式访问，并准备通知用户其确切位置。这并不意味着这些应用是秘密的，只是它们的存在和位置没有明确广告。
 
-2. **Non-standard Ports**
+2. **非标准端口**
 
-    While web applications usually live on port 80 (HTTP) and 443 (HTTPS), there is nothing fixed or mandatory about these port numbers. In fact, web applications may be associated with arbitrary TCP ports, and can be referenced by specifying the port number as follows: `http[s]://www.example.com:port/`. For example, `https://www.example.com:20000/`.
+    虽然 Web 应用通常位于端口 80（HTTP）和 443（HTTPS），但这些端口号没有什么是固定或强制的。事实上，Web 应用可能关联任意 TCP 端口，并且可以通过指定端口号来引用：`http[s]://www.example.com:port/`。例如，`https://www.example.com:20000/`。
 
-3. **Virtual Hosts**
+3. **虚拟主机**
 
-    DNS allows a single IP address to be associated with one or more symbolic names. For example, the IP address `192.168.1.100` might be associated to DNS names `www.example.com`, `helpdesk.example.com`, `webmail.example.com`. It is not necessary that all the names belong to the same DNS domain. This 1-to-N relationship may be reflected to serve different content by using so called virtual hosts. The information specifying the virtual host we are referring to is embedded in the HTTP 1.1 [Host header](https://datatracker.ietf.org/doc/html/rfc7230#section-5.4).
+    DNS 允许单个 IP 地址关联一个或多个符号名称。例如，IP 地址 `192.168.1.100` 可能关联 DNS 名称 `www.example.com`、`helpdesk.example.com`、`webmail.example.com`。所有名称不必属于同一 DNS 域。这种一对多关系可以通过使用所谓的虚拟主机来反映服务不同内容。指定我们正在引用的虚拟主机的信息嵌入在 HTTP 1.1 [Host 头](https://datatracker.ietf.org/doc/html/rfc7230#section-5.4)中。
 
-    One would not suspect the existence of other web applications in addition to the obvious `www.example.com`, unless they know of `helpdesk.example.com` and `webmail.example.com`.
+    除了明显的 `www.example.com` 之外，人们不会怀疑其他 Web 应用的存在，除非他们知道 `helpdesk.example.com` 和 `webmail.example.com`。
 
-### Approaches to Address Issue 1 - Non-standard URLs
+### 解决问题 1 的方法 - 非标准 URL
 
-There is no way to fully ascertain the existence of non-standard-named web applications. Being non-standard, there are no fixed criteria governing the naming convention, however there are a number of techniques that the tester can use to gain some additional insight.
+无法完全确定非标准命名 Web 应用的存在。由于非标准，没有管理命名约定的固定标准，但是有多种技术测试人员可以使用来获得一些额外的见解。
 
-First, if the web server is mis-configured and allows directory browsing, it may be possible to spot these applications. Vulnerability scanners may help in this respect.
+首先，如果 Web 服务器配置错误并允许目录浏览，则可能发现这些应用。漏洞扫描器可能在这方面提供帮助。
 
-Second, these applications may be referenced by other web pages and there is a chance that they have been spidered and indexed by web search engines. If testers suspect the existence of such **hidden** applications on `www.example.com` they could search using the *site* operator and examining the result of a query for `site: www.example.com`. Among the returned URLs there could be one pointing to such a non-obvious application.
+其次，这些应用可能由其他网页引用，并且有可能已被网络搜索引擎爬取和索引。如果测试人员怀疑在 `www.example.com` 上存在这些**隐藏**应用，他们可以使用 *site* 运算符搜索，并检查 `site: www.example.com` 查询的结果。在返回的 URL 中，可能有一个指向此类非显而易见应用的 URL。
 
-Another option is to probe for URLs which might be likely candidates for non-published applications. For example, a web mail frontend might be accessible from URLs such as `https://www.example.com/webmail`, `https://webmail.example.com/`, or `https://mail.example.com/`. The same holds for administrative interfaces, which may be published at hidden URLs (for example, a Tomcat administrative interface), and yet not referenced anywhere. So doing a bit of dictionary-style searching (or "intelligent guessing") could yield some results. Vulnerability scanners may help in this respect.
+另一个选项是探测可能是未发布应用候选的 URL。例如，Web 邮件前端可能通过 URL 如 `https://www.example.com/webmail`、`https://webmail.example.com/` 或 `https://mail.example.com/` 访问。管理接口同样如此，它们可能发布在隐藏 URL（如 Tomcat 管理接口），但在任何地方都没有引用。因此，进行一些字典风格搜索（或"智能猜测"）可能产生一些结果。漏洞扫描器可能在这方面提供帮助。
 
-### Approaches to Address Issue 2 - Non-standard Ports
+### 解决问题 2 的方法 - 非标准端口
 
-It is easy to check for the existence of web applications on non-standard ports. A port scanner such as Nmap is capable of performing service recognition by means of the `-sV` option, and will identify http[s] services on arbitrary ports. What is required is a full scan of the whole 64k TCP port address space.
+检查非标准端口上 Web 应用的存在很容易。端口扫描器（如 Nmap）能够通过 `-sV` 选项执行服务识别，并将识别任意端口上的 http[s] 服务。需要的是对整个 64k TCP 端口地址空间进行全面扫描。
 
-For example, the following command will look up, with a TCP connect scan, all the open ports on IP `192.168.1.100` and will try to determine what services are bound to them (only *essential* switches are shown – Nmap features a broad set of options, whose discussion is out of scope):
+例如，以下命令将使用 TCP 连接扫描查找 IP `192.168.1.100` 上的所有开放端口，并尝试确定绑定到它们的服务（仅显示 *基本* 选项——Nmap 具有广泛的选项集，其讨论超出范围）：
 
 `nmap –Pn –sT –sV –p0-65535 192.168.1.100`
 
-It is sufficient to examine the output and look for HTTP or the indication of TLS-wrapped services (which should be probed to confirm that they are HTTPS). For example, the output of the previous command could look like:
+检查输出并查找 HTTP 或 TLS 封装服务的指示就足够了（应探查以确认它们是 HTTPS）。例如，前一个命令的输出可能如下所示：
 
 ```bash
 Interesting ports on 192.168.1.100:
@@ -85,14 +85,14 @@ PORT      STATE SERVICE     VERSION
 8080/tcp  open  http        Apache Tomcat/Coyote JSP engine 1.1
 ```
 
-From this example, one can see that:
+从这个示例可以看到：
 
-- There is an Apache HTTP server running on port 80.
-- It looks like there is an HTTPS server on port 443 (but this needs to be confirmed, for example, by visiting `https://192.168.1.100` with a browser).
-- On port 901 there is a Samba SWAT web interface.
-- The service on port 1241 is not HTTPS, but is the TLS-wrapped Nessus daemon.
-- Port 3690 features an unspecified service (Nmap gives back its *fingerprint* - here omitted for clarity - together with instructions to submit it for incorporation in the Nmap fingerprint database, provided you know which service it represents).
-- Another unspecified service on port 8000; this might possibly be HTTP, since it is not uncommon to find HTTP servers on this port. Let's examine this issue:
+- 端口 80 上运行着 Apache HTTP 服务器。
+- 端口 443 上看起来有 HTTPS 服务器（但需要确认，例如，通过浏览器访问 `https://192.168.1.100`）。
+- 端口 901 上有 Samba SWAT Web 接口。
+- 端口 1241 上的服务不是 HTTPS，而是 TLS 封装的 Nessus 守护进程。
+- 端口 3690 具有未指定的服务（Nmap 给出其*指纹*——此处为清晰起见省略——以及将其提交到 Nmap 指纹数据库的说明，前提是您知道它代表什么服务）。
+- 端口 8000 上有另一个未指定的服务；这可能是 HTTP，因为在 此端口上找到 HTTP 服务器并不罕见。让我们检查这个问题：
 
 ```bash
 $ telnet 192.168.10.100 8000
@@ -112,43 +112,43 @@ Cache-Control: no-cache
 ...
 ```
 
-This confirms that in fact it is an HTTP server. Alternatively, testers could have visited the URL with a web browser; or used the GET or HEAD Perl commands, which mimic HTTP interactions such as the one given above (however HEAD requests may not be honored by all servers).
+这确认了它实际上是一个 HTTP 服务器。或者，测试人员可以使用 Web 浏览器访问 URL；或使用 GET 或 HEAD Perl 命令，这些命令模拟上述 HTTP 交互（但是 HEAD 请求可能不被所有服务器尊重）。
 
-- Apache Tomcat running on port 8080.
+- 端口 8080 上运行着 Apache Tomcat。
 
-The same task may be performed by vulnerability scanners, but first check that the scanner of choice is able to identify HTTP[S] services running on non-standard ports. For example, Nessus is capable of identifying them on arbitrary ports (provided it is instructed to scan all the ports), and will provide, with respect to Nmap, a number of tests on known web server vulnerabilities, as well as on the TLS/SSL configuration of HTTPS services. As hinted before, Nessus is also able to spot popular applications or web interfaces which could otherwise go unnoticed (for example, a Tomcat administrative interface).
+同样的任务可以由漏洞扫描器执行，但首先检查所选扫描器能够识别非标准端口上运行的 HTTP[S] 服务。例如，Nessus 能够识别任意端口上的服务（前提是它被指示扫描所有端口），并且将与 Nmap 相比提供大量针对已知 Web 服务器漏洞的测试，以及 HTTPS 服务的 TLS/SSL 配置。如前所述，Nessus 还能够发现可能被忽视的流行应用或 Web 接口（例如，Tomcat 管理接口）。
 
-### Approaches to Address Issue 3 - Virtual Hosts
+### 解决问题 3 的方法 - 虚拟主机
 
-There are a number of techniques which may be used to identify DNS names associated to a given IP address `x.y.z.t`.
+有多种技术可用于识别与给定 IP 地址 `x.y.z.t` 关联的 DNS 名称。
 
-#### DNS Enumeration
+#### DNS 枚举
 
-DNS enumeration aims to identify domains, subdomains, and related DNS records associated with the target organization to expand the assessment scope. DNS enumeration plays a key role in identifying additional virtual hosts mapped to the same IP address. This may reveal development systems, staging environments, legacy services, or administrative interfaces.
+DNS 枚举旨在识别与目标组织关联的域名、子域名和相关 DNS 记录，以扩大评估范围。DNS 枚举在识别映射到同一 IP 地址的其他虚拟主机方面发挥关键作用。这可能揭示开发系统、预发布环境、旧服务或管理接口。
 
-Both passive and active techniques can be used.
+可以使用被动和主动技术。
 
-#### Passive DNS Enumeration
+#### 被动 DNS 枚举
 
-Passive techniques do not directly interact with the target infrastructure and instead rely on publicly available data sources. Examples include:
+被动技术不直接与目标基础设施交互，而是依赖公开可用的数据源。示例包括：
 
-- Public DNS records (A, AAAA, MX, TXT, NS)
-- Reverse DNS lookups (PTR records)
-- Search engines
-- Passive DNS databases
-- Certificate Transparency logs
+- 公开 DNS 记录（A、AAAA、MX、TXT、NS）
+- 反向 DNS 查找（PTR 记录）
+- 搜索引擎
+- 被动 DNS 数据库
+- 证书透明度日志
 
-Passive techniques are preferred during early reconnaissance phases to avoid detection.
+在早期侦察阶段首选被动技术以避免检测。
 
-#### Active DNS Enumeration
+#### 主动 DNS 枚举
 
-Active techniques directly query the target's DNS infrastructure and may generate logs on the target systems. These include:
+主动技术直接查询目标的 DNS 基础设施，可能会在目标系统上生成日志。这些包括：
 
-- Subdomain brute forcing
-- DNS zone transfer attempts
-- DNS record enumeration using tools
+- 子域名暴力破解
+- DNS 区域传输尝试
+- 使用工具进行 DNS 记录枚举
 
-Common tools used for DNS enumeration include:
+用于 DNS 枚举的常用工具包括：
 
 - `amass`
 - `subfinder`
@@ -157,15 +157,15 @@ Common tools used for DNS enumeration include:
 - `dig`
 - `nslookup`
 
-Example using `dig`: `dig example.com ANY`
+使用 `dig` 的示例：`dig example.com ANY`
 
-#### DNS Zone Transfers
+#### DNS 区域传输
 
-This technique has limited use nowadays, given the fact that zone transfers are largely not honored by DNS servers. However, it could still be worth attempting. First of all, testers must determine the name servers serving `x.y.z.t`. If a symbolic name is known for `x.y.z.t` (let it be `www.example.com`), its name servers can be determined by means of tools such as `nslookup`, `host`, or `dig`, by requesting DNS NS records.
+考虑到区域传输在很大程度上不被 DNS 服务器尊重的事实，这种技术现今用途有限。然而，它可能仍然值得尝试。首先，测试人员必须确定为 `x.y.z.t` 提供服务的名称服务器。如果 `x.y.z.t` 已知符号名称（让它成为 `www.example.com`），可以通过 `nslookup`、`host` 或 `dig` 等工具请求 DNS NS 记录来确定其名称服务器。
 
-If no symbolic names are known for `x.y.z.t`, but the target definition contains at least a symbolic name, testers may try to apply the same process and query the name server of that name (hoping that `x.y.z.t` will be served as well by that name server). For example, if the target consists of the IP address `x.y.z.t` and the name `mail.example.com`, determine the name servers for domain `example.com`.
+如果 `x.y.z.t` 不知道符号名称，但目标定义至少包含一个符号名称，测试人员可以尝试应用相同的过程并查询该名称的名称服务器（希望 `x.y.z.t` 也由该名称服务器提供服务）。例如，如果目标由 IP 地址 `x.y.z.t` 和名称 `mail.example.com` 组成，则确定域 `example.com` 的名称服务器。
 
-The following example shows how to identify the name servers for `www.owasp.org` by using the `host` command:
+以下示例显示如何使用 `host` 命令识别 `www.owasp.org` 的名称服务器：
 
 ```bash
 $ host -t ns www.owasp.org
@@ -174,9 +174,9 @@ owasp.org name server ns1.secure.net.
 owasp.org name server ns2.secure.net.
 ```
 
-A zone transfer can now be requested to the name servers for the domain `example.com`. If the tester is fortunate, they may receive a list of the DNS entries for this domain in response. This will include the obvious `www.example.com` and the not-so-obvious `helpdesk.example.com` and `webmail.example.com` (and possibly others). Check all the names returned by the zone transfer and consider all of those which are related to the target being evaluated.
+现在可以向域 `example.com` 的名称服务器请求区域传输。如果测试人员幸运，他们可能会收到此域的 DNS 条目列表作为响应。这将包括明显的 `www.example.com` 和不那么明显的 `helpdesk.example.com` 和 `webmail.example.com`（可能还有其他）。检查区域传输返回的所有名称，并考虑与所评估目标相关的所有名称。
 
-Trying to request a zone transfer for `owasp.org` from one of its name servers:
+尝试从其名称服务器之一请求 `owasp.org` 的区域传输：
 
 ```bash
 $ host -l www.owasp.org ns1.secure.net
@@ -189,35 +189,35 @@ Host www.owasp.org not found: 5(REFUSED)
 ; Transfer failed.
 ```
 
-#### DNS Inverse Queries
+#### DNS 反向查询
 
-This process is similar to the previous one, but relies on inverse (PTR) DNS records. Rather than requesting a zone transfer, try setting the record type to PTR and issue a query on the given IP address. If the testers are fortunate, they may receive a DNS name entry in response. This technique relies on the existence of IP-to-symbolic name maps, which is not guaranteed.
+此过程与前一个类似，但依赖反向（PTR）DNS 记录。不请求区域传输，而是将记录类型设置为 PTR 并对给定 IP 地址发出查询。如果测试人员幸运，他们可能会收到 DNS 名称条目作为响应。此技术依赖于 IP 到符号名称映射的存在，但这不能保证。
 
-#### Web-based DNS Searches
+#### 基于 Web 的 DNS 搜索
 
-This kind of search is akin to DNS zone transfer, but relies on web-based services that enable name-based searches on DNS. One such service is the [Netcraft Search DNS](https://searchdns.netcraft.com/?host) service. The tester may query for a list of names belonging to your domain of choice, such as `example.com`. They will then check whether the names they obtained are pertinent to the target they are examining.
+这种搜索类似于 DNS 区域传输，但依赖基于 Web 的服务来执行 DNS 的基于名称的搜索。其中一种服务是 [Netcraft Search DNS](https://searchdns.netcraft.com/?host) 服务。测试人员可以查询属于您所选域的名称列表，如 `example.com`。然后他们将检查获得的名称是否与所检查的目标相关。
 
-#### Reverse-IP Services
+#### 反向 IP 服务
 
-Reverse-IP services are similar to DNS inverse queries, with the difference that the testers query a web-based application instead of a name server. There are a number of such services available. Since they tend to return partial (and often different) results, it is better to use multiple services to obtain a more comprehensive analysis.
+反向 IP 服务类似于 DNS 反向查询，不同之处在于测试人员查询基于 Web 的应用而不是名称服务器。有多种此类服务可用。由于它们往往返回部分（且经常不同）结果，因此最好使用多种服务以获得更全面的分析。
 
 - [MxToolbox Reverse IP](https://mxtoolbox.com/ReverseLookup.aspx)
-- [DNSstuff](https://www.dnsstuff.com/) (multiple services available)
-- [Net Square](https://web.archive.org/web/20190515092354/https://www.net-square.com/mspawn.html) (multiple queries on domains and IP addresses, requires installation)
+- [DNSstuff](https://www.dnsstuff.com/)（多种服务可用）
+- [Net Square](https://web.archive.org/web/20190515092354/https://www.net-square.com/mspawn.html)（对域和 IP 地址的多种查询，需要安装）
 
-#### Googling
+#### Google 搜索
 
-Following information gathering from the previous techniques, testers can rely on search engines to possibly refine and increment their analysis. This may yield evidence of additional symbolic names belonging to the target, or applications accessible via non-obvious URLs.
+继从前述技术收集信息之后，测试人员可以依靠搜索引擎来可能细化和增加他们的分析。这可能产生属于目标的额外符号名称的证据，或通过非显而易见 URL 访问的应用。
 
-For instance, considering the previous example regarding `www.owasp.org`, the tester could query Google and other search engines looking for information (hence, DNS names) related to the newly discovered domains of `webgoat.org`, `webscarab.com`, and `webscarab.net`.
+例如，考虑到前面关于 `www.owasp.org` 的示例，测试人员可以查询 Google 和其他搜索引擎，查找与新发现的域 `webgoat.org`、`webscarab.com` 和 `webscarab.net` 相关的信息（因此是 DNS 名称）。
 
-Googling techniques are explained in [Testing: Spiders, Robots, and Crawlers](01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md).
+Google 搜索技术在 [测试：蜘蛛、机器人和爬虫](01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md) 中有解释。
 
-#### Digital Certificates
+#### 数字证书
 
-If the server accepts connections over HTTPS, then the Common Name (CN) and Subject Alternate Name (SAN) on the certificate may contain one or more hostnames. However, if the webserver does not have a trusted certificate, or wildcards are in use, this may not return any valid information.
+如果服务器通过 HTTPS 接受连接，则证书上的公用名（CN）和主题备用名（SAN）可能包含一个或多个主机名。但是，如果 Web 服务器没有可信证书，或使用通配符，这可能不会返回任何有效信息。
 
-The CN and SAN can be obtained by manually inspecting the certificate, or through other tools such as OpenSSL:
+可以通过手动检查证书获取 CN 和 SAN，或通过 OpenSSL 等其他工具：
 
 ```sh
 openssl s_client -connect 93.184.216.34:443 </dev/null 2>/dev/null | openssl x509 -noout -text | grep -E 'DNS:|Subject:'
@@ -226,41 +226,41 @@ Subject: C = US, ST = California, L = Los Angeles, O = Internet Corporation for 
 DNS:www.example.org, DNS:example.com, DNS:example.edu, DNS:example.net, DNS:example.org, DNS:www.example.com, DNS:www.example.edu, DNS:www.example.net
 ```
 
-#### Certificate Transparency Logs
+#### 证书透明度日志
 
-Certificate Transparency (CT) logs are publicly accessible records of issued TLS certificates. These logs can be searched to identify hostnames and subdomains associated with a target organization, including staging systems, administrative interfaces, legacy systems, or other externally reachable services.
+证书透明度（CT）日志是公开可访问的 TLS 证书记录。这些日志可以搜索以识别与目标组织关联的主机名和子域名，包括预发布系统、管理接口、旧系统或其他外部可访问服务。
 
-Reviewing CT logs may reveal hostnames that are not directly discoverable through DNS zone transfers, reverse lookups, or search engine queries alone. Testers should extract discovered hostnames and validate them through DNS resolution to determine whether they are active and within the defined scope of the assessment.
+审查 CT 日志可能揭示不能单独通过 DNS 区域传输、反向查找或搜索引擎查询直接发现的主机名。测试人员应提取发现的主机名并通过 DNS 解析验证它们，以确定它们是否活跃且在评估定义的范围内。
 
-When reviewing CT log data, consider:
+审查 CT 日志数据时，考虑：
 
-- Hostnames indicating development, staging, or testing environments.
-- Administrative or management interfaces.
-- Deprecated or legacy systems that may still be accessible.
-- Wildcard certificates that may imply additional undiscovered subdomains.
+- 指示开发、预发布或测试环境的主机名。
+- 管理或管理接口。
+- 可能仍可访问的已弃用或旧系统。
+- 可能暗示额外未发现子域名的通配符证书。
 
-Information gathered from CT logs should be validated to confirm ownership and relevance before further testing.
+在进一步测试之前，应验证从 CT 日志收集的信息以确认所有权和相关性。
 
-Care must be taken to respect scope limitations defined in the engagement.
+必须注意尊重参与中定义的范围限制。
 
-Discovered assets should be validated and documented before further testing activities.
+在进一步测试活动之前，应验证并记录发现的资产。
 
-One common approach to querying CT logs is to use publicly available search portals that aggregate certificate data. For example, a tester may search for certificates issued to `example.com` and review the listed subdomains.
+查询 CT 日志的一种常见方法是使用聚合证书数据的公开可用搜索门户。例如，测试人员可以搜索颁发给 `example.com` 的证书并审查列出的子域名。
 
-For instance: `https://crt.sh/?q=%25.example.com`
+例如：`https://crt.sh/?q=%25.example.com`
 
-![CT Log Search Example](images/Figure-4.1.4-CT-logs-example.png)  
+![CT 日志搜索示例](images/Figure-4.1.4-CT-logs-example.png)
 
-*Figure 4.1.4-1: Example of Certificate Transparency log search results.*
+*图 4.1.4-1：证书透明度日志搜索结果示例。*
 
-The results may list subdomains such as `dev.example.com`, `staging.example.com`, or other hostnames that are not directly referenced from the primary site. Discovered hostnames should be validated through DNS resolution before further testing.
+结果可能列出如 `dev.example.com`、`staging.example.com` 或其他未从主站点直接引用的主机名。应在进一步测试之前通过 DNS 解析验证发现的主机名。
 
-## Tools
+## 工具
 
-- DNS lookup tools such as `nslookup`, `dig`, and `host`
-- Subdomain enumeration tools such as `amass`, `subfinder`, `dnsrecon`, and `fierce`
-- Search engines (Google, Bing, and other major search engines)
-- Reverse IP lookup services
+- DNS 查找工具如 `nslookup`、`dig` 和 `host`
+- 子域名枚举工具如 `amass`、`subfinder`、`dnsrecon` 和 `fierce`
+- 搜索引擎（Google、Bing 和其他主要搜索引擎）
+- 反向 IP 查找服务
 - [Nmap](https://nmap.org/)
-- [Nessus Vulnerability Scanner](https://www.tenable.com/products/nessus)
+- [Nessus 漏洞扫描器](https://www.tenable.com/products/nessus)
 - [Nikto](https://github.com/sullo/nikto)

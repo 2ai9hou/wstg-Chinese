@@ -1,50 +1,50 @@
-# Map Execution Paths Through Application
+# 映射应用执行路径
 
 |ID          |
 |------------|
 |WSTG-INFO-07|
 
-## Summary
+## 摘要
 
-Before commencing security testing, understanding the structure of the application is paramount. Without a thorough understanding of the application's layout, a comprehensive test is unlikely.
+在开始安全测试之前，了解应用的结构至关重要。没有对应用布局的彻底理解，就不可能进行全面的测试。
 
-## Test Objectives
+## 测试目标
 
-- Map the target application and understand the principal workflows.
+- 绘制目标应用并理解主要工作流程。
 
-## How to Test
+## 如何测试
 
-In black-box testing, it is extremely difficult to test the entire codebase. This is not just because the tester cannot see the code paths through the application, but also because testing all the code paths would be extremely time-consuming. One way to reconcile this is to document the code paths that were discovered and tested.
+在黑盒测试中，测试整个代码库是非常困难的。这不仅是因为测试人员看不到通过应用的代码路径，而且测试所有代码路径也非常耗时。协调这一点的一种方法是记录已发现和测试的代码路径。
 
-There are several ways to approach the testing and measurement of code coverage:
+有几种方法可用于测试和测量代码覆盖率：
 
-- **Path** - test each of the paths through an application that includes combinatorial and boundary value analysis testing for each decision path. While this approach offers thoroughness, the number of testable paths grows exponentially with each decision branch.
-- **Data Flow (or Taint Analysis)** - tests the assignment of variables via external interaction (normally users). Focuses on mapping the flow, transformation and use of data throughout an application.
-- **Race** - tests multiple concurrent instances of the application manipulating the same data.
+- **路径** - 测试通过应用的每个路径，包括每个决策路径的组合和边界值分析测试。虽然这种方法提供了彻底的覆盖，但每个决策分支的可测试路径数量呈指数增长。
+- **数据流（或污点分析）** - 通过外部交互（通常为用户）测试变量赋值。专注于映射整个应用中的数据流、转换和使用。
+- **竞态** - 测试操作相同数据的多个并发应用实例。
 
-The choice of method and the extent to which each method is used should be negotiated with the application owner. Additionally, simpler approaches could be adopted. For example, the tester could ask the application owner about specific functions or code sections that they are particularly concerned about, and discuss how those code segments can be reached.
+方法的选择以及每种方法的使用程度应与应用所有者协商。此外，可以采用更简单的方法。例如，测试人员可以询问应用所有者关于他们特别关注的特定功能或代码段，并讨论如何访问这些代码段。
 
-To demonstrate code coverage to the application owner, the tester can start by documenting all the links discovered from spidering the application (either manually or automatically) in a spreadsheet. The tester can then look more closely at decision points in the application and investigate how many significant code paths are discovered. These should then be documented in the spreadsheet with URLs, prose and screenshot descriptions of the paths discovered.
+为了向应用所有者展示代码覆盖率，测试人员可以首先在电子表格中记录从爬取应用中发现的所有链接（手动或自动）。测试人员可以更仔细地查看应用中的决策点，并研究发现了多少重要代码路径。然后应在电子表格中记录这些内容，包括 URL、路径的文字和屏幕截图描述。
 
-### Automatic Spidering
+### 自动爬虫
 
-An automatic spider is a tool that is used to discover new resources (URLs) on a specific site automatically. It begins with a list of URLs to visit, called the seeds, which depends on how the Spider is started. While there are a lot of Spidering tools, the following example uses the [Zed Attack Proxy (ZAP)](https://github.com/zaproxy/zaproxy):
+自动爬虫是一种用于自动发现特定站点上新资源（URL）的工具。它从要访问的 URL 列表（称为种子）开始，这取决于爬虫的启动方式。虽然有很多爬虫工具，但以下示例使用 [Zed Attack Proxy (ZAP)](https://github.com/zaproxy/zaproxy)：
 
-![Zed Attack Proxy Screen](images/OWASPZAPSP.png)\
-*Figure 4.1.7-1: Zed Attack Proxy Screen*
+![Zed Attack Proxy 屏幕](images/OWASPZAPSP.png)\
+*图 4.1.7-1：Zed Attack Proxy 屏幕*
 
-[ZAP](https://github.com/zaproxy/zaproxy) offers various automatic spidering options, which can be leveraged based on the tester's needs:
+[ZAP](https://github.com/zaproxy/zaproxy) 提供各种自动爬虫选项，可根据测试人员的需要加以利用：
 
 - [Spider](https://www.zaproxy.org/docs/desktop/start/features/spider/)
 - [Ajax Spider](https://www.zaproxy.org/docs/desktop/addons/ajax-spider/)
 - [OpenAPI Support](https://www.zaproxy.org/docs/desktop/addons/openapi-support/)
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy (ZAP)](https://github.com/zaproxy/zaproxy)
-- [List of spreadsheet software](https://en.wikipedia.org/wiki/List_of_spreadsheet_software)
-- [Diagramming software](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)
+- [电子表格软件列表](https://en.wikipedia.org/wiki/List_of_spreadsheet_software)
+- [图表软件](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)
 
-## References
+## 参考资料
 
-- [Code Coverage](https://en.wikipedia.org/wiki/Code_coverage)
+- [代码覆盖率](https://en.wikipedia.org/wiki/Code_coverage)
