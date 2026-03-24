@@ -1,4 +1,4 @@
-# OWASP Web Security Testing Guide
+# OWASP Web 安全测试指南
 
 [![欢迎贡献](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/OWASP/wstg/issues)
 [![OWASP 旗舰项目](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects/)

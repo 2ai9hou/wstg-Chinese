@@ -1,129 +1,129 @@
-# Testing Checklist
+# 测试检查清单
 
-The following is the list of items to test during the assessment:
+以下是在评估期间需要测试的项目列表：
 
-Note: The `Status` column can be set for values similar to "Pass", "Fail", "N/A".
+注意：`状态` 列可以设置为类似"通过"、"失败"、"不适用"的值。
 
-| Test ID           | Test Name                                                                  | Status | Notes |
+| 测试 ID | 测试名称 | 状态 | 备注 |
 |-------------------|----------------------------------------------------------------------------|--------|-------|
-| **WSTG-INFO**     | **Information Gathering**                                                  |        |       |
-| WSTG-INFO-01      | Conduct Search Engine Discovery and Reconnaissance for Information Leakage |        |       |
-| WSTG-INFO-02      | Fingerprint Web Server                                                     |        |       |
-| WSTG-INFO-03      | Review Webserver Metafiles for Information Leakage                         |        |       |
-| WSTG-INFO-04      | Enumerate Applications on Webserver                                        |        |       |
-| WSTG-INFO-05      | Review Webpage Content for Information Leakage                             |        |       |
-| WSTG-INFO-06      | Identify Application Entry Points                                          |        |       |
-| WSTG-INFO-07      | Map Execution Paths Through Application                                    |        |       |
-| WSTG-INFO-08      | Fingerprint Web Application Framework                                      |        |       |
-| WSTG-INFO-09      | Fingerprint Web Application                                                |        |       |
-| WSTG-INFO-10      | Map Application Architecture                                               |        |       |
-| **WSTG-CONF**     | **Configuration and Deploy Management Testing**                            |        |       |
-| WSTG-CONF-01      | Test Network Infrastructure Configuration                                  |        |       |
-| WSTG-CONF-02      | Test Application Platform Configuration                                    |        |       |
-| WSTG-CONF-03      | Test File Extensions Handling for Sensitive Information                    |        |       |
-| WSTG-CONF-04      | Review Old Backup and Unreferenced Files for Sensitive Information         |        |       |
-| WSTG-CONF-05      | Enumerate Infrastructure and Application Admin Interfaces                  |        |       |
-| WSTG-CONF-06      | Test HTTP Methods                                                          |        |       |
-| WSTG-CONF-07      | Test HTTP Strict Transport Security                                        |        |       |
-| WSTG-CONF-08      | Test RIA Cross Domain Policy                                               |        |       |
-| WSTG-CONF-09      | Test File Permission                                                       |        |       |
-| WSTG-CONF-10      | Test for Subdomain Takeover                                                |        |       |
-| WSTG-CONF-11      | Test Cloud Storage                                                         |        |       |
-| WSTG-CONF-12      | Testing for Content Security Policy                                        |        |       |
-| WSTG-CONF-13      | Test Path Confusion                                                        |        |       |
-| WSTG-CONF-14      | Test Other HTTP Security Header Misconfigurations                          |        |       |
-| **WSTG-IDNT**     | **Identity Management Testing**                                            |        |       |
-| WSTG-IDNT-01      | Test Role Definitions                                                      |        |       |
-| WSTG-IDNT-02      | Test User Registration Process                                             |        |       |
-| WSTG-IDNT-03      | Test Account Provisioning Process                                          |        |       |
-| WSTG-IDNT-04      | Testing for Account Enumeration and Guessable User Account                 |        |       |
-| WSTG-IDNT-05      | Testing for Weak or Unenforced Username Policy                             |        |       |
-| **WSTG-ATHN**     | **Authentication Testing**                                                 |        |       |
-| WSTG-ATHN-01      | Testing for Credentials Transported over an Encrypted Channel              |        |       |
-| WSTG-ATHN-02      | Testing for Default Credentials                                            |        |       |
-| WSTG-ATHN-03      | Testing for Weak Lock Out Mechanism                                        |        |       |
-| WSTG-ATHN-04      | Testing for Bypassing Authentication Schema                                |        |       |
-| WSTG-ATHN-05      | Testing for Vulnerable Remember Password                                   |        |       |
-| WSTG-ATHN-06      | Testing for Browser Cache Weakness                                         |        |       |
-| WSTG-ATHN-07      | Testing for Weak Password Policy                                           |        |       |
-| WSTG-ATHN-08      | Testing for Weak Security Question Answer                                  |        |       |
-| WSTG-ATHN-09      | Testing for Weak Password Change or Reset Functionalities                  |        |       |
-| WSTG-ATHN-10      | Testing for Weaker Authentication in Alternative Channel                   |        |       |
-| WSTG-ATHN-11      | Testing Multi-Factor Authentication (MFA)                                  |        |       |
-| **WSTG-ATHZ**     | **Authorization Testing**                                                  |        |       |
-| WSTG-ATHZ-01      | Testing Directory Traversal File Include                                   |        |       |
-| WSTG-ATHZ-02      | Testing for Bypassing Authorization Schema                                 |        |       |
-| WSTG-ATHZ-03      | Testing for Privilege Escalation                                           |        |       |
-| WSTG-ATHZ-04      | Testing for Insecure Direct Object References                              |        |       |
-| WSTG-ATHZ-05      | Testing for OAuth Weaknesses                                               |        |       |
-| **WSTG-SESS**     | **Session Management Testing**                                             |        |       |
-| WSTG-SESS-01      | Testing for Session Management Schema                                      |        |       |
-| WSTG-SESS-02      | Testing for Cookies Attributes                                             |        |       |
-| WSTG-SESS-03      | Testing for Session Fixation                                               |        |       |
-| WSTG-SESS-04      | Testing for Exposed Session Variables                                      |        |       |
-| WSTG-SESS-05      | Testing for Cross Site Request Forgery                                     |        |       |
-| WSTG-SESS-06      | Testing for Logout Functionality                                           |        |       |
-| WSTG-SESS-07      | Testing Session Timeout                                                    |        |       |
-| WSTG-SESS-08      | Testing for Session Puzzling                                               |        |       |
-| WSTG-SESS-09      | Testing for Session Hijacking                                              |        |       |
-| WSTG-SESS-10      | Testing JSON Web Tokens                                                    |        |       |
-| WSTG-SESS-11      | Testing for Concurrent Sessions                                            |        |       |
-| **WSTG-INPV**     | **Input Validation Testing**                                               |        |       |
-| WSTG-INPV-01      | Testing for Reflected Cross Site Scripting                                 |        |       |
-| WSTG-INPV-02      | Testing for Stored Cross Site Scripting                                    |        |       |
-| WSTG-INPV-03      | Testing for HTTP Verb Tampering                                            |        |       |
-| WSTG-INPV-04      | Testing for HTTP Parameter pollution                                       |        |       |
-| WSTG-INPV-05      | Testing for SQL Injection                                                  |        |       |
-| WSTG-INPV-06      | Testing for LDAP Injection                                                 |        |       |
-| WSTG-INPV-07      | Testing for XML Injection                                                  |        |       |
-| WSTG-INPV-08      | Testing for SSI Injection                                                  |        |       |
-| WSTG-INPV-09      | Testing for XPath Injection                                                |        |       |
-| WSTG-INPV-10      | Testing for IMAP SMTP Injection                                            |        |       |
-| WSTG-INPV-11      | Testing for Code Injection                                                 |        |       |
-| WSTG-INPV-12      | Testing for Command Injection                                              |        |       |
-| WSTG-INPV-13      | Testing for Format String Injection                                        |        |       |
-| WSTG-INPV-14      | Testing for Incubated Vulnerabilities                                      |        |       |
-| WSTG-INPV-15      | Testing for HTTP Splitting Smuggling                                       |        |       |
-| WSTG-INPV-16      | Testing for HTTP Incoming Requests                                         |        |       |
-| WSTG-INPV-17      | Testing for Host Header Injection                                          |        |       |
-| WSTG-INPV-18      | Testing for Server-Side Template Injection                                 |        |       |
-| WSTG-INPV-19      | Testing for Server-Side Request Forgery                                    |        |       |
-| WSTG-INPV-20      | Testing for Mass Assignment                                                |        |       |
-| **WSTG-ERRH**     | **Error Handling**                                                         |        |       |
-| WSTG-ERRH-01      | Testing for Improper Error Handling                                        |        |       |
-| WSTG-ERRH-02      | Testing for Stack Traces                                                   |        |       |
-| **WSTG-CRYP**     | **Cryptography**                                                           |        |       |
-| WSTG-CRYP-01      | Testing for Weak Transport Layer Security                                  |        |       |
-| WSTG-CRYP-02      | Testing for Padding Oracle                                                 |        |       |
-| WSTG-CRYP-03      | Testing for Sensitive Information Sent Via Unencrypted Channels            |        |       |
-| WSTG-CRYP-04      | Testing for Weak Cryptographic Primitives                                  |        |       |
-| **WSTG-BUSLOGIC** | **Business Logic Testing**                                                 |        |       |
-| WSTG-BUSL-01      | Test Business Logic Data Validation                                        |        |       |
-| WSTG-BUSL-02      | Test Ability to Forge Requests                                             |        |       |
-| WSTG-BUSL-03      | Test Integrity Checks                                                      |        |       |
-| WSTG-BUSL-04      | Test for Process Timing                                                    |        |       |
-| WSTG-BUSL-05      | Test Number of Times a Function Can Be Used Limits                         |        |       |
-| WSTG-BUSL-06      | Testing for the Circumvention of Work Flows                                |        |       |
-| WSTG-BUSL-07      | Test Defenses Against Application Misuse                                   |        |       |
-| WSTG-BUSL-08      | Test Upload of Unexpected File Types                                       |        |       |
-| WSTG-BUSL-09      | Test Upload of Malicious Files                                             |        |       |
-| WSTG-BUSL-10      | Test Payment Functionality                                                 |        |       |
-| **WSTG-CLIENT**   | **Client-side Testing**                                                    |        |       |
-| WSTG-CLNT-01      | Testing for DOM Based Cross Site Scripting                                 |        |       |
-| WSTG-CLNT-02      | Testing for JavaScript Execution                                           |        |       |
-| WSTG-CLNT-03      | Testing for HTML Injection                                                 |        |       |
-| WSTG-CLNT-04      | Testing for Client-Side URL Redirect                                       |        |       |
-| WSTG-CLNT-05      | Testing for CSS Injection                                                  |        |       |
-| WSTG-CLNT-06      | Testing for Client-Side Resource Manipulation                              |        |       |
-| WSTG-CLNT-07      | Test Cross Origin Resource Sharing                                         |        |       |
-| WSTG-CLNT-08      | Testing for Cross Site Flashing                                            |        |       |
-| WSTG-CLNT-09      | Testing for Clickjacking                                                   |        |       |
-| WSTG-CLNT-10      | Testing WebSockets                                                         |        |       |
-| WSTG-CLNT-11      | Test Web Messaging                                                         |        |       |
-| WSTG-CLNT-12      | Test Browser Storage                                                       |        |       |
-| WSTG-CLNT-13      | Testing for Cross Site Script Inclusion                                    |        |       |
-| WSTG-CLNT-14      | Testing for Reverse Tabnabbing                                             |        |       |
-| **WSTG-APIT**     | **API Testing**                                                            |        |       |
-| WSTG-APIT-01      | API Reconnaissance                                                         |        |       |
-| WSTG-APIT-02      | API Broken Object Level Authorization                                      |        |       |
-| WSTG-APIT-99      | Testing GraphQL                                                            |        |       |
+| **WSTG-INFO** | **信息收集** | | |
+| WSTG-INFO-01 | 进行搜索引擎侦察以发现信息泄露 | | |
+| WSTG-INFO-02 | 识别 Web 服务器指纹 | | |
+| WSTG-INFO-03 | 审查 Web 服务器元文件以发现信息泄露 | | |
+| WSTG-INFO-04 | 枚举 Web 服务器上的应用 | | |
+| WSTG-INFO-05 | 审查网页内容以发现信息泄露 | | |
+| WSTG-INFO-06 | 识别应用入口点 | | |
+| WSTG-INFO-07 | 映射应用执行路径 | | |
+| WSTG-INFO-08 | 识别 Web 应用框架指纹 | | |
+| WSTG-INFO-09 | 识别 Web 应用指纹 | | |
+| WSTG-INFO-10 | 映射应用架构 | | |
+| **WSTG-CONF** | **配置与部署管理测试** | | |
+| WSTG-CONF-01 | 测试网络基础设施配置 | | |
+| WSTG-CONF-02 | 测试应用平台配置 | | |
+| WSTG-CONF-03 | 测试敏感信息的文件扩展名处理 | | |
+| WSTG-CONF-04 | 审查旧备份和未引用文件以发现敏感信息 | | |
+| WSTG-CONF-05 | 枚举基础设施和应用管理接口 | | |
+| WSTG-CONF-06 | 测试 HTTP 方法 | | |
+| WSTG-CONF-07 | 测试 HTTP 严格传输安全 | | |
+| WSTG-CONF-08 | 测试 RIA 跨域策略 | | |
+| WSTG-CONF-09 | 测试文件权限 | | |
+| WSTG-CONF-10 | 测试子域名接管 | | |
+| WSTG-CONF-11 | 测试云存储 | | |
+| WSTG-CONF-12 | 测试内容安全策略 | | |
+| WSTG-CONF-13 | 测试路径混淆 | | |
+| WSTG-CONF-14 | 测试其他 HTTP 安全头配置错误 | | |
+| **WSTG-IDNT** | **身份管理测试** | | |
+| WSTG-IDNT-01 | 测试角色定义 | | |
+| WSTG-IDNT-02 | 测试用户注册流程 | | |
+| WSTG-IDNT-03 | 测试账户配置流程 | | |
+| WSTG-IDNT-04 | 测试账户枚举和可猜测用户账户 | | |
+| WSTG-IDNT-05 | 测试弱或未强制的用户名策略 | | |
+| **WSTG-ATHN** | **认证测试** | | |
+| WSTG-ATHN-01 | 测试通过加密通道传输的凭据 | | |
+| WSTG-ATHN-02 | 测试默认凭据 | | |
+| WSTG-ATHN-03 | 测试弱锁定机制 | | |
+| WSTG-ATHN-04 | 测试绕过认证架构 | | |
+| WSTG-ATHN-05 | 测试易受的记住密码功能 | | |
+| WSTG-ATHN-06 | 测试浏览器缓存弱点 | | |
+| WSTG-ATHN-07 | 测试弱密码策略 | | |
+| WSTG-ATHN-08 | 测试弱安全问题答案 | | |
+| WSTG-ATHN-09 | 测试弱密码更改或重置功能 | | |
+| WSTG-ATHN-10 | 测试替代通道中较弱的认证 | | |
+| WSTG-ATHN-11 | 测试多因素认证（MFA） | | |
+| **WSTG-ATHZ** | **授权测试** | | |
+| WSTG-ATHZ-01 | 测试目录遍历文件包含 | | |
+| WSTG-ATHZ-02 | 测试绕过授权架构 | | |
+| WSTG-ATHZ-03 | 测试权限提升 | | |
+| WSTG-ATHZ-04 | 测试不安全的直接对象引用 | | |
+| WSTG-ATHZ-05 | 测试 OAuth 弱点 | | |
+| **WSTG-SESS** | **会话管理测试** | | |
+| WSTG-SESS-01 | 测试会话管理架构 | | |
+| WSTG-SESS-02 | 测试 Cookie 属性 | | |
+| WSTG-SESS-03 | 测试会话固定 | | |
+| WSTG-SESS-04 | 测试暴露的会话变量 | | |
+| WSTG-SESS-05 | 测试跨站请求伪造 | | |
+| WSTG-SESS-06 | 测试注销功能 | | |
+| WSTG-SESS-07 | 测试会话超时 | | |
+| WSTG-SESS-08 | 测试会话拼图 | | |
+| WSTG-SESS-09 | 测试会话劫持 | | |
+| WSTG-SESS-10 | 测试 JSON Web 令牌 | | |
+| WSTG-SESS-11 | 测试并发会话 | | |
+| **WSTG-INPV** | **输入验证测试** | | |
+| WSTG-INPV-01 | 测试反射型跨站脚本 | | |
+| WSTG-INPV-02 | 测试存储型跨站脚本 | | |
+| WSTG-INPV-03 | 测试 HTTP 动词篡改 | | |
+| WSTG-INPV-04 | 测试 HTTP 参数污染 | | |
+| WSTG-INPV-05 | 测试 SQL 注入 | | |
+| WSTG-INPV-06 | 测试 LDAP 注入 | | |
+| WSTG-INPV-07 | 测试 XML 注入 | | |
+| WSTG-INPV-08 | 测试 SSI 注入 | | |
+| WSTG-INPV-09 | 测试 XPath 注入 | | |
+| WSTG-INPV-10 | 测试 IMAP SMTP 注入 | | |
+| WSTG-INPV-11 | 测试代码注入 | | |
+| WSTG-INPV-12 | 测试命令注入 | | |
+| WSTG-INPV-13 | 测试格式化字符串注入 | | |
+| WSTG-INPV-14 | 测试潜伏型漏洞 | | |
+| WSTG-INPV-15 | 测试 HTTP 响应拆分 | | |
+| WSTG-INPV-16 | 测试 HTTP 请求走私 | | |
+| WSTG-INPV-17 | 测试 Host 头注入 | | |
+| WSTG-INPV-18 | 测试服务端模板注入 | | |
+| WSTG-INPV-19 | 测试服务端请求伪造 | | |
+| WSTG-INPV-20 | 测试批量赋值 | | |
+| **WSTG-ERRH** | **错误处理** | | |
+| WSTG-ERRH-01 | 测试不正确的错误处理 | | |
+| WSTG-ERRH-02 | 测试堆栈跟踪 | | |
+| **WSTG-CRYP** | **密码学** | | |
+| WSTG-CRYP-01 | 测试弱传输层安全 | | |
+| WSTG-CRYP-02 | 测试填充预言机 | | |
+| WSTG-CRYP-03 | 测试通过未加密通道发送的敏感信息 | | |
+| WSTG-CRYP-04 | 测试弱密码原语 | | |
+| **WSTG-BUSLOGIC** | **业务逻辑测试** | | |
+| WSTG-BUSL-01 | 测试业务逻辑数据验证 | | |
+| WSTG-BUSL-02 | 测试伪造请求的能力 | | |
+| WSTG-BUSL-03 | 测试完整性检查 | | |
+| WSTG-BUSL-04 | 测试流程时序 | | |
+| WSTG-BUSL-05 | 测试函数使用次数限制 | | |
+| WSTG-BUSL-06 | 测试工作流绕过 | | |
+| WSTG-BUSL-07 | 测试应用滥用防御 | | |
+| WSTG-BUSL-08 | 测试意外文件类型上传 | | |
+| WSTG-BUSL-09 | 测试恶意文件上传 | | |
+| WSTG-BUSL-10 | 测试支付功能 | | |
+| **WSTG-CLIENT** | **客户端测试** | | |
+| WSTG-CLNT-01 | 测试基于 DOM 的跨站脚本 | | |
+| WSTG-CLNT-02 | 测试 JavaScript 执行 | | |
+| WSTG-CLNT-03 | 测试 HTML 注入 | | |
+| WSTG-CLNT-04 | 测试客户端 URL 重定向 | | |
+| WSTG-CLNT-05 | 测试 CSS 注入 | | |
+| WSTG-CLNT-06 | 测试客户端资源操作 | | |
+| WSTG-CLNT-07 | 测试跨域资源共享 | | |
+| WSTG-CLNT-08 | 测试跨站 Flash 攻击 | | |
+| WSTG-CLNT-09 | 测试点击劫持 | | |
+| WSTG-CLNT-10 | 测试 WebSockets | | |
+| WSTG-CLNT-11 | 测试 Web 消息传递 | | |
+| WSTG-CLNT-12 | 测试浏览器存储 | | |
+| WSTG-CLNT-13 | 测试跨站脚本包含 | | |
+| WSTG-CLNT-14 | 测试反向标签劫持 | | |
+| **WSTG-APIT** | **API 测试** | | |
+| WSTG-APIT-01 | API 侦察 | | |
+| WSTG-APIT-02 | API 对象级别授权损坏 | | |
+| WSTG-APIT-99 | 测试 GraphQL | | |
