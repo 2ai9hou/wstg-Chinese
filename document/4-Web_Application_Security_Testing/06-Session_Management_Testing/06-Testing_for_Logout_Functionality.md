@@ -1,73 +1,73 @@
-# Testing for Logout Functionality
+# 测试注销功能
 
 |ID          |
 |------------|
 |WSTG-SESS-06|
 
-## Summary
+## 概述
 
-Session termination is an important part of the session lifecycle. Reducing to a minimum the lifetime of the session tokens decreases the likelihood of a successful session hijacking attack. This can be seen as a control against preventing other attacks like Cross Site Scripting and Cross Site Request Forgery. Such attacks have been known to rely on a user having an authenticated session present. Not having a secure session termination only increases the attack surface for any of these attacks.
+会话终止是会话生命周期的重要组成部分。将会话令牌的生命周期降至最短会降低成功会话劫持攻击的可能性。这可以被视为防止其他攻击（如跨站脚本和跨站请求伪造）的控制措施。众所周知，这类攻击依赖于用户存在已认证会话。没有安全的会话终止只会增加这些攻击的攻击面。
 
-A secure session termination requires at least the following components:
+安全的会话终止至少需要以下组件：
 
-- Availability of user interface controls that allow the user to manually log out.
-- Session termination after a given amount of time without activity (session timeout).
-- Proper invalidation of server-side session state.
+- 提供用户界面控件，允许用户手动注销。
+- 在给定的不活动时间内会话终止（会话超时）。
+- 正确的服务器端会话状态失效。
 
-There are multiple issues which can prevent the effective termination of a session. For the ideal secure web application, a user should be able to terminate at any time through the user interface. Every page should contain a log out button on a place where it is directly visible. Unclear or ambiguous log out functions could cause the user not trusting such functionality.
+有多种问题可能阻止会话的有效终止。对于理想的安全Web应用，用户应能够通过用户界面随时终止会话。每个页面都应包含一个注销按钮，放在直接可见的位置。不清楚或含糊的注销功能可能导致用户不信任此类功能。
 
-Another common mistake in session termination is that the client-side session token is set to a new value while the server-side state remains active and can be reused by setting the session cookie back to the previous value. Sometimes only a confirmation message is shown to the user without performing any further action. This should be avoided.
+会话终止中的另一个常见错误是客户端会话令牌被设置为一个新值，而服务器端状态保持活动状态，并且可以通过将会话Cookie设置回先前的值来重用。有时只向用户显示确认消息，而不执行任何进一步的操作。这应该避免。
 
-Some web application frameworks rely solely on the session cookie to identify the logged-on user. The user's ID is embedded in the (encrypted) cookie value. The application server does not do any tracking on the server-side of the session. When logging out, the session cookie is removed from the browser. However, since the application does not do any tracking, it does not know whether a session is logged out or not. So by reusing a session cookie it is possible to gain access to the authenticated session. A well-known example of this is the Forms Authentication functionality in ASP.NET.
+一些Web应用框架仅依赖会话Cookie来识别登录用户。用户的ID嵌入在（加密的）Cookie值中。应用服务器不在服务器端进行会话跟踪。注销时，会话Cookie会从浏览器中删除。但是，由于应用不进行任何跟踪，它不知道会话是否已注销。因此，通过重用会话Cookie可以访问已认证会话。一个众所周知的例子是ASP.NET中的表单认证功能。
 
-Users of web browsers often don't mind that an application is still open and just close the browser or a tab. A web application should be aware of this behavior and terminate the session automatically on the server-side after a defined amount of time.
+Web浏览器用户通常不介意应用仍然打开，只是关闭浏览器或标签页。Web应用应该知道这种行为，并在定义的时间后在服务器端自动终止会话。
 
-The usage of a single sign-on (SSO) system instead of an application-specific authentication scheme often causes the coexistence of multiple sessions which have to be terminated separately. For instance, the termination of the application-specific session does not terminate the session in the SSO system. Navigating back to the SSO portal offers the user the possibility to log back in to the application where the log out was performed just before. On the other side a log out function in a SSO system does not necessarily cause session termination in connected applications.
+使用单点登录（SSO）系统代替特定于应用的认证方案通常会导致多个会话共存，这些会话必须单独终止。例如，特定于应用的会话终止不会终止SSO系统中的会话。导航回SSO门户为用户提供了一种可能性，可以重新登录到刚才执行注销的应用。另一方面，SSO系统中的注销功能不一定导致已连接应用中的会话终止。
 
-## Test Objectives
+## 测试目标
 
-- Assess the logout UI.
-- Analyze the session timeout and if the session is properly killed after logout.
+- 评估注销用户界面。
+- 分析会话超时以及注销后会话是否被正确终止。
 
-## How to Test
+## 如何测试
 
-### Testing for Log Out User Interface
+### 测试注销用户界面
 
-Verify the appearance and visibility of the log out functionality in the user interface. For this purpose, view each page from the perspective of a user who has the intention to log out from the web application.
+验证注销功能在用户界面中的外观和可见性。为此，从有意注销Web应用的用户角度查看每个页面。
 
-> There are some properties which indicate a good log out user interface:
+> 良好的注销用户界面有一些属性：
 >
-> - A log out button is present on all pages of the web application.
-> - The log out button should be identified quickly by a user who wants to log out from the web application.
-> - After loading a page the log out button should be visible without scrolling.
-> - Ideally the log out button is placed in an area of the page that is fixed in the view port of the browser and not affected by scrolling of the content.
+> - Web应用的所有页面都存在注销按钮。
+> - 希望注销的用户应能快速识别注销按钮。
+> - 加载页面后，注销按钮应可见，无需滚动。
+> - 理想情况下，注销按钮应放在页面区域中，该区域在浏览器的视口中是固定的，不受内容滚动的影响。
 
-### Testing for Server-Side Session Termination
+### 测试服务器端会话终止
 
-First, store the values of cookies that are used to identify a session. Invoke the log out function and observe the behavior of the application, especially regarding session cookies. Try to navigate to a page that is only visible in an authenticated session, e.g. by usage of the back button of the browser. If a cached version of the page is displayed, use the reload button to refresh the page from the server. If the log out function causes session cookies to be set to a new value, restore the old value of the session cookies and reload a page from the authenticated area of the application. If these test don't show any vulnerabilities on a particular page, try at least some further pages of the application that are considered as security-critical, to ensure that session termination is recognized properly by these areas of the application.
+首先，存储用于识别会话的Cookie的值。调用注销功能并观察应用的行为，特别是关于会话Cookie。尝试导航到仅在已认证会话中可见的页面，例如通过使用浏览器的后退按钮。如果显示了页面的缓存版本，请使用重新加载按钮从服务器刷新页面。如果注销功能导致会话Cookie被设置为一个新值，则恢复会话Cookie的旧值并重新加载应用的已认证区域中的页面。如果这些测试在特定页面上没有显示任何漏洞，请尝试至少一些被认为是安全关键的应用页面，以确保这些应用区域正确识别会话终止。
 
-> No data that should be visible only by authenticated users should be visible on the examined pages while performing the tests. Ideally the application redirects to a public area or a log in form while accessing authenticated areas after termination of the session. It should be not necessary for the security of the application, but setting session cookies to new values after log out is generally considered as good practice.
+> 在执行测试时，不应看到仅应由已认证用户查看的数据在检查的页面上可见。理想情况下，应用在访问已终止会话后的已认证区域时会重定向到公共区域或登录表单。虽然不是应用安全所必需的，但注销后将会话Cookie设置为新值通常被认为是良好实践。
 
-### Testing for Session Timeout
+### 测试会话超时
 
-Try to determine a session timeout by performing requests to a page in the authenticated area of the web application with increasing delays. If the log out behavior appears, the used delay matches approximately the session timeout value.
+尝试通过以递增的延迟向Web应用的已认证区域发出请求来确定会话超时。如果出现注销行为，则使用的延迟与会话超时值大致匹配。
 
-> The same results as for server-side session termination testing described before are excepted by a log out caused by an inactivity timeout.
+> 对于由不活动超时引起的注销，预期结果与前面描述的服务器端会话终止测试相同。
 >
-> The proper value for the session timeout depends on the purpose of the application and should be a balance of security and usability. In a banking applications it makes no sense to keep an inactive session more than 15 minutes. On the other side a short timeout in a wiki or forum could annoy users which are typing lengthy articles with unnecessary log in requests. There timeouts of an hour and more can be acceptable.
+> 会话超时的正确值取决于应用的目的，应该是安全性和可用性之间的平衡。在银行应用中，将不活动的会话保持超过15分钟是没有意义的。另一方面，在wiki或论坛中短暂超时可能会让输入冗长文章的用户因不必要的登录请求而烦恼。在这些情况下，一小时或更长的超时可能是可以接受的。
 
-### Testing for Session Termination in Single Sign-On Environments (Single Sign-Off)
+### 在单点登录环境中测试会话终止（单点注销）
 
-Perform a log out in the tested application. Verify if there is a central portal or application directory which allows the user to log back in to the application without authentication. Test if the application requests the user to authenticate, if the URL of an entry point to the application is requested. While logged in in the tested application, perform a log out in the SSO system. Then try to access an authenticated area of the tested application.
+在被测应用中执行注销。验证是否存在允许用户无需认证即可重新登录到应用的中央门户或应用目录。测试应用是否在请求应用的入口点URL时请求用户进行认证。在被测应用中登录时，在SSO系统中执行注销。然后尝试访问被测应用的已认证区域。
 
-> It is expected that the invocation of a log out function in a web application connected to a SSO system or in the SSO system itself causes global termination of all sessions. An authentication of the user should be required to gain access to the application after log out in the SSO system and connected application.
+> 预期连接到SSO系统的Web应用或SSO系统本身的注销功能会导致所有会话的全局终止。注销SSO系统和已连接应用后，需要用户认证才能访问应用。
 
-## Tools
+## 工具
 
 - [Burp Suite - Repeater](https://portswigger.net/burp/documentation/desktop/tools/repeater)
 
-## References
+## 参考资料
 
-### Whitepapers
+### 白皮书
 
 - [Cookie replay attacks in ASP.NET when using forms authentication](https://www.vanstechelman.eu/content/cookie-replay-attacks-in-aspnet-when-using-forms-authentication)

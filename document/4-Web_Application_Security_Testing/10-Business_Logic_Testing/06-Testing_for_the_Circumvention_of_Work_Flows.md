@@ -1,94 +1,94 @@
-# Testing for the Circumvention of Work Flows
+# 测试工作流绕过
 
 |ID          |
 |------------|
 |WSTG-BUSL-06|
 
-## Summary
+## 概述
 
-Workflow vulnerabilities involve any type of vulnerability that allows the attacker to misuse an application/system in a way that will allow them to circumvent (not follow) the designed/intended workflow.
+工作流漏洞涉及任何允许攻击者滥用应用程序/系统的方式，使其能够规避（不遵循）设计/预期工作流的漏洞类型。
 
-[Definition of a workflow on Wikipedia](https://en.wikipedia.org/wiki/Workflow):
+[维基百科上工作流的定义](https://en.wikipedia.org/wiki/Workflow)：
 
-> A workflow consists of a sequence of connected steps where each step follows without delay or gap and ends just before the subsequent step may begin. It is a depiction of a sequence of operations, declared as work of a person or group, an organization of staff, or one or more simple or complex mechanisms. Workflow may be seen as any abstraction of real work.
+> 工作流由一系列连接的步骤组成，每个步骤紧随前一步之后，不延迟或间隙，并在后续步骤开始之前结束。它是一种操作顺序的表现形式，声明为人或一组人的工作、一个组织的工作人员，或一个或多个简单或复杂机制的工作。 工作流可以视为真实工作的任何抽象。
 
-The application’s business logic must require that the user complete specific steps in the correct/specific order and if the workflow is terminated without correctly completing, all actions and spawned actions are "rolled back" or canceled. Vulnerabilities related to the circumvention of workflows or bypassing the correct business logic workflow are unique in that they are very application/system specific and careful manual misuse cases must be developed using requirements and use cases.
+应用程序的业务逻辑必须要求用户以正确/特定顺序完成特定步骤，如果工作流在未正确完成的情况下终止，所有操作和生成的操作应"回滚"或取消。与绕过工作流或绕过正确业务逻辑工作流相关的漏洞是独特的，因为它们非常特定于应用程序/系统，必须使用需求和用例仔细开发手动误用例。
 
-The applications business process must have checks to ensure that the user's transactions/actions are proceeding in the correct/acceptable order and if a transaction triggers some sort of action, that action will be "rolled back" and removed if the transaction is not successfully completed.
+应用程序的业务流程必须有检查，以确保用户的交易/操作正在以正确/可接受的顺序进行，如果某个交易触发某种操作，该操作将被"回滚"，如果交易未成功完成，则将被删除。
 
-### Example 1
+### 示例1
 
-Many of us receive some type of "club/loyalty points" for purchases from grocery stores and gas stations. Suppose a user was able to start a transaction linked to their account and then after points have been added to their club/loyalty account cancel out of the transaction or remove items from their "basket" and tender. In this case the system either should not apply points/credits to the account until it is tendered or points/credits should be "rolled back" if the point/credit increment does not match the final tender. With this in mind, an attacker may start transactions and cancel them to build their point levels without actually buying anything.
+我们许多人都从杂货店和加油站购买时获得某种"俱乐部/积分"。假设用户能够启动与其账户关联的交易，然后在积分已添加到其俱乐部/积分账户后取消交易或从"篮子"中移除物品并付款。在这种情况下，系统要么不应在付款前将积分/信用应用到账户，要么如果积分/信用增量与最终付款不匹配，应"回滚"积分/信用。考虑到这一点，攻击者可能开始交易并取消它们，以在实际不购买任何东西的情况下建立积分水平。
 
-### Example 2
+### 示例2
 
-An electronic bulletin board system may be designed to ensure that initial posts do not contain profanity based on a list that the post is compared against. If a word on a deny list is found in the user entered text the submission is not posted. But, once a submission is posted the submitter can access, edit, and change the submission contents to include words included in the profanity/deny list since on edit the posting is never compared again. Keeping this in mind, attackers may open an initial blank or minimal discussion then add in whatever they like as an update.
+电子公告板系统可能被设计为确保初始帖子不包含基于帖子比较列表的粗话。如果在用户输入文本中发现拒绝列表中的单词，则不会发布提交。但是一旦提交发布，提交者可以访问、编辑和更改提交内容以包含拒绝列表中的粗话/单词，因为在编辑时，帖子永远不会再比较。考虑到这一点，攻击者可能打开一个初始空白或最少讨论，然后在更新中随意添加任何内容。
 
-## Test Objectives
+## 测试目标
 
-- Review the project documentation for methods to skip or go through steps in the application process in a different order from the intended business logic flow.
-- Develop a misuse case and try to circumvent every logic flow identified.
+- 审查项目文档，寻找以与预期业务逻辑流程不同的顺序跳过或完成应用程序流程中步骤的方法。
+- 开发误用例并尝试绕过每个识别的逻辑流程。
 
-## How to Test
+## 如何测试
 
-### Testing Method 1
+### 测试方法1
 
-- Start a transaction going through the application past the points that triggers credits/points to the users account.
-- Cancel out of the transaction or reduce the final tender so that the point values should be decreased and check the points/credit system to ensure that the proper points/credits were recorded.
+- 开始交易，通过应用程序超过触发用户账户积分/信用的点。
+- 取消交易或减少最终付款，使积分值应减少，并检查积分/信用系统以确保记录了正确的积分/信用。
 
-### Testing Method 2
+### 测试方法2
 
-- On a content management or bulletin board system enter and save valid initial text or values.
-- Then try to append, edit and remove data that would leave the existing data in an invalid state or with invalid values to ensure that the user is not allowed to save the incorrect information. Some "invalid" data or information may be specific words (profanity) or specific topics (such as political issues).
+- 在内容管理或公告板系统中，输入并保存有效的初始文本或值。
+- 然后尝试追加、编辑和移除数据，使现有数据处于无效状态或无效值，以确保不允许用户保存不正确的信息。一些"无效"数据或信息可能是特定单词（粗话）或特定主题（如政治问题）。
 
-### Testing Method 3: Multi-Step Workflow and State Transition Abuse
+### 测试方法3：多步骤工作流和状态转换滥用
 
-Modern applications often implement workflows that span multiple requests, APIs, or backend services.
-In such cases, workflow state may be inferred from client-controlled parameters or distributed system state rather than being strictly enforced server-side.
+现代应用程序通常实现跨越多个请求、API或后端服务的工作流。
+在这种情况下，工作流状态可能从客户端控制的参数或分布式系统状态推断，而不是严格地在服务器端强制执行。
 
-Attackers may attempt to abuse these workflows by skipping required steps, reordering requests, or manipulating state transitions to reach unauthorized or unintended application states.
+攻击者可能尝试滥用这些工作流，方法是跳过必需的步骤，重新排序请求，或操纵状态转换以达到未授权或非预期的应用程序状态。
 
-Common workflow and state transition abuse patterns include:
+常见的工作流和状态转换滥用模式包括：
 
-- Skipping required workflow steps by directly invoking later-stage functionality
-- Reordering requests to bypass enforced sequence controls
-- Replaying or reusing state identifiers across workflow steps
-- Manipulating status, phase, or step parameters supplied by the client
-- Executing dependent actions in parallel to bypass sequence validation
+- 通过直接调用后期功能来跳过必需的工作流步骤
+- 重新排序请求以绕过强制序列控制
+- 在工作流步骤之间重放或重用状态标识符
+- 操纵由客户端提供的状态、相位或步骤参数
+- 并行执行依赖操作以绕过序列验证
 
-Test Steps:
+测试步骤：
 
-- Identify multi-step workflows and the functionality involved at each stage.
-- Capture requests associated with each workflow step and note any state or status parameters.
-- Attempt to invoke later-stage functionality without completing prerequisite steps.
-- Replay or reorder requests to determine whether sequence enforcement exists.
-- Modify state or status parameters to invalid, future, or unauthorized values.
-- Verify whether the application enforces workflow state validation server-side.
+- 识别多步骤工作流和每个阶段涉及的功能。
+- 捕获与每个工作流步骤关联的请求，并记下任何状态或状态参数。
+- 尝试在不完成先决步骤的情况下调用后期功能。
+- 重放或重新排序请求以确定是否存在序列强制执行。
+- 将状态或状态参数修改为无效、未来或未授权的值。
+- 验证应用程序是否在服务器端强制执行工作流状态验证。
 
-Examples include:
+示例包括：
 
-- Triggering order shipment or fulfillment actions without a confirmed payment step.
-- Accessing restricted or premium features by directly invoking activation or enablement endpoints.
+- 在确认的付款步骤之前触发订单装运或履行操作。
+- 通过直接调用激活或启用端点来访问受限或高级功能。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing Directory Traversal/File Include](../05-Authorization_Testing/01-Testing_Directory_Traversal_File_Include.md)
-- [Testing for Bypassing Authorization Schema](../05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema.md)
-- [Testing for Bypassing Session Management Schema](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md)
-- [Test Business Logic Data Validation](01-Test_Business_Logic_Data_Validation.md)
-- [Test Ability to Forge Requests](02-Test_Ability_to_Forge_Requests.md)
-- [Test Integrity Checks](03-Test_Integrity_Checks.md)
-- [Test for Process Timing](04-Test_for_Process_Timing.md)
-- [Test Number of Times a Function Can be Used Limits](05-Test_Number_of_Times_a_Function_Can_Be_Used_Limits.md)
-- [Test Defenses Against Application Mis-use](07-Test_Defenses_Against_Application_Misuse.md)
-- [Test Upload of Unexpected File Types](08-Test_Upload_of_Unexpected_File_Types.md)
-- [Test Upload of Malicious Files](09-Test_Upload_of_Malicious_Files.md)
+- [测试目录遍历/文件包含](../05-Authorization_Testing/01-Testing_Directory_Traversal_File_Include.md)
+- [测试绕过授权模式](../05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema.md)
+- [测试绕过会话管理模式](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md)
+- [测试业务逻辑数据验证](01-Test_Business_Logic_Data_Validation.md)
+- [测试伪造请求的能力](02-Test_Ability_to_Forge_Requests.md)
+- [测试完整性检查](03-Test_Integrity_Checks.md)
+- [测试流程时序](04-Test_for_Process_Timing.md)
+- [测试函数使用次数限制](05-Test_Number_of_Times_a_Function_Can_Be_Used_Limits.md)
+- [测试应用程序滥用防御](07-Test_Defenses_Against_Application_Misuse.md)
+- [测试意外文件类型上传](08-Test_Upload_of_Unexpected_File_Types.md)
+- [测试恶意文件上传](09-Test_Upload_of_Malicious_Files.md)
 
-## Remediation
+## 修复
 
-The application must be self-aware and have checks in place ensuring that the users complete each step in the work flow process in the correct order and prevent attackers from circumventing/skipping/or repeating any steps/processes in the workflow. Test for workflow vulnerabilities involves developing business logic abuse/misuse cases with the goal of successfully completing the business process while not completing the correct steps in the correct order.
+应用程序必须是自知的，并进行检查以确保用户以正确顺序完成工作流流程中的每个步骤，并防止攻击者规避/跳过/重复工作流中的任何步骤/流程。测试工作流漏洞涉及开发业务流程滥用/误用例，目标是在不按正确顺序完成正确步骤的情况下成功完成业务流程。
 
-## References
+## 参考资料
 
-- [OWASP Abuse Case Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Abuse_Case_Cheat_Sheet.html)
-- [CWE-840: Business Logic Errors](https://cwe.mitre.org/data/definitions/840.html)
+- [OWASP滥用案例速查表](https://cheatsheetseries.owasp.org/cheatsheets/Abuse_Case_Cheat_Sheet.html)
+- [CWE-840：业务逻辑错误](https://cwe.mitre.org/data/definitions/840.html)

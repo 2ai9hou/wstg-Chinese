@@ -1,50 +1,50 @@
-# Testing Session Timeout
+# 测试会话超时
 
 |ID          |
 |------------|
 |WSTG-SESS-07|
 
-## Summary
+## 概述
 
-In this phase testers check that the application automatically logs out a user when that user has been idle for a certain amount of time, ensuring that it is not possible to "reuse" the same session and that no sensitive data remains stored in the browser cache.
+在本阶段，测试人员检查应用在用户空闲一定时间后是否自动注销用户，确保不可能"重用"同一会话，并且没有敏感数据保留在浏览器缓存中。
 
-All applications should implement an idle or inactivity timeout for sessions. This timeout defines the amount of time a session will remain active in case there is no activity by the user, closing and invalidating the session upon the defined idle period since the last HTTP request received by the web application for a given session ID. The most appropriate timeout should be a balance between security (shorter timeout) and usability (longer timeout) and heavily depends on the sensitivity level of the data handled by the application. For example, a 60 minute log out time for a public forum can be acceptable, but such a long time would be too much in a home banking application (where a maximum timeout of 15 minutes is recommended). In any case, any application that does not enforce a timeout-based log out should be considered not secure, unless such behavior is required by a specific functional requirement.
+所有应用都应实现会话的空闲或不活动超时。此超时定义了在用户不活动的情况下会话将保持活动的时间，在自Web应用为给定会话ID收到的最后一个HTTP请求以来，在定义的空闲时间段后关闭并使会话失效。最合适的超时应该是安全性（较短超时）和可用性（较长超时）之间的平衡，并且很大程度上取决于应用处理的数据的敏感级别。例如，对于公共论坛，60分钟的注销时间可能是可以接受的，但在家庭银行应用中，这么长的时间太长了（建议最大超时为15分钟）。无论如何，任何不执行基于超时的注销的应用都应被视为不安全，除非特定功能需求要求这种行为。
 
-The idle timeout limits the chances that an attacker has to guess and use a valid session ID from another user, and under certain circumstances could protect public computers from session reuse. However, if the attacker is able to hijack a given session, the idle timeout does not limit the attacker’s actions, as he can generate activity on the session periodically to keep the session active for longer periods of time.
+空闲超时限制了攻击者猜测和使用另一个用户的有效会话ID的机会，并在某些情况下可以保护公共计算机免受会话重用。但是，如果攻击者能够劫持给定会话空闲超时不会限制攻击者的行为，因为他可以定期生成会话活动以保持会话更长时间。
 
-Session timeout management and expiration must be enforced server-side. If some data under the control of the client is used to enforce the session timeout, for example using cookie values or other client parameters to track time references (e.g. number of minutes since log in time), an attacker could manipulate these to extend the session duration. So the application has to track the inactivity time server-side and, after the timeout is expired, automatically invalidate the current user's session and delete every data stored on the client.
+会话超时管理和过期必须在服务器端强制执行。如果使用客户端控制下的某些数据来强制会话超时，例如使用Cookie值或其他客户端参数来跟踪时间参考（例如，自登录以来的分钟数），攻击者可以操纵这些以延长会话持续时间。因此，应用必须在服务器端跟踪不活动时间，并且在超时过期后，自动使当前用户的会话失效并删除客户端上存储的所有数据。
 
-Both actions must be implemented carefully, in order to avoid introducing weaknesses that could be exploited by an attacker to gain unauthorized access if the user forgot to log out from the application. More specifically, as for the log out function, it is important to ensure that all session tokens (e.g. cookies) are properly destroyed or made unusable, and that proper controls are enforced server-side to prevent the reuse of session tokens. If such actions are not properly carried out, an attacker could replay these session tokens in order to "resurrect" the session of a legitimate user and impersonate him/her (this attack is usually known as 'cookie replay'). Of course, a mitigating factor is that the attacker needs to be able to access those tokens (which are stored on the victim's PC), but, in a variety of cases, this may not be impossible or particularly difficult.
+必须仔细实施这两个操作，以避免引入可能被攻击者利用的弱点，以在用户忘记从应用注销时获得未授权访问。更具体地说，与注销功能一样，重要的是确保所有会话令牌（如Cookie）都被正确销毁或使其不可用，并且在服务器端实施适当的控制以防止会话令牌的重用。如果此类操作没有正确执行，攻击者可以重放这些会话令牌以"复活"合法用户的会话并冒充他/她（这种攻击通常称为'Cookie重放'）。当然，一个缓解因素是攻击者需要能够访问这些令牌（存储在受害者的PC上），但在多种情况下，这可能并非不可能或特别困难。
 
-The most common scenario for this kind of attack is a public computer that is used to access some private information (e.g., web mail, online bank account). If the user moves away from the computer without explicitly logging out and the session timeout is not implemented on the application, then an attacker could access to the same account by simply pressing the "back" button of the browser.
+这种攻击最常见的场景是用于访问一些私人信息（如Web邮件、在线银行账户）的公共计算机。如果用户在不让会话超时的情况下离开计算机而未明确注销，则攻击者可以简单地按下浏览器的"后退"按钮来访问同一账户。
 
-## Test Objectives
+## 测试目标
 
-- Validate that a hard session timeout exists.
+- 验证存在硬会话超时。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-The same approach seen in the [Testing for logout functionality](06-Testing_for_Logout_Functionality.md) section can be applied when measuring the timeout log out.
-The testing methodology is very similar. First, testers have to check whether a timeout exists, for instance, by logging in and waiting for the timeout log out to be triggered. As in the log out function, after the timeout has passed, all session tokens should be destroyed or be unusable.
+在测量超时注销时，可以应用[测试注销功能](06-Testing_for_Logout_Functionality.md)部分中看到的相同方法。
+测试方法非常相似。首先，测试人员需要检查是否存在超时，例如通过登录并等待触发超时注销。和注销功能一样，超时过去后，所有会话令牌都应该被销毁或不可用。
 
-Then, if the timeout is configured, testers need to understand whether the timeout is enforced by the client or by the server (or both). If the session cookie is non-persistent (or, more in general, the session cookie does not store any data about the time), testers can assume that the timeout is enforced by the server. If the session cookie contains some time related data (e.g., log in time, or last access time, or expiration date for a persistent cookie), then it's possible that the client is involved in the timeout enforcing. In this case, testers could try to modify the cookie (if it's not cryptographically protected) and see what happens to the session. For instance, testers can set the cookie expiration date far in the future and see whether the session can be prolonged.
+然后，如果配置了超时，测试人员需要了解超时是由客户端还是服务器强制执行（或两者兼而有之）。如果会话Cookie是非持久性的（或者更一般地说，会话Cookie不存储任何关于时间的数据），测试人员可以假设超时由服务器强制执行。如果会话Cookie包含某些时间相关数据（例如，登录时间，或最后访问时间，或持久性Cookie的过期日期），则客户端可能参与超时强制。在这种情况下，测试人员可以尝试修改Cookie（如果它不是加密保护的）并查看会话会发生什么。例如，测试人员可以将Cookie过期日期设置为遥远的未来，并查看会话是否可以延长。
 
-As a general rule, everything should be checked server-side and it should not be possible, by re-setting the session cookies to previous values, to access the application again.
+作为一个通用规则，一切都应该在服务器端检查，并且不可能通过将会话Cookie重置为先前值来再次访问应用。
 
-### Gray-Box Testing
+### 灰盒测试
 
-The tester needs to check that:
+测试人员需要检查：
 
-- The log out function effectively destroys all session token, or at least renders them unusable,
-- The server performs proper checks on the session state, disallowing an attacker to replay previously destroyed session identifiers
-- A timeout is enforced and it is properly enforced by the server. If the server uses an expiration time that is read from a session token that is sent by the client (but this is not advisable), then the token must be cryptographically protected from tampering.
+- 注销功能是否有效销毁所有会话令牌，或至少使它们不可用，
+- 服务器是否对会话状态执行正确检查，不允许攻击者重放先前销毁的会话标识符
+- 是否强制执行超时，并且由服务器正确强制执行。如果服务器使用从客户端发送的会话令牌中读取的过期时间（但不建议这样做），则令牌必须受到加密保护以防止篡改。
 
-Note that the most important thing is for the application to invalidate the session on the server-side. Generally this means that the code must invoke the appropriate methods, e.g. `HttpSession.invalidate()` in Java and `Session.abandon()` in .NET. Clearing the cookies from the browser is advisable, but is not strictly necessary, since if the session is properly invalidated on the server, having the cookie in the browser will not help an attacker.
+请注意，最重要的是在服务器端使会话失效的应用。一般来说，这意味着代码必须调用适当的方法，例如Java中的`HttpSession.invalidate()`和.NET中的`Session.abandon()`。建议从浏览器中清除Cookie，但这不是严格必要的，因为如果会话在服务器端正确失效，在浏览器中有Cookie不会帮助攻击者。
 
-## References
+## 参考资料
 
-### OWASP Resources
+### OWASP资源
 
 - [Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)

@@ -1,38 +1,38 @@
-# Testing for Bypassing Authentication Schema
+# 测试认证架构绕过
 
 |ID          |
 |------------|
 |WSTG-ATHN-04|
 
-## Summary
+## 概述
 
-In computer security, authentication is the process of attempting to verify the digital identity of the sender of a communication. A common example of such a process is the log on process. Testing the authentication schema means understanding how the authentication process works and using that information to circumvent the authentication mechanism.
+在计算机安全中，认证是尝试验证通信发送者数字身份的过程。这样的过程的一个常见例子是登录过程。测试认证架构意味着理解认证过程如何工作，并利用这些信息来规避认证机制。
 
-While most applications require authentication to gain access to private information or to execute tasks, not every authentication method is able to provide adequate security. Negligence, ignorance, or simple understatement of security threats often result in authentication schemes that can be bypassed by simply skipping the log in page and directly calling an internal page that is supposed to be accessed only after authentication has been performed.
+虽然大多数应用程序需要认证才能访问私有信息或执行任务，但并非每种认证方法都能提供足够的安全保障。对安全威胁的疏忽、无知或简单低估通常会导致认证方案被简化为：通过跳过登录页面直接调用内部页面（这些页面本应在完成认证后才能访问）来绕过认证。
 
-In addition, it is often possible to bypass authentication measures by tampering with requests and tricking the application into thinking that the user is already authenticated. This can be accomplished either by modifying the given URL parameter, by manipulating the form, or by counterfeiting sessions.
+此外，通过篡改请求并欺骗应用程序使用户相信已经完成认证，通常也可以绕过认证措施。这可以通过修改给定的 URL 参数、操作表单或伪造会话来实现。
 
-Problems related to the authentication schema can be found at different stages of the software development lifecycle (SDLC), like the design, development, and deployment phases:
+与认证架构相关的问题可以在软件开发生命周期（SDLC）的不同阶段发现，如设计阶段、开发阶段和部署阶段：
 
-- In the design phase errors can include a wrong definition of application sections to be protected, the choice of not applying strong encryption protocols for securing the transmission of credentials, and many more.
-- In the development phase errors can include the incorrect implementation of input validation functionality or not following the security best practices for the specific language.
-- In the application deployment phase, there may be issues during the application setup (installation and configuration activities) due to a lack in required technical skills or due to the lack of good documentation.
+- 设计阶段的错误可能包括：未正确划定需要保护的应用程序区域，未选择强加密协议来保护凭据传输，以及更多其他错误。
+- 开发阶段的错误可能包括：输入验证功能实现不正确，或未遵循特定语言的安全最佳实践。
+- 应用程序部署阶段可能由于缺乏所需技术技能或缺乏良好文档而在应用程序设置（安装和配置活动）期间出现问题。
 
-## Test Objectives
+## 测试目标
 
-- Ensure that authentication is applied across all services that require it.
+- 确保所有需要认证的服务都应用了认证。
 
-## How to Test
+## 如何测试
 
-There are several methods of bypassing the authentication schema that is used by a web application:
+有几种方法可以绕过 Web 应用程序使用的认证架构：
 
-- Parameter modification
-- Session ID prediction
-- SQL injection
+- 参数修改
+- 会话 ID 预测
+- SQL 注入
 
-### Parameter Modification
+### 参数修改
 
-Another problem related to authentication design is when the application verifies a successful log in on the basis of a fixed value parameters. A user could modify these parameters to gain access to the protected areas without providing valid credentials. In the example below, the "authenticated" parameter is changed to a value of "yes", which allows the user to gain access. In this example, the parameter is in the URL, but a proxy could also be used to modify the parameter, especially when the parameters are sent as form elements in a POST request or when the parameters are stored in a cookie.
+与认证设计相关的另一个问题是，应用程序基于固定值参数验证成功登录。用户可以修改这些参数来获得对受保护区域的访问，而无需提供有效凭据。在以下示例中，"authenticated"参数被更改为"yes"值，这允许用户获得访问权限。在这个例子中，参数在 URL 中，但也可以使用代理修改参数，特别是当参数作为 POST 请求中的表单元素发送时，或存储在 cookie 中时。
 
 ```html
 https://www.site.com/page.asp?authenticated=no
@@ -53,40 +53,40 @@ Content-Type: text/html; charset=iso-8859-1
 </BODY></HTML>
 ```
 
-![Parameter Modified Request](images/Basm-parammod.jpg)\
-*Figure 4.4.4-1: Parameter Modified Request*
+![参数修改请求](images/Basm-parammod.jpg)\
+*图 4.4.4-1：参数修改请求*
 
-### Session ID Prediction
+### 会话 ID 预测
 
-Many web applications manage authentication by using session identifiers (session IDs). Therefore, if session ID generation is predictable, a malicious user could be able to find a valid session ID and gain unauthorized access to the application, impersonating a previously authenticated user.
+许多 Web 应用程序使用会话标识符（会话 ID）来管理认证。因此，如果会话 ID 生成是可预测的，恶意用户可能能够找到有效的会话 ID 并获得对应用程序的未授权访问，冒充先前已认证的用户。
 
-In the following figure, values inside cookies increase linearly, so it could be easy for an attacker to guess a valid session ID.
+在下图中，cookie 中的值线性增加，因此攻击者可能很容易猜到有效的会话 ID。
 
-![Cookie Values Over Time](images/Basm-sessid.jpg)\
-*Figure 4.4.4-2: Cookie Values Over Time*
+![Cookie 值随时间变化](images/Basm-sessid.jpg)\
+*图 4.4.4-2：Cookie 值随时间变化*
 
-In the following figure, values inside cookies change only partially, so it's possible to restrict a brute force attack to the defined fields shown below.
+在下图中，cookie 中的值仅部分更改，因此可以将暴力破解攻击限制在下面显示的定义字段中。
 
-![Partially Changed Cookie Values](images/Basm-sessid2.jpg)\
-*Figure 4.4.4-3: Partially Changed Cookie Values*
+![部分更改的 Cookie 值](images/Basm-sessid2.jpg)\
+*图 4.4.4-3：部分更改的 Cookie 值*
 
-### SQL Injection (HTML Form Authentication)
+### SQL 注入（HTML 表单认证）
 
-SQL Injection is a widely known attack technique. This section is not going to describe this technique in detail as there are several sections in this guide that explain injection techniques beyond the scope of this section.
+SQL 注入是一种广为人知的攻击技术。本节不打算详细描述此技术，因为本指南中有多个部分解释注入技术，超出了本节的范围。
 
-![SQL Injection](images/Basm-sqlinj.jpg)\
-*Figure 4.4.4-4: SQL Injection*
+![SQL 注入](images/Basm-sqlinj.jpg)\
+*图 4.4.4-4：SQL 注入*
 
-The following figure shows that with a simple SQL injection attack, it is sometimes possible to bypass the authentication form.
+下图显示，通过简单的 SQL 注入攻击，有时可以绕过认证表单。
 
-![Simple SQL Injection Attack](images/Basm-sqlinj2.gif)\
-*Figure 4.4.4-5: Simple SQL Injection Attack*
+![简单 SQL 注入攻击](images/Basm-sqlinj2.gif)\
+*图 4.4.4-5：简单 SQL 注入攻击*
 
-### PHP Loose Comparison
+### PHP 松散比较
 
-If an attacker has been able to retrieve the application source code by exploiting a previously discovered vulnerability (e.g., directory traversal), or from a web repository (Open Source Applications), it could be possible to perform refined attacks against the implementation of the authentication process.
+如果攻击者能够通过利用先前发现的漏洞（例如目录遍历）或从 Web 仓库（开源应用程序）获取应用程序源代码，则可能对认证过程的实现进行精细攻击。
 
-In the following example (PHPBB 2.0.12 - Authentication Bypass Vulnerability), at line 2 the `unserialize()` function parses a user supplied cookie and sets values inside the `$sessiondata` array. At line 7, the user's MD5 password hash stored inside the backend database (`$auto_login_key`) is compared to the one supplied (`$sessiondata['autologinid']`) by the user.
+在以下示例中（PHPBB 2.0.12 - 认证绕过漏洞），在第 2 行，`unserialize()` 函数解析用户提供的 cookie 并在 `$sessiondata` 数组中设置值。在第 7 行，存储在后端数据库中的用户 MD5 密码哈希（`$auto_login_key`）与用户提供的（`$sessiondata['autologinid']`）进行比较。
 
 ```php
 1. if (isset($HTTP_COOKIE_VARS[$cookiename . '_sid'])) {
@@ -104,23 +104,23 @@ In the following example (PHPBB 2.0.12 - Authentication Bypass Vulnerability), a
 
 ```
 
-In PHP, a comparison between a string value and a `true` boolean value is always `true` (because the string contains a value), so by supplying the following string to the `unserialize()` function, it is possible to bypass the authentication control and log in as administrator, whose `userid` is 2:
+在 PHP 中，字符串值和 `true` 布尔值之间的比较总是 `true`（因为字符串包含值），因此通过向 `unserialize()` 函数提供以下字符串，可以绕过认证控制并以管理员身份登录，管理员的 `userid` 为 2：
 
 ```php
 a:2:{s:11:"autologinid";b:1;s:6:"userid";s:1:"2";}  // original value: a:2:{s:11:"autologinid";s:32:"8b8e9715d12e4ca12c4c3eb4865aaf6a";s:6:"userid";s:4:"1337";}
 ```
 
-Let's disassemble what we did in this string:
+让我们分解一下我们在这个字符串中所做的工作：
 
-1. `autologinid` is now a boolean set to `true`: this can be seen by replacing the MD5 value of the password hash (`s:32:"8b8e9715d12e4ca12c4c3eb4865aaf6a"`) with `b:1`
-2. `userid` is now set to the admin ID: this can be seen in the last piece of the string, where we replaced our regular user ID (`s:4:"1337"`) with `s:1:"2"`
+1. `autologinid` 现在是一个设置为 `true` 的布尔值：这可以通过将密码哈希的 MD5 值（`s:32:"8b8e9715d12e4ca12c4c3eb4865aaf6a"`）替换为 `b:1` 看出。
+2. `userid` 现在设置为管理员 ID：这可以从字符串的最后一部分看出，我们将普通用户 ID（`s:4:"1337"`）替换为 `s:1:"2"`。
 
-## Tools
+## 工具
 
 - [WebGoat](https://owasp.org/www-project-webgoat/)
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
 
-## References
+## 参考资料
 
-- [Niels Teusink: phpBB 2.0.12 authentication bypass](http://blog.teusink.net/2008/12/classic-bug-phpbb-2012-authentication.html)
-- [David Endler: "Session ID Brute Force Exploitation and Prediction"](https://www.cgisecurity.com/lib/SessionIDs.pdf)
+- [Niels Teusink：phpBB 2.0.12 认证绕过](http://blog.teusink.net/2008/12/classic-bug-phpbb-2012-authentication.html)
+- [David Endler："会话 ID 暴力破解利用与预测"](https://www.cgisecurity.com/lib/SessionIDs.pdf)

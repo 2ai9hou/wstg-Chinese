@@ -1,18 +1,18 @@
-# Testing for HTML Injection
+# 测试HTML注入
 
 |ID          |
 |------------|
 |WSTG-CLNT-03|
 
-## Summary
+## 概述
 
-HTML injection is a type of injection vulnerability that occurs when a user is able to control an input point and is able to inject arbitrary HTML code into a vulnerable web page. This vulnerability can have many consequences, like disclosure of a user's session cookies that could be used to impersonate the victim, or, more generally, it can allow the attacker to modify the page content seen by the victims.
+HTML注入是一种注入漏洞，当用户能够控制输入点并能够将任意HTML代码注入到易受攻击的网页时会发生。这种漏洞可能有许多后果，例如泄露用户的会话Cookie，这些Cookie可用于模拟受害者，或者更一般情况下，它允许攻击者修改受害者看到的页面内容。
 
-This vulnerability occurs when user input is not correctly sanitized and the output is not encoded. An injection allows the attacker to send a malicious HTML page to a victim. The targeted browser will not be able to distinguish (trust) legitimate parts from malicious parts of the page, and consequently will parse and execute the whole page in the victim's context.
+当用户输入未正确清理且输出未编码时，会发生此漏洞。注入允许攻击者向受害者发送恶意HTML页面。目标浏览器将无法区分（信任）页面的合法部分和恶意部分，因此将在受害者上下文中解析和执行整个页面。
 
-There is a wide range of methods and attributes that could be used to render HTML content. If these methods are provided with an untrusted input, then there is an high risk of HTML injection vulnerability. For example, malicious HTML code can be injected via the `innerHTML` JavaScript method, usually used to render user-inserted HTML code. If strings are not correctly sanitized, the method can enable HTML injection. A JavaScript function that can be used for this purpose is `document.write()`.
+有许多方法和属性可用于呈现HTML内容。如果向这些方法提供不受信任的输入，则存在HTML注入漏洞的高风险。例如，恶意HTML代码可以通过`innerHTML` JavaScript方法注入，该方法通常用于呈现用户插入的HTML代码。如果字符串未正确清理，该方法可以启用HTML注入。`document.write()`是可用于此目的的JavaScript函数。
 
-The following example shows a snippet of vulnerable code that allows an unvalidated input to be used to create dynamic HTML in the page context:
+以下示例显示了一段易受攻击的代码，该代码允许使用未验证的输入在页面上下文中创建动态HTML：
 
 ```js
 var userposition=location.href.indexOf("user=");
@@ -20,7 +20,7 @@ var user=location.href.substring(userposition+5);
 document.getElementById("Welcome").innerHTML=" Hello, "+user;
 ```
 
-The following example shows vulnerable code using the `document.write()` function:
+以下示例显示使用`document.write()`函数的易受攻击代码：
 
 ```js
 var userposition=location.href.indexOf("user=");
@@ -28,23 +28,23 @@ var user=location.href.substring(userposition+5);
 document.write("<h1>Hello, " + user +"</h1>");
 ```
 
-In both examples, this vulnerability can be exploited with an input such as:
+在这两个示例中，可以使用以下输入来利用此漏洞：
 
 ```text
 https://vulnerable.site/page.html?user=<img%20src='aaa'%20onerror=alert(1)>
 ```
 
-This input will add an image tag to the page that will execute arbitrary JavaScript code inserted by the malicious user in the HTML context.
+此输入将向页面添加一个图像标签，该标签将执行恶意用户在HTML上下文中插入的任意JavaScript代码。
 
-## Test Objectives
+## 测试目标
 
-- Identify HTML injection points and assess the severity of the injected content.
+- 识别HTML注入点并评估注入内容的严重性。
 
-## How to Test
+## 如何测试
 
-Consider the following DOM XSS exercise <https://www.domxss.com/domxss/01_Basics/06_jquery_old_html.html>
+考虑以下DOM XSS练习<https://www.domxss.com/domxss/01_Basics/06_jquery_old_html.html>
 
-The HTML code contains the following script:
+HTML代码包含以下脚本：
 
 ```html
 <script src="../js/jquery-1.7.1.js"></script>
@@ -64,4 +64,4 @@ $(window).bind("hashchange",setMessage)
 </body>
 ```
 
-It is possible to inject HTML code.
+可以注入HTML代码。

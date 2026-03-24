@@ -1,42 +1,42 @@
-# Testing for Client-side Template Injection
+# 测试客户端模板注入
 
 |ID          |
 |------------|
 |WSTG-CLNT-15|
 
-## Summary
+## 概述
 
-Client-Side Template Injection (CSTI), also known as DOM-based Template Injection, arises when applications using client-side frameworks (such as Angular, Vue.js, or Alpine.js) dynamically embed user input into the web page's DOM. If this input is embedded into a template expression or interpreted by the framework's template engine, an attacker can inject malicious directives.
+客户端模板注入（CSTI），也称为基于DOM的模板注入，发生在使用客户端框架（如Angular、Vue.js或Alpine.js）的应用程序动态将用户输入嵌入到网页DOM中时。如果此输入被嵌入到模板表达式中或被框架的模板引擎解释，攻击者可以注入恶意指令。
 
-Unlike [Server-Side Template Injection (SSTI)](../07-Input_Validation_Testing/18-Testing_for_Server-side_Template_Injection.md), where the template is rendered on the server, CSTI occurs entirely within the user's browser. When the framework scans the DOM for dynamic content, it may execute the injected template expressions. This often leads to Cross-Site Scripting (XSS), but the method of injection and exploitation differs from standard XSS because the payload must follow the specific syntax of the template engine (e.g., {% raw %}`{{ 7*7 }}`{% endraw %}).
+与[服务器端模板注入（SSTI）](../07-Input_Validation_Testing/18-Testing_for_Server-side_Template_Injection.md)（其中模板在服务器上呈现）不同，CSTI完全在用户浏览器中发生。当框架扫描DOM中的动态内容时，它可能执行注入的模板表达式。这通常导致跨站脚本（XSS），但注入和利用方法与标准XSS不同，因为有效载荷必须遵循模板引擎的特定语法（例如，`{% raw %}`{{ 7*7 }}{% endraw %}`）。
 
-This vulnerability is particularly common in Single Page Applications (SPAs) where developers might rely on client-side rendering without strict context separation.
+这种漏洞在单页应用程序（SPAs）中特别常见，开发人员可能依赖客户端渲染而没有严格的上下文分离。
 
-## Test Objectives
+## 测试目标
 
-- Identify the client-side framework and its version used by the application.
-- Detect injection points where user input is reflected into the DOM and processed by the template engine.
-- Assess if the injection allows for arbitrary JavaScript execution (XSS) via the template syntax.
+- 识别应用程序使用的客户端框架及其版本。
+- 检测用户输入被反映到DOM中并由模板引擎处理的注入点。
+- 评估注入是否允许通过模板语法执行任意JavaScript（XSS）。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-#### Framework Identification
+#### 框架识别
 
-The first step is to identify if a client-side framework is in use. Testers should look for specific attributes in the HTML source code or specific HTTP response headers.
+第一步是识别是否使用客户端框架。测试人员应查找HTML源代码中的特定属性或特定HTTP响应头。
 
-- **Angular:** Look for attributes like `ng-app`, `ng-model`, or `ng-bind`.
-- **Vue.js:** Look for attributes starting with `v-`, such as `v-if`, `v-for`, or the presence of the Vue global object in the console.
-- **Alpine.js:** Look for `x-data`, `x-html`.
+- **Angular：** 查找`ng-app`、`ng-model`或`ng-bind`等属性。
+- **Vue.js：** 查找以`v-`开头的属性，如`v-if`、`v-for`，或在控制台中查找Vue全局对象。
+- **Alpine.js：** 查找`x-data`、`x-html`。
 
-#### Injection Detection
+#### 注入检测
 
-To detect CSTI, testers should inject characters that are syntactically significant to the template engine. The most common syntax for interpolation in many frameworks is double curly braces {% raw %}`{{ }}`{% endraw %}.
+为了检测CSTI，测试人员应注入对模板引擎有句法意义的字符。许多框架最常见的插值语法是双花括号`{% raw %}`{{ }}{% endraw %}`。
 
-A simple arithmetic operation is the standard probe. If the application evaluates the math, it is vulnerable.
+简单的算术运算是标准探测。如果应用程序计算数学，则是易受攻击的。
 
-**Generic Probe:**
+**通用探测：**
 
 {% raw %}
 
@@ -46,14 +46,14 @@ Inject the string: {{ 7*7 }}
 
 {% endraw %}
 
-- If the application renders `49`, CSTI is present.
-- If the application renders {% raw %}`{{ 7*7 }}`{% endraw %}, it is likely not vulnerable or strict contextual escaping is in place.
+- 如果应用程序呈现`49`，则存在CSTI。
+- 如果应用程序呈现`{% raw %}`{{ 7*7 }}{% endraw %}`，则可能不易受攻击或存在严格的上下文转义。
 
 #### Angular
 
-Angular acts on the DOM. If an attacker can inject a string containing Angular expressions into the DOM before Angular bootstraps or compiles it, the expression will be executed.
+Angular作用于DOM。如果攻击者可以将包含Angular表达式的字符串注入到DOM中（在Angular引导或编译之前），则该表达式将被执行。
 
-**Payloads for Detection:**
+**检测有效载荷：**
 
 {% raw %}
 
@@ -62,9 +62,9 @@ Angular acts on the DOM. If an attacker can inject a string containing Angular e
 
 {% endraw %}
 
-In older versions of Angular (1.x), the template engine works in a sandbox. Exploitation requires breaking out of this sandbox. The complexity of the payload depends heavily on the specific version.
+在较旧版本的Angular（1.x）中，模板引擎在沙箱中工作。利用需要突破此沙箱。有效载荷的复杂性很大程度上取决于特定版本。
 
-**Example Payload (Angular 1.5.x sandbox bypass):**
+**示例有效载荷（Angular 1.5.x沙箱绕过）：**
 
 {% raw %}
 
@@ -76,9 +76,9 @@ In older versions of Angular (1.x), the template engine works in a sandbox. Expl
 
 #### Vue.js
 
-Vue.js is also susceptible if developers use the `v-html` directive with user input or if they mount a Vue instance on a DOM element that already contains user-controlled HTML.
+如果开发人员将用户输入与`v-html`指令一起使用，或者将Vue实例挂载到已包含用户控制HTML的DOM元素上，Vue.js也容易受到攻击。
 
-**Payloads for Detection:**
+**检测有效载荷：**
 
 {% raw %}
 
@@ -86,7 +86,7 @@ Vue.js is also susceptible if developers use the `v-html` directive with user in
 
 {% endraw %}
 
-**Example Payload (Vue.js 2.x):**
+**示例有效载荷（Vue.js 2.x）：**
 
 {% raw %}
 
@@ -98,74 +98,74 @@ Vue.js is also susceptible if developers use the `v-html` directive with user in
 
 #### Alpine.js
 
-Alpine.js relies heavily on DOM attributes. If an attacker can control an attribute name or inject into a directive, they can execute code.
+Alpine.js严重依赖DOM属性。如果攻击者可以控制属性名称或注入到指令中，他们可以执行代码。
 
-**Example Payload:**
+**示例有效载荷：**
 
 ```html
 <div x-data="" x-html="'<img src=x onerror=alert(1)>'"></div>
 ```
 
-### Gray-Box Testing
+### 灰盒测试
 
-#### Code Review
+#### 代码审查
 
-In a gray-box scenario, testers verify how user input is handled in the frontend code. The key is to identify where "sinks" that interpret HTML or Template Syntax are used with "tainted" sources (user input).
+在灰盒场景中，测试人员验证用户输入在前端代码中的处理方式。关键是识别"接收器"（解释HTML或模板语法的位置）与"污染源"（用户输入）的组合使用位置。
 
-**Angular Sinks:**
-Search for usages of `$compile` or `ng-bind-html`.
-If `ng-bind-html` is used, check if `$sce` (Strict Contextual Escaping) is properly configured or if `$sce.trustAsHtml()` is used on untrusted data.
+**Angular接收器：**
+搜索`$compile`或`ng-bind-html`的使用。
+如果使用`ng-bind-html`，检查`$sce`（严格上下文转义）是否正确配置，或者`$sce.trustAsHtml()`是否用于不受信任的数据。
 
 ```javascript
-// Vulnerable example in Angular
+// Angular中的易受攻击示例
 $scope.htmlSnippet = $sce.trustAsHtml(userInput);
 ```
 
-**Vue.js Sinks:**
-Search for the `v-html` directive. Using `v-html` on user-provided content is a primary cause of CSTI/XSS in Vue.
+**Vue.js接收器：**
+搜索`v-html`指令。在用户提供的内容上使用`v-html`是Vue中CSTI/XSS的主要原因。
 
 ```html
 <div v-html="userProvidedComment"></div>
 ```
 
-**React Sinks:**
-While React is generally safer regarding template injection because it does not scan the DOM for templates (JSX is compiled), improper use of `dangerouslySetInnerHTML` allows for DOM-based XSS, which is the React equivalent of the risk profile discussed here.
+**React接收器：**
+虽然React通常在模板注入方面更安全，因为它不扫描DOM模板（JSX被编译），但不当使用`dangerouslySetInnerHTML`允许基于DOM的XSS，这是此处讨论的风险配置文件的React等价物。
 
 {% raw %}
 
 ```javascript
-// Vulnerable example in React
+// React中的易受攻击示例
 <div dangerouslySetInnerHTML={{__html: userContent}} />
 ```
 
 {% endraw %}
 
-#### Configuration Review
+#### 配置审查
 
-Check specifically for Content Security Policy (CSP) headers. A strong CSP can mitigate the impact of CSTI by restricting where scripts can be loaded from or preventing the execution of inline scripts (including those generated by template engines).
+特别检查内容安全策略（CSP）头。强大的CSP可以通过限制可以从中加载脚本的位置或防止内联脚本（包括模板引擎生成的脚本）执行来缓解CSTI的影响。
 
-Look for `unsafe-eval` in the CSP. Many template engines (especially older ones) require `unsafe-eval` to compile templates dynamically. If `unsafe-eval` is present, CSTI attacks are significantly easier to exploit.
+查找CSP中的`unsafe-eval`。许多模板引擎（特别是较旧的）需要`unsafe-eval`来动态编译模板。如果存在`unsafe-eval`，CSTI攻击要容易利用得多。
 
-## Remediation
+## 修复
 
-- **Avoid Rendering User Input as HTML:** Whenever possible, use safe directives that treat input as text only.
-    - Angular: Use `ng-bind` instead of `ng-bind-html`.
-    - Vue: Use `v-text` or curly braces {% raw %}`{{ }}`{% endraw %} (which auto-escape HTML) instead of `v-html`.
-    - React: Avoid `dangerouslySetInnerHTML`.
-- **Sanitization:** If HTML rendering is required, use a dedicated sanitization library (like DOMPurify) to strip dangerous tags and attributes before passing the data to the framework.
-- **Content Security Policy (CSP):** Implement a strict CSP that disables `unsafe-eval` and restricts script sources.
-- **Use Offline Compilation:** For frameworks like Vue or React, prefer using build steps (webpack, vite) that compile templates ahead of time rather than using the runtime compiler that parses DOM content.
+- **避免将用户输入呈现为HTML：** 尽可能使用仅将输入视为文本的安全指令。
+    - Angular：使用`ng-bind`而不是`ng-bind-html`。
+    - Vue：使用`v-text`或花括号`{% raw %}`{{ }}{% endraw %}`（自动转义HTML）而不是`v-html`。
+    - React：避免`dangerouslySetInnerHTML`。
+- **清理：** 如果需要HTML渲染，使用专用清理库（如DOMPurify）在将数据传递到框架之前剥离危险标签和属性。
+- **内容安全策略（CSP）：** 实施禁用`unsafe-eval`并限制脚本来源的严格CSP。
+- **使用离线编译：** 对于Vue或React等框架，首选使用构建步骤（webpack、vite）提前编译模板，而不是使用解析DOM内容的运行时编译器。
 
-### Tools
+## 工具
 
-- [DOMPurify](https://github.com/cure53/DOMPurify): A DOM-only, super-fast, uber-tolerant XSS sanitizer for HTML, MathML, and SVG.
+- [DOMPurify](https://github.com/cure53/DOMPurify)：一个仅DOM、超快速、超宽容的XSS清理器，用于HTML、MathML和SVG。
 
-## References
+## 参考资料
 
-### Whitepapers and Articles
+### 白皮书和文章
 
-- [PortSwigger: Client-Side Template Injection](https://portswigger.net/research/server-side-template-injection)
-- [Gareth Heyes: Angular Sandbox Bypasses](https://portswigger.net/research/dom-based-angularjs-sandbox-escapes)
-- [Vue.js Security Guide](https://vuejs.org/guide/best-practices/security.html)
-- [Angular Security Guide](https://angular.io/guide/security)
-- [{% raw %}{{alert(’CSTI’)}}{% endraw %}: Large-Scale Detection of Client-Side Template Injection](https://ieeexplore.ieee.org/document/11352459)
+- [PortSwigger：客户端模板注入](https://portswigger.net/research/server-side-template-injection)
+- [Gareth Heyes：Angular沙箱绕过](https://portswigger.net/research/dom-based-angularjs-sandbox-escapes)
+- [Vue.js安全指南](https://vuejs.org/guide/best-practices/security.html)
+- [Angular安全指南](https://angular.io/guide/security)
+- [{% raw %}`{{alert('CSTI')}}{% endraw %}`：客户端模板注入的大规模检测](https://ieeexplore.ieee.org/document/11352459)

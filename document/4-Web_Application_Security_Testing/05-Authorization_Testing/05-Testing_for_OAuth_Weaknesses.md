@@ -1,54 +1,54 @@
-# Testing for OAuth Weaknesses
+# 测试 OAuth 弱点
 
 |ID          |
 |------------|
 |WSTG-ATHZ-05|
 
-## Summary
+## 概述
 
-[OAuth2.0](https://oauth.net/2/) (hereinafter referred to as OAuth) is an authorization framework that allows a client to access resources on the behalf of its user.
+[OAuth 2.0](https://oauth.net/2/)（以下简称 OAuth）是一种授权框架，允许客户端代表其用户访问资源。
 
-In order to achieve this, OAuth heavily relies on tokens to communicate between the different entities, each entity having a different [role](https://datatracker.ietf.org/doc/html/rfc6749#section-1.1):
+为了实现这一目标，OAuth 大量依赖令牌在不同实体之间进行通信，每个实体具有不同的[角色](https://datatracker.ietf.org/doc/html/rfc6749#section-1.1)：
 
-- **Resource Owner:** The entity who grants access to a resource, the owner, and in most cases is the user themselves
-- **Client:** The application that is requesting access to a resource on behalf of the Resource Owner. These clients come in two [types](https://oauth.net/2/client-types/):
-    - **Public:** clients that can't protect a secret (*e.g.* frontend focused applications, such as SPAs, mobile applications, etc.)
-    - **Confidential:** clients that are able to securely authenticate with the authorization server by keeping their registered secrets safe (*e.g.* backend services)
-- **Authorization Server:** The server that holds authorization information and grants the access
-- **Resource Server:** The application that serves the content accessed by the client
+- **资源所有者：** 授予资源访问权限的实体，通常是用户本人
+- **客户端：** 代表资源所有者请求访问资源的应用程序。这些客户端有两种[类型](https://oauth.net/2/client-types/)：
+    - **公共客户端：** 无法保护密钥的客户端（如前端应用程序，如 SPA、移动应用程序等）
+    - **机密客户端：** 能够通过保护其注册密钥安全地与授权服务器进行身份验证的客户端（如后端服务）
+- **授权服务器：** 保存授权信息并授予访问权限的服务器
+- **资源服务器：** 客户端访问内容所在的应用程序
 
-Since OAuth's responsibility is to delegate access rights by the owner to the client, this is a very attractive target for attackers, and bad implementations lead to unauthorized access to the users' resources and information.
+由于 OAuth 的职责是将所有者对客户端的访问权限进行委托，这对攻击者来说是一个非常有吸引力的目标，而糟糕的实现会导致对用户资源和信息的未授权访问。
 
-In order to provide access to a client application, OAuth relies on several [authorization grant types](https://oauth.net/2/grant-types/) to generate an access token:
+为了向客户端应用程序提供访问权限，OAuth 依赖几种[授权授予类型](https://oauth.net/2/grant-types/)来生成访问令牌：
 
-- [Authorization Code](https://oauth.net/2/grant-types/authorization-code/): used by both confidential and public clients to exchange an authorization code for an access token, but recommended only for confidential clients
-- [Proof Key for Code Exchange (PKCE)](https://oauth.net/2/pkce/): PKCE builds on top of the Authorization Code grant, providing stronger security for it to be used by public clients, and improving the posture of confidential ones
-- [Client Credentials](https://oauth.net/2/grant-types/client-credentials/): used for machine to machine communication, where the "user" here is the machine requesting access to its own resources from the Resource Server
-- [Device Code](https://oauth.net/2/grant-types/device-code/): used for devices with limited input capabilities.
-- [Refresh Token](https://oauth.net/2/grant-types/refresh-token/): tokens provided by the authorization server to allow clients to refresh users' access tokens once they become invalid or expire. This grant type is used in conjunction with one other grant type.
+- [授权码](https://oauth.net/2/grant-types/authorization-code/)：由机密和公共客户端使用，将授权码交换为访问令牌，但仅推荐给机密客户端
+- [代码交换密钥证明（PKCE）](https://oauth.net/2/pkce/)：PKCE 在授权码授予之上构建，为公共客户端提供更强的安全性，并提高机密客户端的安全状态
+- [客户端凭据](https://oauth.net/2/grant-types/client-credentials/)：用于机器对机器通信，其中"用户"是请求访问资源服务器自有资源的机器
+- [设备码](https://oauth.net/2/grant-types/device-code/)：用于输入能力有限的设备。
+- [刷新令牌](https://oauth.net/2/grant-types/refresh-token/)：由授权服务器提供，以允许客户端在用户访问令牌变得无效或过期时刷新用户的访问令牌。此授予类型与其他授予类型结合使用。
 
-Two flows will be deprecated in the release of [OAuth2.1](https://oauth.net/2.1/), and their usage is not recommended:
+两种流程将在 [OAuth 2.1](https://oauth.net/2.1/) 发布时被弃用，不推荐使用：
 
-- [Implicit Flow*](https://oauth.net/2/grant-types/implicit/): PKCE's secure implementation renders this flow obsolete. Prior to PKCE, the implicit flow was used by client-side applications such as [single page applications](https://en.wikipedia.org/wiki/Single-page_application) since [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) relaxed the [same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) for sites to inter-communicate. For more information on why the implicit grant is not recommended, review this [section](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics#section-2.1.2).
-- [Resource Owner Password Credentials](https://oauth.net/2/grant-types/password/):used to exchange users' credentials directly with the client, which then sends them to the authorization to exchange them for an access token. For information on why this flow is not recommended, review this [section](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics#section-2.4).
+- [隐式流](https://oauth.net/2/grant-types/implicit/)：PKCE 的安全实现使此流程变得过时。在 PKCE 之前，隐式流被用于客户端应用程序，如[单页应用程序](https://en.wikipedia.org/wiki/Single-page_application)，因为 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) 放宽了站点间通信的[同源策略](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy)。有关为何不推荐隐式授予的更多信息，请查看此[部分](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics#section-2.1.2)。
+- [资源所有者密码凭据](https://oauth.net/2/grant-types/password/)：用于直接将用户凭据交换给客户端，然后客户端将凭据发送给授权服务器以交换访问令牌。有关此流程不推荐的原因的信息，请查看此[部分](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics#section-2.4)。
 
-*: The implicit flow in OAuth only is deprecated, yet is still a viable solution within Open ID Connect (OIDC) to retrieve `id_tokens`. Be careful to understand how the implicit flow is being used, which can be identified if only the `/authorization` endpoint is being used to gain an access token, without relying on `/token` endpoint in any way. An example on this can be found [here](https://auth0.com/docs/get-started/authentication-and-authorization-flow/implicit-flow-with-form-post).
+*：OAuth 中的隐式流仅被弃用，但在 Open ID Connect (OIDC) 中仍然是检索 `id_tokens` 的可行解决方案。请注意理解隐式流是如何被使用的，如果仅使用 `/authorization` 端点来获取访问令牌，而不依赖 `/token` 端点，则可以识别隐式流的使用方式。这方面的示例可以在[这里](https://auth0.com/docs/get-started/authentication-and-authorization-flow/implicit-flow-with-form-post)找到。
 
-*Please note that OAuth flows are a complex topic, and the above includes only a summary of the key areas. The inline references contain further information about the specific flows.*
+*请注意，OAuth 流程是一个复杂的主题，以上仅包括关键领域的摘要。内联引用包含有关特定流程的更多信息。*
 
-## Test Objectives
+## 测试目标
 
-- Determine if OAuth2 implementation is vulnerable or using a deprecated or custom implementation.
+- 确定 OAuth 2.0 实现是否存在漏洞或使用已弃用或自定义实现。
 
-## How to Test
+## 如何测试
 
-### Testing for Deprecated Grant Types
+### 测试已弃用的授予类型
 
-Deprecated grant types were obsoleted for security and functionality reasons. Identifying if they're being used allows us to quickly review if they're susceptible to any of the threats pertaining to their usage. Some might be out of scope to the attacker, such as the way a client might be using the users' credentials. This should be documented and raised to the internal engineering teams.
+已弃用的授予类型因安全和功能原因而被淘汰。识别它们是否正在使用，使我们能够快速审查它们是否容易受到与其使用相关的任何威胁的威胁。某些内容可能超出攻击者的范围，例如客户端可能使用用户凭据的方式。这应被记录并提交给内部工程团队。
 
-For public clients, it is generally possible to identify the grant type in the request to the `/token` endpoint. It is indicated in the token exchange with the parameter `grant_type`.
+对于公共客户端，通常可以在对 `/token` 端点的请求中识别授予类型。它在令牌交换中由 `grant_type` 参数指示。
 
-The following example shows the Authorization Code grant with PKCE.
+以下示例显示带 PKCE 的授权码授予。
 
 ```http
 POST /oauth/token HTTP/1.1
@@ -64,13 +64,13 @@ Host: as.example.com
 }
 ```
 
-The values for the `grant_type` parameter and the grant type they indicate are:
+`grant_type` 参数的值及其指示的授予类型：
 
-- `password`: Indicates the ROPC grant.
-- `client_credentials`: Indicates the Client Credential grant.
-- `authorization_code`: Indicates the Authorization Code grant.
+- `password`：表示 ROPC 授予。
+- `client_credentials`：表示客户端凭据授予。
+- `authorization_code`：表示授权码授予。
 
-The Implicit Flow type is not indicated by the `grant_type` parameter since the token is presented in the response to the `/authorization` endpoint request, and instead can be identified through the `response_type`. Below is an example.
+隐式流类型不由 `grant_type` 参数指示，因为令牌在 `/authorization` 端点请求的响应中呈现，而是可以通过 `response_type` 识别。以下是一个示例。
 
 ```http
 GET /authorize
@@ -81,13 +81,13 @@ GET /authorize
   &state=<random_state>
 ```
 
-The following URL parameters indicate the OAuth flow being used:
+以下 URL 参数指示正在使用的 OAuth 流程：
 
-- `response_type=token`: Indicates Implicit Flow, as the client is directly requesting from the authorization server to return a token.
-- `response_type=code`: Indicates Authorization Code flow, as the client is requesting from the authorization server to return a code, that will be exchanged afterwards with a token.
-- `code_challenge=sha256(xyz)`: Indicates the PKCE extension, as no other flow uses this parameter.
+- `response_type=token`：表示隐式流，因为客户端直接请求授权服务器返回令牌。
+- `response_type=code`：表示授权码流程，因为客户端请求授权服务器返回一个代码，之后将与令牌交换。
+- `code_challenge=sha256(xyz)`：表示 PKCE 扩展，因为没有其他流程使用此参数。
 
-The following is an example authorization request for Authorization Code flow with PKCE:
+以下是带 PKCE 的授权码流程的授权请求示例：
 
 ```http
 GET /authorize
@@ -104,34 +104,34 @@ Host: as.example.com
 [...]
 ```
 
-#### Public Clients
+#### 公共客户端
 
-The Authorization Code grant with PKCE extension is recommended for public clients. An authorization request for Authorization Code flow with PKCE should contain `response_type=code` and `code_challenge=sha256(xyz)`.
+带 PKCE 扩展的授权码授予被推荐用于公共客户端。带 PKCE 的授权码流程的授权请求应包含 `response_type=code` 和 `code_challenge=sha256(xyz)`。
 
-The token exchange should contain the grant type `authorization_code` and a `code_verifier`.
+令牌交换应包含授予类型 `authorization_code` 和 `code_verifier`。
 
-Improper grant types for public clients are:
+公共客户端的不当授予类型：
 
-- Authorization Code grant without the PKCE extension
-- Client Credentials
-- Implicit Flow
+- 不带 PKCE 扩展的授权码授予
+- 客户端凭据
+- 隐式流
 - ROPC
 
-#### Confidential Clients
+#### 机密客户端
 
-The Authorization Code grant is recommended for confidential clients. The PKCE extension may be used as well.
+带 PKCE 扩展的授权码授予被推荐用于机密客户端。PKCE 扩展也可以使用。
 
-Improper grant types for confidential clients are:
+机密客户端的不当授予类型：
 
-- Client Credentials (Except for machine-to-machine -- see below)
-- Implicit Flow
+- 客户端凭据（机器对机器除外 - 见下文）
+- 隐式流
 - ROPC
 
-##### Machine-to-Machine
+##### 机器对机器
 
-In situations where no user interaction occurs and the clients are only confidential clients, the Client Credentials grant may be used.
+在没有用户交互且客户端仅为机密客户端的情况下，可以使用客户端凭据授予。
 
-If you know the `client_id` and `client_secret`, it is possible to obtain a token by passing the `client_credentials` grant type.
+如果您知道 `client_id` 和 `client_secret`，可以通过传递 `client_credentials` 授予类型来获取令牌。
 
 ```bash
 $ curl --request POST \
@@ -140,52 +140,52 @@ $ curl --request POST \
   --data '{"client_id":"<some_client_id>","client_secret":"<some_client_secret>","grant_type":"client_credentials"}' --proxy https://localhost:8080/ -k
 ```
 
-### Credential Leakage
+### 凭据泄露
 
-Depending on the flow, OAuth transports several types of credentials in as URL parameters.
+根据流程，OAuth 通过 URL 参数传输多种类型的凭据。
 
-The following tokens can be considered to be leaked credentials:
+以下令牌可被视为泄露的凭据：
 
-- access token
-- refresh token
-- authorization code
-- PKCE code challenge / code verifier
+- 访问令牌
+- 刷新令牌
+- 授权码
+- PKCE 代码挑战/代码验证码
 
-Due to how OAuth works, the authorization `code` as well as the `code_challenge`, and `code_verifier` may be part of the URL. The implicit flow transports the authorization token as part of the URL if the `response_mode` is not set to [`form_post`](https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html). This may lead to leakage of the requested token or code in the referrer header, in log files, and proxies due to these parameters being passed either in the query or the fragment.
+由于 OAuth 的工作方式，授权 `code` 以及 `code_challenge` 和 `code_verifier` 可能成为 URL 的一部分。如果 `response_mode` 未设置为 [`form_post`](https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html)，隐式流会通过 URL 的一部分传输授权令牌。这可能导致在 Referrer 头、日志文件和代理中泄露请求的令牌或代码，因为这些参数是通过查询或片段传递的。
 
-The risk that's carried by the implicit flow leaking the tokens is far higher than leaking the `code` or any other `code_*` parameters, as they are bound to specific clients and are harder to abuse in case of leakage.
+隐式流泄露令牌的风险远高于泄露 `code` 或任何其他 `code_*` 参数的风险，因为它们绑定到特定客户端，泄露后更难被滥用。
 
-In order to test this scenario, make use of an HTTP intercepting proxy such as ZAP and intercept the OAuth traffic.
+为了测试此场景，请使用 ZAP 等 HTTP 拦截代理并拦截 OAuth 流量。
 
-- Step through the authorization process and identify any credentials present in the URL.
-- If any external resources are included in a page involved with the OAuth flow, analyze the request made to them. Credentials could be leaked in the referrer header.
+- 逐步完成授权过程，识别 URL 中存在的任何凭据。
+- 如果 OAuth 流程中涉及的页面包含外部资源，请分析向它们发出的请求。凭据可能通过 Referrer 头泄露。
 
-After stepping through the OAuth flow and using the application, a few requests are captured in the request history of an HTTP intercepting proxy. Search for the HTTP referrer header (e.g. `Referer: https://idp.example.com/`) containing the authorization server and client URL in the request history.
+在逐步完成 OAuth 流程并使用应用程序后，HTTP 拦截代理的请求历史中会捕获一些请求。在请求历史中搜索包含授权服务器和客户端 URL 的 HTTP Referrer 头（例如 `Referer: https://idp.example.com/`）。
 
-Reviewing the HTML meta tags (although this tag is [not supported](https://caniuse.com/mdn-html_elements_meta_name_referrer) on all browsers), or the [Referrer-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy) could help assess if any credential leakage is happening through the referrer header.
+检查 HTML meta 标签（尽管此标签并非[在所有浏览器中都受支持](https://caniuse.com/mdn-html_elements_meta_name_referrer)），或 [Referrer-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy) 可以帮助评估是否正在通过 Referrer 头发生任何凭据泄露。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing JSON Web Tokens](../06-Session_Management_Testing/10-Testing_JSON_Web_Tokens.md)
+- [测试 JSON Web Token](../06-Session_Management_Testing/10-Testing_JSON_Web_Tokens.md)
 
-## Remediation
+## 修复方案
 
-- When implementing OAuth, always consider the technology used and whether the application is a server-side application that can avoid revealing secrets, or a client-side application that cannot.
-- In almost any case, use the Authorization Code flow with PKCE. One exception may be machine-to-machine flows.
-- Use POST parameters or header values to transport secrets.
-- When no other possibilities exists (for example, in legacy applications that can not be migrated), implement additional security headers such as a `Referrer-Policy`.
+- 在实施 OAuth 时，始终考虑所使用的技术以及应用程序是能够避免泄露密钥的服务器端应用程序，还是无法做到这一点的客户端应用程序。
+- 在几乎所有情况下，请使用带 PKCE 的授权码流程。一个例外可能是机器对机器流程。
+- 使用 POST 参数或头值来传输密钥。
+- 当没有其他可能性时（例如，无法迁移的遗留应用程序），实施额外的安全头，如 `Referrer-Policy`。
 
-## Tools
+## 工具
 
 - [BurpSuite](https://portswigger.net/burp/releases)
 - [EsPReSSO](https://github.com/portswigger/espresso)
 - [ZAP](https://www.zaproxy.org/)
 
-## References
+## 参考资料
 
-- [User Authentication with OAuth 2.0](https://oauth.net/articles/authentication/)
-- [The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749)
-- [The OAuth 2.0 Authorization Framework: Bearer Token Usage](https://datatracker.ietf.org/doc/html/rfc6750)
-- [OAuth 2.0 Threat Model and Security Considerations](https://datatracker.ietf.org/doc/html/rfc6819)
-- [OAuth 2.0 Security Best Current Practice](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-16)
-- [Authorization Code Flow with Proof Key for Code Exchange](https://auth0.com/docs/authorization/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce)
+- [使用 OAuth 2.0 进行用户身份验证](https://oauth.net/articles/authentication/)
+- [OAuth 2.0 授权框架](https://datatracker.ietf.org/doc/html/rfc6749)
+- [OAuth 2.0 授权框架：Bearer 令牌使用](https://datatracker.ietf.org/doc/html/rfc6750)
+- [OAuth 2.0 威胁模型和安全注意事项](https://datatracker.ietf.org/doc/html/rfc6819)
+- [OAuth 2.0 安全最佳当前实践](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-16)
+- [带 PKCE 的授权码流程](https://auth0.com/docs/authorization/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce)

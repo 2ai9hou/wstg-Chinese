@@ -1,27 +1,27 @@
-# Testing for Host Header Injection
+# 测试主机头注入
 
 |ID          |
 |------------|
 |WSTG-INPV-17|
 
-## Summary
+## 概述
 
-A web server commonly hosts several web applications on the same IP address, referring to each application via the virtual host. In an incoming HTTP request, web servers often dispatch the request to the target virtual host based on the value supplied in the Host header. Without proper validation of the header value, the attacker can supply invalid input to cause the web server to:
+Web服务器通常在同一IP地址上托管多个Web应用程序，通过虚拟主机引用每个应用程序。在传入的HTTP请求中，Web服务器通常根据Host头中提供的值将请求分派到目标虚拟主机。如果没有正确验证头值，攻击者可以提供无效输入，导致Web服务器：
 
-- Dispatch requests to the first virtual host on the list.
-- Perform a redirect to an attacker-controlled domain.
-- Perform web cache poisoning.
-- Manipulate password reset functionality.
-- Allow access to virtual hosts that were not intended to be externally accessible.
+- 将请求分派到列表上的第一个虚拟主机。
+- 执行到攻击者控制域的重定向。
+- 执行Web缓存中毒。
+- 操作密码重置功能。
+- 允许访问本不应从外部访问的虚拟主机。
 
-## Test Objectives
+## 测试目标
 
-- Assess if the Host header is being parsed dynamically in the application.
-- Bypass security controls that rely on the header.
+- 评估主机头是否在应用程序中动态解析。
+- 绕过依赖该头的安全控制。
 
-## How to Test
+## 如何测试
 
-Initial testing is as simple as supplying another domain (i.e. `attacker.com`) into the Host header field. It is how the web server processes the header value that dictates the impact. The attack is valid when the web server processes the input to send the request to an attacker-controlled host that resides at the supplied domain, and not to an internal virtual host that resides on the web server.
+初始测试非常简单，只需向Host头字段提供另一个域名（即`attacker.com`）。攻击是否有效取决于Web服务器处理该头值的方式。当Web服务器处理输入以将请求发送到攻击者控制的域（而非位于Web服务器上的内部虚拟主机）时，攻击是有效的。
 
 ```http
 GET / HTTP/1.1
@@ -29,7 +29,7 @@ Host: www.attacker.com
 [...]
 ```
 
-In the simplest case, this may cause a 302 redirect to the supplied domain.
+在最简单的情况下，这可能导致302重定向到提供的域。
 
 ```http
 HTTP/1.1 302 Found
@@ -38,11 +38,11 @@ Location: https://www.attacker.com/login.php
 
 ```
 
-Alternatively, the web server may send the request to the first virtual host on the list.
+或者，Web服务器可能将请求分派到列表上的第一个虚拟主机。
 
-### X-Forwarded Host Header Bypass
+### X-Forwarded-Host头绕过
 
-In the event that Host header injection is mitigated by checking for invalid input injected via the Host header, you can supply the value to the `X-Forwarded-Host` header.
+如果通过Host头注入的无效输入来缓解主机头注入，您可以向`X-Forwarded-Host`头提供该值。
 
 ```http
 GET / HTTP/1.1
@@ -51,7 +51,7 @@ X-Forwarded-Host: www.attacker.com
 [...]
 ```
 
-Potentially producing client-side output such as:
+可能产生如下客户端输出：
 
 ```html
 [...]
@@ -59,11 +59,11 @@ Potentially producing client-side output such as:
 [...]
 ```
 
-Once again, this depends on how the web server processes the header value.
+再一次，这取决于Web服务器如何处理该头值。
 
-### Web Cache Poisoning
+### Web缓存中毒
 
-Using this technique, an attacker can manipulate a web-cache to serve poisoned content to anyone who requests it. This relies on the ability to poison the caching proxy run by the application itself, CDNs, or other downstream providers. As a result, the victim will have no control over receiving the malicious content when requesting the vulnerable application.
+使用此技术，攻击者可以操纵Web缓存以向任何请求它的人提供中毒内容。这取决于能够毒化由应用程序本身、CDN或其他下游提供商运行的缓存代理。然后，受害者在请求易受攻击的应用程序时将无法控制收到恶意内容。
 
 ```http
 GET / HTTP/1.1
@@ -71,7 +71,7 @@ Host: www.attacker.com
 [...]
 ```
 
-The following will be served from the web cache, when a victim visits the vulnerable application.
+当受害者访问易受攻击的应用程序时，将从Web缓存提供以下内容。
 
 ```html
 [...]
@@ -79,18 +79,18 @@ The following will be served from the web cache, when a victim visits the vulner
 [...]
 ```
 
-### Password Reset Poisoning
+### 密码重置 poisoning
 
-It is common for password reset functionality to include the Host header value when creating password reset links that use a generated secret token. If the application processes an attacker-controlled domain to create a password reset link, the victim may click on the link in the email and allow the attacker to obtain the reset token, thus resetting the victim's password.
+密码重置功能通常在创建使用生成令牌的重置链接时包含Host头值。如果应用程序处理攻击者控制的域来创建密码重置链接，受害者可能点击电子邮件中的链接，允许攻击者获取重置令牌，从而重置受害者的密码。
 
-The example below shows a password reset link that is generated in PHP using the value of `$_SERVER['HTTP_HOST']`, which is set based on the contents of the HTTP Host header:
+下面的示例显示使用`$_SERVER['HTTP_HOST']`的值在PHP中生成的密码重置链接，其基于HTTP Host头的内容设置：
 
 ```php
 $reset_url = "https://" . $_SERVER['HTTP_HOST'] . "/reset.php?token=" .$token;
 send_reset_email($email,$rset_url);
 ```
 
-By making a HTTP request to the password reset page with a tampered Host header, we can modify where the URL points:
+通过使用篡改的Host头发出密码重定向页面请求，我们可以修改URL指向的位置：
 
 ```http
 POST /request_password_reset.php HTTP/1.1
@@ -100,7 +100,7 @@ Host: www.attacker.com
 email=user@example.org
 ```
 
-The specified domain (`www.attacker.com`) will then be used in the reset link, which is emailed to the user. When the user clicks this link, the attacker can steal the token and compromise their account.
+然后，指定域（`www.attacker.com`）将用于重置链接，该链接通过电子邮件发送给用户。当用户点击此链接时，攻击者可以窃取令牌并危害其账户。
 
 ```text
 ... Email snippet ...
@@ -112,20 +112,20 @@ https://www.attacker.com/reset.php?token=12345
 ... Email snippet ...
 ```
 
-### Accessing Private Virtual Hosts
+### 访问私有虚拟主机
 
-In some cases a server may have virtual hosts that are not intended to be externally accessible. This is most common with a [split-horizon](https://en.wikipedia.org/wiki/Split-horizon_DNS) DNS setup (where internal and external DNS servers return different records for the same domain).
+在某些情况下，服务器可能具有不期望从外部访问的虚拟主机。这最常见于[分DNS](https://en.wikipedia.org/wiki/Split-horizon_DNS)设置（内部和外部DNS服务器为同一域返回不同记录）。
 
-For example, an organization may have a single webserver on their internal network, which hosts both their public website (on `www.example.org`) and their internal Intranet (on `intranet.example.org`, but that record only exists on the internal DNS server). Although it would not be possible to browse directly to `intranet.example.org` from outside the network (as the domain would not resolve), it may be possible to access to Intranet by making a request from outside with the following `Host` header:
+例如，组织可能在内部网络的单一Web服务器上托管其公共网站（`www.example.org`）及其内部Intranet（在`intranet.example.org`上，但该记录仅存在于内部DNS服务器上）。虽然从网络外部直接浏览到`intranet.example.org`是不可能的（因为该域将无法解析），但可以通过使用以下`Host`头从外部访问Intranet：
 
 ```http
 Host: intranet.example.org
 ```
 
-This could also be achieved by adding an entry for `intranet.example.org` to your hosts file with the public IP address of `www.example.org`, or by overriding DNS resolution in your testing tool.
+这也可以通过向主机文件添加`intranet.example.org`条目（使用`www.example.org`的公共IP地址）或在测试工具中覆盖DNS解析来实现。
 
-## References
+## 参考资料
 
-- [What is a Host Header Attack?](https://www.acunetix.com/blog/articles/automated-detection-of-host-header-attacks/)
-- [Host Header Attack](https://www.briskinfosec.com/blogs/blogsdetail/Host-Header-Attack)
-- [HTTP Host header attacks](https://portswigger.net/web-security/host-header)
+- [什么是主机头攻击？](https://www.acunetix.com/blog/articles/automated-detection-of-host-header-attacks/)
+- [主机头攻击](https://www.briskinfosec.com/blogs/blogsdetail/Host-Header-Attack)
+- [HTTP主机头攻击](https://portswigger.net/web-security/host-header)

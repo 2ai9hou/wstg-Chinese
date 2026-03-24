@@ -1,146 +1,146 @@
-# Testing for Weak Cryptographic Primitives
+# 测试弱密码学原语
 
 |ID          |
 |------------|
 |WSTG-CRYP-04|
 
-## Summary
+## 概述
 
-Incorrect uses of encryption algorithms may result in sensitive data exposure, key leakage, broken authentication, insecure session, and spoofing attacks. There are some encryption or hash algorithms known to be weak and are not suggested for use such as MD5 and RC4.
+加密算法的错误使用可能导致敏感数据暴露、密钥泄露、认证破坏、不安全会话和欺骗攻击。有一些已知较弱的加密算法或哈希算法，不建议使用，如MD5和RC4。
 
-In addition to the right choices of secure encryption or hash algorithms, the right uses of parameters also matter for the security level. For example, ECB (Electronic Code Book) mode generally should not be used.
+除了选择正确的安全加密或哈希算法外，参数的正确使用也对安全级别产生影响。例如，ECB（电子密码本）模式通常不应使用。
 
-## Test Objectives
+## 测试目标
 
-- Provide a guideline for the identification weak encryption or hashing uses and implementations.
+- 为识别弱加密或哈希使用和实现提供指导。
 
-## How to Test
+## 如何测试
 
-### Basic Security Checklist
+### 基本安全检查清单
 
-- When using AES128 or AES256, the IV (Initialization Vector) must be random and unpredictable. Refer to [FIPS 140-2, Security Requirements for Cryptographic Modules](https://csrc.nist.gov/publications/detail/fips/140/2/final), section 4.9.1. random number generator tests. For example, in Java, `java.util.Random` is considered a weak random number generator. `java.security.SecureRandom` should be used instead of `java.util.Random`.
-- For asymmetric encryption, use Elliptic Curve Cryptography (ECC) with a secure curve like `Curve25519` preferred.
-    - If ECC can't be used then use RSA encryption with a minimum 2048bit key.
-- When uses of RSA in signature, PSS padding is recommended.
-- Weak hash/encryption algorithms should not be used such MD5, RC4, DES, Blowfish, SHA1. 1024-bit RSA or DSA, 160-bit ECDSA (elliptic curves), 80/112-bit 2TDEA (two key triple DES)
-- Minimum Key length requirements:
-
-```text
-Key exchange: Diffie–Hellman key exchange with minimum 2048 bits
-Message Integrity: HMAC-SHA2
-Message Hash: SHA2 256 bits
-Asymmetric encryption: RSA 2048 bits
-Symmetric-key algorithm: AES 128 bits
-Password Hashing: PBKDF2, Scrypt, Bcrypt
-ECDH, ECDSA: 256 bits
-```
-
-- Uses of SSH, CBC mode should not be used.
-- When symmetric encryption algorithm is used, ECB (Electronic Code Book) mode should not be used.
-- When PBKDF2 is used to hash password, the parameter of iteration is recommended to be over 10000. [NIST](https://pages.nist.gov/800-63-3/sp800-63b.html#sec5) also suggests at least 10,000 iterations of the hash function. In addition, MD5 hash function is forbidden to be used with PBKDF2 such as PBKDF2WithHmacMD5.
-
-### Source Code Review
-
-- Search for the following keywords to identify use of weak algorithms: `MD4, MD5, RC4, RC2, DES, Blowfish, SHA-1, ECB`
-
-- For Java implementations, the following API is related to encryption. Review the parameters of the encryption implementation. For example,
-
-```java
-SecretKeyFactory(SecretKeyFactorySpi keyFacSpi, Provider provider, String algorithm)
-SecretKeySpec(byte[] key, int offset, int len, String algorithm)
-Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
-```
-
-- For RSA encryption, the following padding modes are suggested.
+- 当使用AES128或AES256时，IV（初始化向量）必须是随机且不可预测的。参阅[FIPS 140-2，密码模块的安全要求](https://csrc.nist.gov/publications/detail/fips/140/2/final)，第4.9.1节。随机数生成器测试。例如，在Java中，`java.util.Random`被认为是弱的随机数生成器。应该使用`java.security.SecureRandom`而不是`java.util.Random`。
+- 对于非对称加密，使用椭圆曲线密码学（ECC），首选`Curve25519`等安全曲线。
+    - 如果不能使用ECC，则使用至少2048位密钥的RSA加密。
+- 当在签名中使用RSA时，推荐使用PSS填充。
+- 不应使用弱哈希/加密算法，如MD5、RC4、DES、Blowfish、SHA1。1024位RSA或DSA、160位ECDSA（椭圆曲线）、80/112位2TDEA（双密钥三重DES）
+- 最小密钥长度要求：
 
 ```text
-RSA/ECB/OAEPWithSHA-1AndMGF1Padding (2048)
-RSA/ECB/OAEPWithSHA-256AndMGF1Padding (2048)
+密钥交换：Diffie-Hellman密钥交换，最小2048位
+消息完整性：HMAC-SHA2
+消息哈希：SHA2 256位
+非对称加密：RSA 2048位
+对称密钥算法：AES 128位
+密码哈希：PBKDF2、Scrypt、Bcrypt
+ECDH、ECDSA：256位
 ```
 
-- Search for `ECB`, it's not allowed to be used in padding.
-- Review if different IV (initial Vector) is used.
+- 不应使用SSH、CBC模式。
+- 当使用对称加密算法时，不应使用ECB（电子密码本）模式。
+- 当使用PBKDF2哈希密码时，建议迭代参数超过10000。[NIST](https://pages.nist.gov/800-63-3/sp800-63b.html#sec5)也建议至少10000次哈希函数迭代。此外，禁止将MD5哈希函数与PBKDF2一起使用，如PBKDF2WithHmacMD5。
+
+### 源代码审查
+
+- 搜索以下关键字以识别弱算法的使用：`MD4, MD5, RC4, RC2, DES, Blowfish, SHA-1, ECB`
+
+- 对于Java实现，以下API与加密相关。检查加密实现的参数。例如，
 
 ```java
-// Use a different IV value for every encryption
-byte[] newIv = ...;
-s = new GCMParameterSpec(s.getTLen(), newIv);
-cipher.init(..., s);
+SecretKeyFactory(SecretKeyFactorySpi keyFacSpi, Provider provider, String algorithm)
+SecretKeySpec(byte[] key, int offset, int len, String algorithm)
+Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
+```
+
+- 对于RSA加密，建议使用以下填充模式。
+
+```text
+RSA/ECB/OAEPWithSHA-1AndMGF1Padding (2048)
+RSA/ECB/OAEPWithSHA-256AndMGF1Padding (2048)
+```
+
+- 搜索`ECB`，不允许在填充中使用。
+- 检查是否使用了不同的IV（初始向量）。
+
+```java
+// 为每次加密使用不同的IV值
+byte[] newIv = ...;
+s = new GCMParameterSpec(s.getTLen(), newIv);
+cipher.init(..., s);
 ...
 ```
 
-- Search for `IvParameterSpec`, check if the IV value is generated differently and randomly.
+- 搜索`IvParameterSpec`，检查IV值是否以不同方式生成和随机化。
 
 ```java
- IvParameterSpec iv = new IvParameterSpec(randBytes);
- SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
- Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
- cipher.init(Cipher.ENCRYPT_MODE, skey, iv);
+ IvParameterSpec iv = new IvParameterSpec(randBytes);
+ SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
+ Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+ cipher.init(Cipher.ENCRYPT_MODE, skey, iv);
 ```
 
-- In Java, search for MessageDigest to check if weak hash algorithm (MD5 or CRC) is used. For example:
+- 在Java中，搜索MessageDigest以检查是否使用了弱哈希算法（MD5或CRC）。例如：
 
-`MessageDigest md5 = MessageDigest.getInstance("MD5");`
+`MessageDigest md5 = MessageDigest.getInstance("MD5");`
 
-- For signature, SHA1 and MD5 should not be used. For example:
+- 对于签名，不应使用SHA1和MD5。例如：
 
-`Signature sig = Signature.getInstance("SHA1withRSA");`
+`Signature sig = Signature.getInstance("SHA1withRSA");`
 
-- Search for `PBKDF2`. To generate the hash value of password, `PBKDF2` is suggested to be used. Review the parameters to generate the `PBKDF2` has value.
+- 搜索`PBKDF2`。要生成密码的哈希值，建议使用`PBKDF2`。检查生成`PBKDF2`哈希值的参数。
 
-The iterations should be over **10000**, and the **salt** value should be generated as **random value**.
+迭代次数应超过**10000**，**salt**值应生成为**随机值**。
 
 ```java
-private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
-    throws NoSuchAlgorithmException, InvalidKeySpecException
-  {
-       PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, bytes * 8);
-       SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
-       return skf.generateSecret(spec).getEncoded();
-   }
+private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
+    throws NoSuchAlgorithmException, InvalidKeySpecException
+  {
+     PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, bytes * 8);
+     SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
+     return skf.generateSecret(spec).getEncoded();
+  }
 ```
 
-- Hard-coded sensitive information:
+- 硬编码的敏感信息：
 
 ```text
-User related keywords: name, root, su, sudo, admin, superuser, login, username, uid
-Key related keywords: public key, AK, SK, secret key, private key, passwd, password, pwd, share key, shared key, cryto, base64
-Other common sensitive keywords: sysadmin, root, privilege, pass, key, code, master, admin, uname, session, token, Oauth, privatekey, shared secret
+用户相关关键字：name, root, su, sudo, admin, superuser, login, username, uid
+密钥相关关键字：public key, AK, SK, secret key, private key, passwd, password, pwd, share key, shared key, cryto, base64
+其他常见敏感关键字：sysadmin, root, privilege, pass, key, code, master, admin, uname, session, token, Oauth, privatekey, shared secret
 ```
 
-## Tools
+## 工具
 
-- Vulnerability scanners such as Nessus, Nmap (scripts), or OpenVAS can scan for use or acceptance of weak encryption against protocol such as SNMP, TLS, SSH, SMTP, etc.
-- Use static code analysis tool to do source code review such as klocwork, Fortify, Coverity, CheckMark for the following cases.
+- Nessus、Nmap（脚本）或OpenVAS等漏洞扫描器可以扫描SNMP、TLS、SSH、SMTP等协议是否使用或接受弱加密。
+- 使用静态代码分析工具进行源代码审查，如klocwork、Fortify、Coverity、CheckMark，用于以下情况。
 
 ```text
-CWE-261: Weak Cryptography for Passwords
-CWE-323: Reusing a Nonce, Key Pair in Encryption
-CWE-326: Inadequate Encryption Strength
-CWE-327: Use of a Broken or Risky Cryptographic Algorithm
-CWE-328: Reversible One-Way Hash
-CWE-329: Not Using a Random IV with CBC Mode
-CWE-330: Use of Insufficiently Random Values
-CWE-347: Improper Verification of Cryptographic Signature
-CWE-354: Improper Validation of Integrity Check Value
-CWE-547: Use of Hard-coded, Security-relevant Constants
-CWE-780: Use of RSA Algorithm without OAEP
+CWE-261：密码的弱密码学
+CWE-323：加密中重用Nonce、密钥对
+CWE-326：加密强度不足
+CWE-327：使用破碎或风险密码算法
+CWE-328：可逆单向哈希
+CWE-329： CBC模式不使用随机IV
+CWE-330：使用不充分的随机值
+CWE-347：密码签名验证不当
+CWE-354：完整性检查值验证不当
+CWE-547：使用硬编码的安全相关常量
+CWE-780：使用不带OAEP的RSA算法
 ```
 
-## References
+## 参考资料
 
-- [NIST FIPS Standards](https://csrc.nist.gov/publications/fips)
-- [Wikipedia: Initialization Vector](https://en.wikipedia.org/wiki/Initialization_vector)
-- [Secure Coding - Generating Strong Random Numbers](https://www.securecoding.cert.org/confluence/display/java/MSC02-J.+Generate+strong+random+numbers)
-- [Optimal Asymmetric Encryption Padding](https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding)
-- [Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)
-- [Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
-- [Secure Coding - Do not use insecure or weak cryptographic algorithms](https://www.securecoding.cert.org/confluence/display/java/MSC61-J.+Do+not+use+insecure+or+weak+cryptographic+algorithms)
-- [Insecure Randomness](https://owasp.org/www-community/vulnerabilities/Insecure_Randomness)
-- [Insufficient Entropy](https://owasp.org/www-community/vulnerabilities/Insufficient_Entropy)
-- [Insufficient Session-ID Length](https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length)
-- [Using a broken or risky cryptographic algorithm](https://owasp.org/www-community/vulnerabilities/Using_a_broken_or_risky_cryptographic_algorithm)
+- [NIST FIPS标准](https://csrc.nist.gov/publications/fips)
+- [维基百科：初始化向量](https://en.wikipedia.org/wiki/Initialization_vector)
+- [安全编码 - 生成强随机数](https://www.securecoding.cert.org/confluence/display/java/MSC02-J.+Generate+strong+random+numbers)
+- [最优非对称加密填充](https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding)
+- [密码存储速查表](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)
+- [密码存储速查表](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+- [安全编码 - 不使用不安全或弱密码算法](https://www.securecoding.cert.org/confluence/display/java/MSC61-J.+Do+not+use+insecure+or+weak+cryptographic+algorithms)
+- [不安全随机性](https://owasp.org/www-community/vulnerabilities/Insecure_Randomness)
+- [熵不足](https://owasp.org/www-community/vulnerabilities/Insufficient_Entropy)
+- [会话ID长度不足](https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length)
+- [使用破碎或风险的密码算法](https://owasp.org/www-community/vulnerabilities/Using_a_broken_or_risky_cryptographic_algorithm)
 - [Javax.crypto.cipher API](https://docs.oracle.com/javase/8/docs/api/javax/crypto/Cipher.html)
-- ISO 18033-1:2015 – Encryption Algorithms
-- ISO 18033-2:2015 – Asymmetric Ciphers
-- ISO 18033-3:2015 – Block Ciphers
+- ISO 18033-1:2015 – 加密算法
+- ISO 18033-2:2015 – 非对称密码
+- ISO 18033-3:2015 – 分组密码

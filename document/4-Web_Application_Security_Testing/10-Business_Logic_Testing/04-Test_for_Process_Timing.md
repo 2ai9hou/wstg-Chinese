@@ -1,56 +1,56 @@
-# Test for Process Timing
+# 测试流程时序
 
 |ID          |
 |------------|
 |WSTG-BUSL-04|
 
-## Summary
+## 概述
 
-It is possible that attackers can gather information on an application by monitoring the time it takes to complete a task or give a response. Additionally, attackers may be able to manipulate and break designed business process flows by simply keeping active sessions open and not submitting their transactions in the "expected" time frame.
+攻击者可能通过监控应用程序完成某项任务或给出响应所需的时间来收集信息。此外，攻击者可能能够通过简单保持活动会话开放且不在"预期"时间范围内提交交易来操纵和破坏设计的业务流程流程。
 
-Process timing logic vulnerabilities are unique in that these manual misuse cases should be created considering execution and transaction timing that are application/system specific.
+流程时序逻辑漏洞是独特的，因为这些手动误用例应考虑执行和事务时序，这些是特定于应用程序/系统的。
 
-Processing timing may give/leak information on what is being done in the application/system background processes. If an application allows users to guess what the particular next outcome will be by processing time variations, users will be able to adjust accordingly and change behavior based on the expectation and "game the system".
+处理时序可能泄露/泄露有关应用程序/系统后台进程正在做什么的信息。如果应用程序允许用户通过处理时间变化猜测特定的下一个结果，用户将能够相应地调整并根据预期"玩弄系统"来改变行为。
 
-### Example 1
+### 示例1
 
-Video gambling/slot machines may take longer to process a transaction just prior to a large payout. This would allow astute gamblers to gamble minimum amounts until they see the long process time which would then prompt them to bet the maximum.
+视频赌博/老虎机在大型派彩之前可能需要更长时间来处理交易。这将允许精明的赌徒在看到长处理时间之前以最小金额赌博，这将提示他们下最大赌注。
 
-### Example 2
+### 示例2
 
-Many system log on processes ask for the username and password. If you look closely you may be able to see that entering an invalid username and invalid user password takes more time to return an error than entering a valid username and invalid user password. This may allow the attacker to know if they have a valid username and not need to rely on the GUI message.
+许多系统登录进程要求输入用户名和密码。如果你仔细观察，你可能会发现，输入无效用户名和无效用户密码比输入有效用户名和无效用户密码返回错误需要更长时间。这可能允许攻击者知道他们有一个有效的用户名，而不需要依赖GUI消息。
 
-![Example Control Flow of Login Form](images/Control_Flow_of_Login_Form.jpg)\
-*Figure 4.10.4-1: Example Control Flow of Login Form*
+![登录表单控制流示例](images/Control_Flow_of_Login_Form.jpg)\
+*图4.10.4-1：登录表单控制流示例*
 
-### Example 3
+### 示例3
 
-Most Arenas or travel agencies have ticketing applications that allow users to purchase tickets and reserve seats. When the user requests the tickets, seats they pick are locked or reserved pending payment. What if an attacker keeps reserving seats but not checking out? Will the seats be released, or will no tickets be sold? Some ticket vendors now only allow users 5 minutes to complete a transaction or the transaction is invalidated.
+大多数竞技场或旅行社都有票务应用程序，允许用户购买门票和预订座位。当用户请求门票时，他们选择的座位被锁定或保留以待付款。如果攻击者继续预订座位但不结账，会发生什么？座位会被释放，还是不售票？一些票务供应商现在只允许用户5分钟完成交易，否则交易无效。
 
-### Example 4
+### 示例4
 
-Suppose a precious metals e-commerce site allows users to make purchases with a price quote based on market price at the time they log on. What if an attacker logs on and places an order but does not complete the transaction until later in the day only if the price of the metals goes up? Will the attacker get the initial lower price?
+假设一个贵金属电子商务网站允许用户根据登录时的市场价格进行购买报价。如果攻击者登录并下单，但在当天晚些时候仅在金属价格上涨时才完成交易，会发生什么？攻击者会获得初始较低价格吗？
 
-## Test Objectives
+## 测试目标
 
-- Review the project documentation for system functionality that may be impacted by time.
-- Develop and execute misuse cases.
+- 审查可能受时间影响的系统功能文档。
+- 开发和执行误用例。
 
-## How to Test
+## 如何测试
 
-The tester should identify which processes are dependent on time, whether it was a window for a task to be completed, or if it was execution time between two processes that could allow the bypass of certain controls.
+测试人员应识别哪些流程依赖于时间，无论是完成任务的时间窗口，还是两个流程之间的执行时间都可能允许绕过某些控制。
 
-Following that, it is best to automate the requests that will abuse the above discovered processes, as tools are better fit to analyze the timing and are more precise than manual testing. If this is not possible, manual testing could still be used.
+之后，最好将滥用上述发现流程的请求自动化，因为工具更适合分析时序，比手动测试更精确。如果不可能，手动测试仍然可以使用。
 
-The tester should draw a diagram of how the process flows, the injection points, and prepare the requests before hand to launch them at the vulnerable processes. Once done, close analysis should be done to identify differences in the process execution, and if the process is misbehaving against the agreed upon business logic.
+测试人员应绘制流程如何流动、注入点的图表，并在发起攻击之前准备请求。完成后，应进行深入分析以识别流程执行的差异，以及流程是否与约定的业务逻辑不符。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for Cookies Attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)
-- [Test Session Timeout](../06-Session_Management_Testing/07-Testing_Session_Timeout.md)
+- [测试Cookie属性](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)
+- [测试会话超时](../06-Session_Management_Testing/07-Testing_Session_Timeout.md)
 
-## Remediation
+## 修复
 
-Develop applications with processing time in mind. If attackers could possibly gain some type of advantage from knowing the different processing times and results add extra steps or processing so that no matter the results they are provided in the same time frame.
+开发应用程序时要考虑处理时间。如果攻击者可能通过知道不同的处理时间和结果获得某种优势，请添加额外步骤或处理，以便无论结果如何，都可以在相同的时间范围内提供给他们。
 
-Additionally, the application/system must have mechanism in place to not allow attackers to extend transactions over an "acceptable" amount of time. This may be done by canceling or resetting transactions after a specified amount of time has passed like some ticket vendors are now using.
+此外，应用程序/系统必须有机制不允许攻击者将交易延长到"可接受的"时间量。这可以通过在指定时间过去后取消或重置交易来完成，就像一些票务供应商现在使用的那样。

@@ -1,69 +1,69 @@
-# Test Business Logic Data Validation
+# 测试业务逻辑数据验证
 
 |ID          |
 |------------|
 |WSTG-BUSL-01|
 
-## Summary
+## 概述
 
-The application must ensure that only logically valid data can be entered at the frontend as well as directly to the server-side of an application or system. Only verifying data on the client/frontend may leave applications vulnerable to server injections through proxies or at handoffs with other systems. This is different from simply performing Boundary Value Analysis (BVA) in that it is more difficult and in most cases cannot be simply verified at the entry point, but usually requires checking some other system.
+应用程序必须确保只能在前端输入逻辑上有效的数据，以及直接输入到应用程序或系统的服务器端。仅在客户端/前端验证数据可能通过代理或在与应用其他系统的交接处使应用程序容易受到服务器注入。这与简单执行边界值分析（BVA）不同，因为它更困难，在大多数情况下不能仅在入口点验证，但通常需要检查其他一些系统。
 
-For example: An application may ask for your Social Security Number. In BVA, the application should check formats and semantics (is the value 9 digits long, not negative, and not all 0's) for the data entered, but there are logic considerations also. SSNs are grouped and categorized. Is this person on a death file? Are they from a certain part of the country?
+例如：应用程序可能要求您输入社会安全号码。在BVA中，应用程序应检查所输入数据的格式和语义（值是否为9位数字、非负数、不是全0），但也有逻辑考虑。SSN是分组和分类的。这个人是否在死亡档案中？他们来自该国的某个地区吗？
 
-Vulnerabilities related to business data validation is unique in that they are application specific and different from the vulnerabilities related to forging requests in that they are more concerned about logical data as opposed to simply breaking the business logic workflow.
+与业务数据验证相关的漏洞是独特的，因为它们是特定于应用程序的，不同于与请求伪造相关的漏洞，因为它们更关注逻辑数据，而不是简单地破坏业务逻辑工作流。
 
-The frontend and the backend of the application should be verifying and validating that the data it has, is using, and is passing along is logically valid. Even if the user provides valid data to an application the business logic may make the application behave differently depending on data or circumstances.
+应用程序的前端和后端应验证和验证它拥有、使用和传递的数据在逻辑上是有效的。即使用户向应用程序提供了有效数据，业务逻辑也可能根据数据或情况使应用程序表现不同。
 
-### Example 1
+### 示例1
 
-Suppose you manage a multi-tiered e-commerce site that allows users to order carpet. The user selects their carpet, enters the size, makes the payment, and the frontend application has verified that all entered information is correct and valid for contact information, size, make and color of the carpet. But, the business logic in the background has two paths, if the carpet is in stock it is directly shipped from your warehouse, but if it is out of stock in your warehouse a call is made to a partner’s system and if they have it in-stock they will ship the order from their warehouse and reimbursed by them. What happens if an attacker is able to continue a valid in-stock transaction and send it as out-of-stock to your partner? What happens if an attacker is able to get in the middle and send messages to the partner warehouse ordering carpet without payment?
+假设您管理一个允许用户订购地毯的多层电子商务网站。用户选择地毯，输入尺寸，付款，前端应用程序已验证所有输入的联系信息、尺寸、地毯品牌和颜色的信息都正确有效。但是，后台业务逻辑有两条路径，如果地毯有库存，则直接从您的仓库发货，但如果您仓库缺货，则会向合作伙伴的系统发出调用，如果他们有库存，他们将从他们的仓库发货并由他们报销。如果攻击者能够继续有效库存交易并将其作为缺货发送给您的合作伙伴，会发生什么？如果攻击者能够中间人并向合作伙伴仓库发送无付款的地毯订单，会发生什么？
 
-### Example 2
+### 示例2
 
-Many credit card systems are now downloading account balances nightly so the customers can check out more quickly for amounts under a certain value. The inverse is also true. If I pay my credit card off in the morning I may not be able to use the available credit in the evening. Another example may be if I use my credit card at multiple locations very quickly it may be possible to exceed my limit if the systems are basing decisions on last night’s data.
+许多信用卡系统现在每晚下载账户余额，以便客户可以更快地结账购买一定金额以下的商品。反之亦然。如果我在早上还清信用卡，晚上可能无法使用可用信用。另一个例子可能是，如果我在多个地点非常快地使用信用卡，如果系统基于昨晚的数据做出决策，我可能会超出限额。
 
-### Example 3
+### 示例3
 
-**[Distributed Denial of Dollar (DDo$)](https://news.hitb.org/content/pirate-bay-proposes-distributed-denial-dollars-attack-ddo):**
-This was a campaign that was proposed by the founder of the site "The Pirate Bay" against the law firm who brought prosecutions against "The Pirate Bay". The goal was to take advantage of errors in the design of business features and in the process of credit transfer validation.
+**[分布式拒绝美元 (DDo$)](https://news.hitb.org/content/pirate-bay-proposes-distributed-denial-dollars-attack-ddo)：**
+这是该网站创始人针对提起诉讼的律师事务所发起的运动。目标是利用信用转移验证业务功能设计和流程中的错误。
 
-This attack was performed by sending very small amounts of money of 1 SEK ($0.13 USD) to the law firm.
-The bank account to which the payments were directed had only 1000 free transfers, after which any transfers have a surcharge for the account holder (2 SEK). After the first thousand internet transactions every 1 SEK donation to the law firm will actually end up costing it 1 SEK instead.
+这次攻击是通过向律师事务所发送非常小额的1瑞典克朗（0.13美元）款项来执行的。
+收款银行账户只有1000次免费转账，超出后账户持有人需支付额外费用（2瑞典克朗）。在前一千次互联网交易后，每次向律师事务所捐赠1瑞典克朗实际上会让它花费1瑞典克朗。
 
-## Test Objectives
+## 测试目标
 
-- Identify data injection points.
-- Validate that all checks are occurring on the backend and can't be bypassed.
-- Attempt to break the format of the expected data and analyze how the application is handling it.
+- 识别数据注入点。
+- 验证所有检查都在后端进行，不能被绕过。
+- 尝试打破预期数据的格式并分析应用程序如何处理它。
 
-## How to Test
+## 如何测试
 
-### Generic Test Method
+### 通用测试方法
 
-- Review the project documentation and use exploratory testing looking for data entry points or hand off points between systems or software.
-- Once found try to insert logically invalid data into the application/system.
-Specific Testing Method:
-- Perform frontend GUI Functional Valid testing on the application to ensure that the only "valid" values are accepted.
-- Using an intercepting proxy observe the HTTP POST/GET looking for places that variables such as cost and quantity are passed. Specifically, look for "hand-offs" between application/systems that may be possible injection or tamper points.
-- Once variables are found start interrogating the field with logically "invalid" data, such as social security numbers or unique identifiers that do not exist or that do not fit the business logic. This testing verifies that the server functions properly and does not accept logically invalid data.
+- 审查项目文档，使用探索性测试寻找数据入口点或系统或软件之间的交接点。
+- 找到后，尝试向应用程序/系统插入逻辑上无效的数据。
+特定测试方法：
+- 对应用程序执行前端GUI功能有效测试，以确保仅接受"有效"值。
+- 使用拦截代理观察HTTP POST/GET，寻找可能传递成本和数量等变量的位置。特别寻找应用/系统之间可能成为注入或篡改点的"交接"。
+- 找到变量后，开始用逻辑上"无效"的数据询问字段，如社会安全号码或不存在或不符合业务逻辑的唯一标识符。此测试验证服务器功能正常，不接受逻辑上无效的数据。
 
-## Related Test Cases
+## 相关测试用例
 
-- All [Input Validation](../07-Input_Validation_Testing/README.md) test cases.
-- [Testing for Account Enumeration and Guessable User Account](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md).
-- [Testing for Bypassing Session Management Schema](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md).
-- [Testing for Exposed Session Variables](../06-Session_Management_Testing/04-Testing_for_Exposed_Session_Variables.md).
+- 所有[输入验证](../07-Input_Validation_Testing/README.md)测试用例。
+- [测试账户枚举和可猜测用户账户](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)。
+- [测试绕过会话管理模式](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md)。
+- [测试暴露的会话变量](../06-Session_Management_Testing/04-Testing_for_Exposed_Session_Variables.md)。
 
-## Remediation
+## 修复
 
-The application/system must ensure that only "logically valid" data is accepted at all input and hand off points of the application or system and data is not simply trusted once it has entered the system.
+应用程序/系统必须确保仅在应用程序或系统的所有输入和交接点接受"逻辑有效"数据，并且数据一旦进入系统就不会被简单信任。
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
 
-## References
+## 参考资料
 
-- [OWASP Proactive Controls (C5) - Validate All Inputs](https://owasp.org/www-project-proactive-controls/v3/en/c5-validate-inputs)
-- [OWASP Cheat Sheet Series - Input_Validation_Cheat_Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
+- [OWASP主动控制 (C5) - 验证所有输入](https://owasp.org/www-project-proactive-controls/v3/en/c5-validate-inputs)
+- [OWASP速查表系列 - Input_Validation_Cheat_Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)

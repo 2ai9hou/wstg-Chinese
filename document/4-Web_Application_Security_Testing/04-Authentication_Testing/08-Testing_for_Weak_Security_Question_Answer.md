@@ -1,70 +1,71 @@
-# Testing for Weak Security Question Answer
+# 测试弱安全问题答案
 
 |ID          |
 |------------|
 |WSTG-ATHN-08|
 
-## Summary
+## 概述
 
-Often called "secret" questions and answers, security questions and answers are often used to recover forgotten passwords (see [Testing for weak password change or reset functionalities](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md), or as extra security on top of the password.
+通常被称为"秘密"问题和答案，安全问题和答案通常用于恢复忘记的密码（请参阅[测试弱密码更改或重置功能](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md)），或作为密码之上的额外安全措施。
 
-They are typically generated upon account creation and require the user to select from some pre-generated questions and supply an appropriate answer. They may allow the user to generate their own question and answer pairs. Both methods are prone to insecurities. Ideally, security questions should generate answers that are only known by the user, and not guessable or discoverable by anybody else. This is harder than it sounds.
-Security questions and answers rely on the secrecy of the answer. Questions and answers should be chosen so that the answers are only known by the account holder. However, although a lot of answers may not be publicly known, most of the questions that sites implement promote answers that are pseudo-private.
+它们通常在账户创建时生成，要求用户从一些预生成的问题中选择并提供适当的答案。它们可能允许用户生成自己的问答对。两种方法都有不安全的倾向。理想情况下，安全问题应该生成只有用户知道的答案，其他人无法猜测或发现。这比说起来更难。
 
-### Pre-generated Questions
+安全问题和答案依赖于答案的保密性。选择问题和答案的方式应该是只有账户持有人知道答案。然而，尽管很多答案可能不是众所周知的，但大多数网站实施的问题促进的答案是伪私密的。
 
-The majority of pre-generated questions are fairly simplistic in nature and can lead to insecure answers. For example:
+### 预生成的问题
 
-- The answers may be known to family members or close friends of the user, e.g. "What is your mother's maiden name?", "What is your date of birth?"
-- The answers may be easily guessable, e.g. "What is your favorite color?", "What is your favorite baseball team?"
-- The answers may be brute forcible, e.g. "What is the first name of your favorite high school teacher?" - the answer is probably on some easily downloadable lists of popular first names, and therefore a simple brute force attack can be scripted.
-- The answers may be publicly discoverable, e.g. "What is your favorite movie?" - the answer may easily be found on the user's social media profile page.
+大多数预生成的问题本质相当简单，可能导致不安全的答案。例如：
 
-### Self-generated Questions
+- 答案可能被用户家属或亲密的朋友知道，例如"你母亲的 maiden name 是什么？"、"你的出生日期是什么？"
+- 答案可能很容易猜测，例如"你最喜欢的颜色是什么？"、"你最喜欢的棒球队是什么？"
+- 答案可能是可暴力破解的，例如"你最喜欢的高中老师的名字是什么？"——答案可能在一些容易下载的名字列表中，因此可以编写简单的暴力破解脚本。
+- 答案可能是公开可发现的，例如"你最喜欢的电影是什么？"——答案可能很容易在用户的社交媒体资料页面上找到。
 
-The problem with having users to generate their own questions is that it allows them to generate very insecure questions, or even bypass the whole point of having a security question in the first place. Here are some real world examples that illustrate this point:
+### 用户生成的问题
 
-- "What is 1+1?"
-- "What is your username?"
-- "My password is S3curIty!"
+让用户生成他们自己的问题的问题是，它允许他们生成非常不安全的问题，甚至绕过安全问题的最初目的。以下是一些说明这一点的真实世界示例：
 
-## Test Objectives
+- "1+1 是多少？"
+- "你的用户名是什么？"
+- "我的密码是 S3curIty！"
 
-- Determine the complexity and how straight-forward the questions are.
-- Assess possible user answers and brute force capabilities.
+## 测试目标
 
-## How to Test
+- 确定问题的复杂性和直接程度。
+- 评估可能的用户答案和暴力破解能力。
 
-### Testing for Weak Pre-generated Questions
+## 如何测试
 
-Try to obtain a list of security questions by creating a new account or by following the "I don’t remember my password"-process. Try to generate as many questions as possible to get a good idea of the type of security questions that are asked. If any of the security questions fall in the categories described above, they are vulnerable to being attacked (guessed, brute-forced, available on social media, etc.).
+### 测试弱预生成问题
 
-### Testing for Weak Self-Generated Questions
+尝试通过创建新账户或遵循"我不记得密码"流程来获取安全问题列表。尝试生成尽可能多的问题，以了解所问的安全问题类型。如果任何安全问题属于上述类别，则容易受到攻击（被猜测、被暴力破解、在社交媒体上可用等）。
 
-Try to create security questions by creating a new account or by configuring your existing account’s password recovery properties. If the system allows the user to generate their own security questions, it is vulnerable to having insecure questions created. If the system uses the self-generated security questions during the forgotten password functionality and if usernames can be enumerated (see [Testing for Account Enumeration and Guessable User Account](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md), then it should be easy for the tester to enumerate a number of self-generated questions. It should be expected to find several weak self-generated questions using this method.
+### 测试弱用户生成问题
 
-### Testing for Brute-forcible Answers
+尝试通过创建新账户或配置现有账户的密码恢复属性来创建安全问题。如果系统允许用户生成他们自己的安全问题，则容易产生不安全的问题。如果系统在忘记密码功能中使用用户生成的安全问题，并且可以枚举用户名（请参阅[测试账户枚举和可猜测用户账户](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)），那么测试人员应该能够枚举一些用户生成的问题。应该预计使用这种方法会发现几个弱用户生成的问题。
 
-Use the methods described in [Testing for Weak lock out mechanism](03-Testing_for_Weak_Lock_Out_Mechanism.md) to determine if a number of incorrectly supplied security answers trigger a lockout mechanism.
+### 测试可暴力破解的答案
 
-The first thing to take into consideration when trying to exploit security questions is the number of questions that need to be answered. The majority of applications only need the user to answer a single question, whereas some critical applications may require the user to answer two or even more questions.
+使用[测试弱锁定机制](03-Testing_for_Weak_Lock_Out_Mechanism.md)中描述的方法来确定错误提供的安全问题答案数量是否会触发锁定机制。
 
-The next step is to assess the strength of the security questions. Could the answers be obtained by a simple Google search or with social engineering attack? As a penetration tester, here is a step-by-step walkthrough of exploiting a security question scheme:
+尝试利用安全问题时需要考虑的首要因素是需要回答的问题数量。大多数应用程序只需要用户回答一个问题，而一些关键应用程序可能需要用户回答两个甚至更多问题。
 
-- Does the application allow the end user to choose the question that needs to be answered? If so, focus on questions which have:
+下一步是评估安全问题的强度。答案可以通过简单的 Google 搜索或社会工程攻击获得吗？作为渗透测试人员，以下是利用安全问题的分步指南：
 
-    - A "public" answer; for example, something that could be find with a simple search-engine query.
-    - A factual answer such as a "first school" or other facts which can be looked up.
-    - Few possible answers, such as "what model was your first car". These questions would present the attacker with a short list of possible answers, and based on statistics the attacker could rank answers from most to least likely.
+- 应用程序是否允许最终用户选择需要回答的问题？如果是，关注具有以下特点的问题：
 
-- Determine how many guesses you have if possible.
-    - Does the password reset allow unlimited attempts?
-    - Is there a lockout period after X incorrect answers? Keep in mind that a lockout system can be a security problem in itself, as it can be exploited by an attacker to launch a Denial of Service against legitimate users.
-    - Pick the appropriate question based on analysis from the above points, and do research to determine the most likely answers.
+    - "公开"答案；例如，可以通过简单搜索引擎查询找到的内容。
+    - 事实性答案，如"第一所学校"或其他可以查阅的事实。
+    - 可能答案很少，例如"你第一辆车是什么型号"。这些问题会为攻击者提供可能的答案简短列表，攻击者可以根据统计数据对答案从最可能到最不可能进行排序。
 
-The key to successfully exploiting and bypassing a weak security question scheme is to find a question or set of questions which give the possibility of easily finding the answers. Always look for questions which can give you the greatest statistical chance of guessing the correct answer, if you are completely unsure of any of the answers. In the end, a security question scheme is only as strong as the weakest question.
+- 确定可能的猜测次数。
+    - 密码重置是否允许无限次尝试？
+    - 在 X 次错误答案后是否有锁定时期？请记住，锁定系统本身可能是一个安全问题，因为它可能被攻击者利用来对合法用户发起拒绝服务攻击。
+    - 根据以上分析选择适当的问题，并进行研究以确定最可能的答案。
 
-## References
+成功利用和绕过弱安全问题方案的关键是找到一个或一组能够轻松找到答案的问题。始终寻找能给你最大统计机会猜对答案的问题，如果你完全不确定任何答案的话。毕竟，一个安全问题方案的强度取决于最弱的问题。
+
+## 参考资料
 
 - [The Curse of the Secret Question](https://www.schneier.com/essay-081.html)
-- [The OWASP Security Questions Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Choosing_and_Using_Security_Questions_Cheat_Sheet.html)
+- [OWASP 安全问题速查表](https://cheatseries.owasp.org/cheatsheets/Choosing_and_Using_Security_Questions_Cheat_Sheet.html)

@@ -1,84 +1,84 @@
-# Testing for Padding Oracle
+# 测试填充Oracle
 
 |ID          |
 |------------|
 |WSTG-CRYP-02|
 
-## Summary
+## 概述
 
-A padding oracle is a function of an application which decrypts encrypted data provided by the client, e.g. internal session state stored on the client, and leaks the state of the validity of the padding after decryption. The existence of a padding oracle allows an attacker to decrypt encrypted data and encrypt arbitrary data without knowledge of the key used for these cryptographic operations. This can lead to leakage of sensitive data or to privilege escalation vulnerabilities, if integrity of the encrypted data is assumed by the application.
+填充oracle是应用程序的一个功能，它解密由客户端提供的加密数据，例如存储在客户端内部的会话状态，并泄露填充在解密后的有效性状态。填充oracle的存在允许攻击者在不知道用于这些加密操作的密钥的情况下解密加密数据和加密任意数据。这可能导致敏感数据泄露或权限提升漏洞，如果应用程序假定加密数据的完整性，则更是如此。
 
-Block ciphers encrypt data only in blocks of certain sizes. Block sizes used by common ciphers are 8 and 16 bytes. Data where the size doesn't match a multiple of the block size of the used cipher has to be padded in a specific manner so the decryptor is able to strip the padding. A commonly used padding scheme is PKCS#7. It fills the remaining bytes with the value of the padding length.
+分组密码仅以特定大小的块加密数据。常用密码使用的块大小为8和16字节。数据大小与所用密码的块大小不匹配时，必须以特定方式填充，以便解密器能够剥离填充。常用的填充方案是PKCS#7。它用填充长度的值填充剩余字节。
 
-### Example 1
+### 示例1
 
-If the padding has the length of 5 bytes, the byte value `0x05` is repeated five times after the plain text.
+如果填充长度为5字节，则明文后面重复五次字节值`0x05`。
 
-An error condition is present if the padding doesn't match the syntax of the used padding scheme. A padding oracle is present if an application leaks this specific padding error condition for encrypted data provided by the client. This can happen by exposing exceptions (e.g. `BadPaddingException` in Java) directly, by subtle differences in the responses sent to the client or by another side-channel like timing behavior.
+如果填充与所用填充方案的语法不匹配，则存在错误条件。如果应用程序泄露了为客户端提供的加密数据的特定填充错误条件，则存在填充oracle。这可以通过直接暴露异常（例如Java中的`BadPaddingException`）、向客户端发送的响应中的细微差异或像计时行为这样的另一侧信道来实现。
 
-Certain modes of operation of cryptography allow bit-flipping attacks, where flipping of a bit in the cipher text causes that the bit is also flipped in the plain text. Flipping a bit in the n-th block of CBC encrypted data causes that the same bit in the (n+1)-th block is flipped in the decrypted data. The n-th block of the decrypted cipher text is garbaged by this manipulation.
+某些密码操作模式允许位翻转攻击，其中密文的位翻转导致明文中的位也被翻转。在CBC加密数据的第n个块中翻转一位会导致解密数据中第(n+1)个块的同一位被翻转。第n个块的解密密文会被此操作弄乱。
 
-The padding oracle attack enables an attacker to decrypt encrypted data without knowledge of the encryption key and used cipher by sending skillful manipulated cipher texts to the padding oracle and observing of the results returned by it. This causes loss of confidentiality of the encrypted data. E.g. in the case of session data stored on the client-side the attacker can gain information about the internal state and structure of the application.
+填充oracle攻击使攻击者能够通过向填充oracle发送巧妙操作的密文并观察其返回的结果，在不知道加密密钥和所用密码的情况下解密加密数据。这导致加密数据的机密性丧失。例如，在存储在客户端的会话数据的情况下，攻击者可以获得有关应用程序内部状态和结构的信息。
 
-A padding oracle attack also enables an attacker to encrypt arbitrary plain texts without knowledge of the used key and cipher. If the application assumes that integrity and authenticity of the decrypted data is given, an attacker could be able to manipulate internal session state and possibly gain higher privileges.
+填充oracle攻击还允许攻击者在不知道所用密钥和密码的情况下加密任意明文。如果应用程序假定解密数据的完整性和真实性已给定，攻击者可能能够操纵内部会话状态并可能获得更高的权限。
 
-## Test Objectives
+## 测试目标
 
-- Identify encrypted messages that rely on padding.
-- Attempt to break the padding of the encrypted messages and analyze the returned error messages for further analysis.
+- 识别依赖填充的加密消息。
+- 尝试打破加密消息的填充并分析返回的错误消息以进行进一步分析。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-First the possible input points for padding oracles must be identified. Generally the following conditions must be met:
+首先必须识别填充oracle的可能输入点。通常必须满足以下条件：
 
-1. The data is encrypted. Good candidates are values which appear to be random.
-2. A block cipher is used. The length of the decoded (Base64 is used often) cipher text is a multiple of common cipher block sizes like 8 or 16 bytes. Different cipher texts (e.g. gathered by different sessions or manipulation of session state) share a common divisor in the length.
+1. 数据是加密的。好的候选对象是看起来随机的值。
+2. 使用了分组密码。解码的（通常使用Base64）密文长度是8或16字节等常见密码块大小的倍数。不同的密文（例如通过不同会话或会话状态操作收集的）共享长度中的公共除数。
 
-#### Example 2
+#### 示例2
 
-`Dg6W8OiWMIdVokIDH15T/A==` results after base64 decoding in `0e 0e 96 f0 e8 96 30 87 55 a2 42 03 1f 5e 53 fc`. This seems to be random and 16 byte long.
+`Dg6W8OiWMIdVokIDH15T/A==`在Base64解码后得到`0e 0e 96 f0 e8 96 30 87 55 a2 42 03 1f 5e 53 fc`。这看起来是随机的且为16字节长。
 
-If such an input value candidate is identified, the behavior of the application to bit-wise tampering of the encrypted value should be verified. Normally this base64 encoded value will include the initialization vector (IV) prepended to the cipher text. Given a plaintext *`p`* and a cipher with a block size *`n`*, the number of blocks will be *`b = ceil( length(p) / n)`*. The length of the encrypted string will be *`y=(b+1)*n`* due to the initialization vector. To verify the presence of the oracle, decode the string, flip the last bit of the second-to-last block *`b-1`* (the least significant bit of the byte at *`y-n-1`*), re-encode and send. Next, decode the original string, flip the last bit of the block *`b-2`* (the least significant bit of the byte at *`y-2*n-1`*), re-encode and send.
+如果识别出这样的输入值候选，应验证应用程序对加密值的按位篡改行为。通常，此Base64编码的值将包括预先添加到密文的初始化向量（IV）。给定明文*p*和块大小为*n*的密码，块的数量将是*b = ceil( length(p) / n)*。加密字符串的长度将是*y=(b+1)*n*（由于初始化向量）。要验证oracle的存在，解码字符串，翻转倒数第二个块*b-1*的最后一位（字节*y-n-1*的最低有效位），重新编码并发送。接下来，解码原始字符串，翻转块*b-2*的最后一位（字节*y-2*n-1*的最低有效位），重新编码并发送。
 
-If it is known that the encrypted string is a single block (the IV is stored on the server or the application is using a bad practice hardcoded IV), several bit flips must be performed in turn. An alternative approach could be to prepend a random block, and flip bits in order to make the last byte of the added block take all possible values (0 to 255).
+如果已知加密字符串是单个块（IV存储在服务器上或应用程序使用硬编码IV的不良做法），则必须依次执行多个位翻转。另一种方法可以是预先添加一个随机块，并按顺序翻转位，以使添加块的最后一个字节取所有可能的值（0到255）。
 
-The tests and the base value should at least cause three different states while and after decryption:
+测试和基值至少应在解密期间和之后导致三种不同的状态：
 
-- Cipher text gets decrypted, resulting data is correct.
-- Cipher text gets decrypted, resulting data is garbled and causes some exception or error handling in the application logic.
-- Cipher text decryption fails due to padding errors.
+- 密文被解密，结果数据正确。
+- 密文被解密，结果数据被破坏并导致应用程序逻辑中的某些异常或错误处理。
+- 由于填充错误，密文解密失败。
 
-Compare the responses carefully. Search especially for exceptions and messages which state that something is wrong with the padding. If such messages appear, the application contains a padding oracle. If the three different states described above are observable implicitly (different error messages, timing side-channels), there is a high probability that there is a padding oracle present at this point. Try to perform the padding oracle attack to ensure this.
+仔细比较响应。特别搜索声明填充有问题的异常和消息。如果出现此类消息，则应用程序包含填充oracle。如果上述三种不同状态可以隐式观察（不同的错误消息、计时侧信道），则很可能在此点存在填充oracle。尝试执行填充oracle攻击以确保这一点。
 
-##### Example 3
+##### 示例3
 
-- ASP.NET throws `System.Security.Cryptography.CryptographicException: Padding is invalid and cannot be removed.` if padding of a decrypted cipher text is broken.
-- In Java a `javax.crypto.BadPaddingException` is thrown in this case.
-- Decryption errors or similar can be possible padding oracles.
+- ASP.NET如果解密密文的填充损坏，则抛出`System.Security.Cryptography.CryptographicException: Padding is invalid and cannot be removed.`。
+- 在Java中，会抛出`javax.crypto.BadPaddingException`。
+- 解密错误或类似的可能是填充oracle。
 
-> A secure implementation will check for integrity and cause only two responses: `ok` and `failed`. There are no side channels which can be used to determine internal error states.
+> 安全实现将仅检查完整性并仅产生两种响应：`ok`和`failed`。没有可用于确定内部错误状态的侧信道。
 
-### Gray-Box Testing
+### 灰盒测试
 
-Verify that all places where encrypted data from the client, that should only be known by the server, is decrypted. The following conditions should be met by such code:
+验证所有客户端加密数据（服务器应该只知道）被解密的地方。这些代码应满足以下条件：
 
-1. The integrity of the cipher text should be verified by a secure mechanism, like HMAC or authenticated cipher operation modes like GCM or CCM.
-2. All error states while decryption and further processing are handled uniformly.
+1. 应通过安全机制（如HMAC或认证密码操作模式如GCM或CCM）验证密文的完整性。
+2. 解密和进一步处理期间的所有错误状态应统一处理。
 
-### Example 4
+### 示例4
 
-[Visualization of the decryption process](https://erlend.oftedal.no/blog/poet/)
+[解密过程可视化](https://erlend.oftedal.no/blog/poet/)
 
-## Tools
+## 工具
 
 - [Bletchley](https://code.blindspotsecurity.com/trac/bletchley)
 - [PadBuster](https://github.com/GDSSecurity/PadBuster)
 - [Poracle](https://github.com/iagox86/Poracle)
 - [python-paddingoracle](https://github.com/mwielgoszewski/python-paddingoracle)
 
-## References
+## 参考资料
 
-- [Wikipedia - Padding Oracle Attack](https://en.wikipedia.org/wiki/Padding_oracle_attack)
-- [Juliano Rizzo, Thai Duong, "Practical Padding Oracle Attacks"](https://www.usenix.org/event/woot10/tech/full_papers/Rizzo.pdf)
+- [维基百科 - 填充Oracle攻击](https://en.wikipedia.org/wiki/Padding_oracle_attack)
+- [Juliano Rizzo, Thai Duong, "实用的填充Oracle攻击"](https://www.usenix.org/event/woot10/tech/full_papers/Rizzo.pdf)

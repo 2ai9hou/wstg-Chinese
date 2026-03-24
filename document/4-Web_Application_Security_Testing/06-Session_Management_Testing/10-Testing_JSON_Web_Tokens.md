@@ -1,37 +1,37 @@
-# Testing JSON Web Tokens
+# 测试JSON Web令牌
 
 |ID          |
 |------------|
 |WSTG-SESS-10|
 
-## Summary
+## 概述
 
-JSON Web Tokens (JWTs) are cryptographically signed JSON tokens, intended to share claims between systems. They are frequently used as authentication or session tokens, particularly on REST APIs.
+JSON Web令牌（JWT）是加密签名的JSON令牌，旨在在系统之间共享声明。它们经常用作认证或会话令牌，特别是在REST API中。
 
-JWTs are a common source of vulnerabilities, both in how they are in implemented in applications, and in the underlying libraries. As they are used for authentication, a vulnerability can easily result in a complete compromise of the application.
+JWT是漏洞的常见来源，无论是在应用中的实现方式上，还是在底层库中。由于它们用于认证，漏洞很容易导致应用的完全危害。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether the JWTs expose sensitive information.
-- Determine whether the JWTs can be tampered with or modified.
+- 确定JWT是否暴露敏感信息。
+- 确定JWT是否可以被篡改或修改。
 
-## How to Test
+## 如何测试
 
-### Overview
+### 概述
 
-JWTs are made up of three components:
+JWT由三个组件组成：
 
-- The header
-- The payload (or body)
-- The signature
+- 头部
+- 负载（或正文）
+- 签名
 
-Each component is base64 encoded, and they are separated by periods (`.`). Note that the base64 encoding used in a JWT strips out the equals signs (`=`), so you may need to add these back in to decode the sections.
+每个组件都是base64编码的，它们用句点（`.`）分隔。请注意，JWT中使用的base64编码会去掉等号（`=`），因此您可能需要添加回来以解码各个部分。
 
-### Analyse the Contents
+### 分析内容
 
-#### Header
+#### 头部
 
-The header defines the type of token (typically `JWT`), and the algorithm used for the signature. An example decoded header is shown below:
+头部定义令牌类型（通常为`JWT`）和用于签名的算法。以下是解码头部的示例：
 
 ```json
 {
@@ -40,19 +40,19 @@ The header defines the type of token (typically `JWT`), and the algorithm used f
 }
 ```
 
-There are three main types of algorithms that are used to calculate the signatures:
+有三种主要类型的算法用于计算签名：
 
-| Algorithm | Description |
+| 算法 | 描述 |
 |-----------|-------------|
-| HSxxx | HMAC using a secret key and SHA-xxx. |
-| RSxxx and PSxxx | Public key signature using RSA. |
-| ESxxx | Public key signature using ECDSA. |
+| HSxxx | 使用密钥和SHA-xxx的HMAC。 |
+| RSxxx和PSxxx | 使用RSA的公钥签名。 |
+| ESxxx | 使用ECDSA的公钥签名。 |
 
-There are also a wide range of [other algorithms](https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms) which may be used for encrypted tokens (JWEs), although these are less common.
+还有广泛的其他算法范围，可能用于加密令牌（JWE），尽管这些不太常见。
 
-#### Payload
+#### 负载
 
-The payload of the JWT contains the actual data. An example payload is shown below:
+JWT的负载包含实际数据。以下是示例负载：
 
 ```json
 {
@@ -63,44 +63,44 @@ The payload of the JWT contains the actual data. An example payload is shown bel
 }
 ```
 
-The payload is it not usually encrypted, so review it to determine whether there is any sensitive of potentially inappropriate data included within it.
+负载通常不加密，因此请查看它以确定是否包含任何敏感的或不适当的数据。
 
-This JWT includes the username and administrative status of the user, as well as two standard claims (`iat` and `exp`). These claims are defined in [RFC 5719](https://tools.ietf.org/html/rfc7519#section-4.1), a brief summary of them is given in the table below:
+此JWT包含用户的用户名和管理状态，以及两个标准声明（`iat`和`exp`）。这些声明在[RFC 5719](https://tools.ietf.org/html/rfc7519#section-4.1)中定义，以下表格给出了简要总结：
 
-| Claim | Full Name | Description |
+| 声明 | 全名 | 描述 |
 |-------|-----------|-------------|
-| `iss` | Issuer | The identity of the party who issued the token. |
-| `iat` | Issued At | The Unix timestamp of when the token was issued. |
-| `nbf` | Not Before | The Unix timestamp of earliest date that the token can be used. |
-| `exp` | Expires | The Unix timestamp of when the token expires. |
+| `iss` | Issuer | 颁发令牌的一方的身份。 |
+| `iat` | Issued At | 令牌颁发时间的Unix时间戳。 |
+| `nbf` | Not Before | 令牌可以使用的最早日期的Unix时间戳。 |
+| `exp` | Expires | 令牌过期的时间的Unix时间戳。 |
 
-#### Signature
+#### 签名
 
-The signature is calculated using the algorithm defined in the JWT header, and then base64 encoded and appended to the token. Modifying any part of the JWT should cause the signature to be invalid, and the token to be rejected by the server.
+签名是使用JWT头部中定义的算法计算的，然后进行base64编码并附加到令牌。修改JWT的任何部分都会导致签名无效，并导致令牌被服务器拒绝。
 
-### Review Usage
+### 审查使用
 
-As well as being cryptographically secure itself, the JWT also needs to be stored and sent in a secure manner. This should include checks that:
+除了密码学安全本身之外，JWT还需要以安全的方式存储和发送。这应包括检查：
 
-- It is always [sent over encrypted (HTTPS) connections](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md).
-- If it is stored in a cookie, then it should be [marked with appropriate attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md).
+- 它始终通过加密（HTTPS）连接[发送](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md)。
+- 如果存储在Cookie中，则应[使用适当的属性标记](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)。
 
-The validity of the JWT should also be reviewed, based on the `iat`, `nbf` and `exp` claims, to determine that:
+还应基于`iat`、`nbf`和`exp`声明审查JWT的有效性，以确定：
 
-- The JWT has a reasonable lifespan for the application.
-- Expired tokens are rejected by the application.
+- JWT在应用中有合理的生命周期。
+- 应用拒绝过期的令牌。
 
-### Signature Verification
+### 签名验证
 
-One of the most serious vulnerabilities encountered with JWTs is when the application fails to validate that the signature is correct. This usually occurs when a developer uses a function such as the Node.js `jwt.decode()` function, which simply decodes the body of the JWT, rather than `jwt.verify()`, which verifies the signature before decoding the JWT.
+在使用JWT时遇到的最严重漏洞之一是应用未能验证签名是否正确。这通常发生在开发人员使用诸如Node.js的`jwt.decode()`函数之类的东西时，该函数只是解码JWT的主体，而不是`jwt.verify()`，后者在解码JWT之前验证签名。
 
-This can be easily tested for by modifying the body of the JWT without changing anything in the header or signature, submitting it in a request to see if the application accepts it.
+通过在不改带头部或签名中的任何内容的情况下修改JWT的主体，提交请求以查看应用是否接受它，可以轻松测试这一点。
 
-#### The None Algorithm
+#### None算法
 
-As well as the public key and HMAC-based algorithms, the JWT specification also defines a signature algorithm called `none`. As the name suggests, this means that there is no signature for the JWT, allowing it to be modified.
+除了公钥和基于HMAC的算法外，JWT规范还定义了一个名为`none`的签名算法。顾名思义，这意味着JWT没有签名，允许修改。
 
-This can be tested by modifying the signature algorithm (`alg`) in the JWT header to `none`, as shown in the example below:
+可以通过将JWT头部中的签名算法（`alg`）修改为`none`来测试，如下例所示：
 
 ```json
 {
@@ -109,51 +109,51 @@ This can be tested by modifying the signature algorithm (`alg`) in the JWT heade
 }
 ```
 
-The header and payload are then re-encoded with base64, and the signature is removed (leaving the trailing period). Using the header above, and the payload listed in the [payload](#payload) section, this would give the following JWT:
+然后，头部和负载使用base64重新编码，并删除签名（留下尾随句点）。使用上面的头部和[负载](#payload)部分中列出的负载，这将产生以下JWT：
 
 ```txt
 eyJhbGciOiAibm9uZSIsICJ0eXAiOiAiSldUIn0K.eyJ1c2VybmFtZSI6ImFkbWluaW5pc3RyYXRvciIsImlzX2FkbWluIjp0cnVlLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.
 ```
 
-Some implementations try and avoid this by explicitly blocking the use of the `none` algorithm. If this is done in a case-insensitive way, it may be possible to bypass by specifying an algorithm such as `NoNe`.
+一些实现通过明确阻止使用`none`算法来尝试避免这种情况。如果以不区分大小写的方式完成，则可能通过指定诸如`NoNe`之类的算法来绕过。
 
-#### ECDSA "Psychic Signatures"
+#### ECDSA "心理签名"
 
-A vulnerability was identified in Java version 15 to 18 where they did not correctly validate ECDSA signatures in some circumstances ([CVE-2022-21449](https://neilmadden.blog/2022/04/19/psychic-signatures-in-java/), known as "psychic signatures"). If one of these vulnerable versions is used to parse a JWT using the `ES256` algorithm, this can be used to completely bypass the signature verification by tampering the body and then replacing the signature with the following value:
+在Java版本15到18中发现了一个漏洞，它们在某些情况下没有正确验证ECDSA签名（[CVE-2022-21449](https://neilmadden.blog/2022/04/19/psychic-signatures-in-java/)，称为"心理签名"）。如果使用这些易受攻击的版本之一来使用`ES256`算法解析JWT，则可以通过篡改主体然后用以下值替换签名来完全绕过签名验证：
 
 ```txt
 MAYCAQACAQA
 ```
 
-Resulting in a JWT which looks something like this:
+生成的JWT看起来像这样：
 
 ```txt
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6InRydWUifQ.MAYCAQACAQA
 ```
 
-### Weak HMAC Keys
+### 弱HMAC密钥
 
-If the JWT is signed using a HMAC-based algorithm (such as HS256), the security of the signature is entirely reliant on the strength of the secret key used in the HMAC.
+如果JWT使用基于HMAC的算法（如HS256）签名，则签名的安全性完全依赖于HMAC中使用的密钥的强度。
 
-If the application is using off-the-shelf or open source software, the first step should be go investigate the code, and see whether there is default HMAC signing key that is used.
+如果应用使用现成的或开源软件，第一步应该是调查代码，看看是否有使用的默认HMAC签名密钥。
 
-If there isn't a default, then it may be possible to crack guess or brute-force they key. The simplest way to do this is to use the [crackjwt.py](https://github.com/Sjord/jwtcrack) script, which simply requires the JWT and a dictionary file.
+如果没有默认的，则可能猜测或暴力破解密钥。最简单的方法是使用[crackjwt.py](https://github.com/Sjord/jwtcrack)脚本，它只需要JWT和字典文件。
 
-A more powerful option is to convert the JWT into a format that can be used by [John the Ripper](https://github.com/openwall/john) using the [jwt2john.py](https://github.com/Sjord/jwtcrack/blob/master/jwt2john.py) script. John can then be used to carry out much more advanced attacks against the key.
+一个更强大的选项是将JWT转换为可用于[John the Ripper](https://github.com/openwall/john)的格式，使用[jwt2john.py](https://github.com/Sjord/jwtcrack/blob/master/jwt2john.py)脚本。然后John可以用来对密钥进行更高级的攻击。
 
-If the JWT is large, it may exceed the maximum size supported by John. This can be worked around by increasing the value of the `SALT_LIMBS` variable in `/src/hmacSHA256_fmt_plug.c` (or the equivalent file for other HMAC formats) and recompiling John, as discussed in the following [GitHub issue](https://github.com/openwall/john/issues/1904).
+如果JWT很大，它可能超过John支持的最大大小。可以通过增加`/src/hmacSHA256_fmt_plug.c`中（或对于其他HMAC格式的等效文件）的`SALT_LIMBS`变量值并重新编译John来解决这个问题，如以下[GitHub问题](https://github.com/openwall/john/issues/1904)中所讨论的。
 
-If this key can be obtained, then it is possible to create and sign arbitrary JWTs, which usually results in a complete compromise of the application.
+如果可以获得此密钥，则可以创建和签名任意JWT，这通常会导致应用的完全危害。
 
-### HMAC vs Public Key Confusion
+### HMAC与公钥混淆
 
-If the application uses JWTs with public key based signatures, but does not check that the algorithm is correct, this can potentially exploit this in a signature type confusion attack. In order for this to be successful, the following conditions need to be met:
+如果应用使用带有公钥签名的JWT，但不检查算法是否正确，这可能会在签名类型混淆攻击中被利用。为了使其成功，需要满足以下条件：
 
-1. The application must expect the JWT to be signed with a public key based algorithm (i.e, `RSxxx` or `ESxxx`).
-2. The application must not check which algorithm the JWT is actually using for the signature.
-3. The public key used to verify the JWT must be available to the attacker.
+1. 应用必须期望JWT使用基于公钥的算法（即`RSxxx`或`ESxxx`）签名。
+2. 应用不得检查JWT实际使用哪种算法进行签名。
+3. 用于验证JWT的公钥必须可供攻击者使用。
 
-If all of these conditions are true, then an attacker can use the public key to sign the JWT using a HMAC based algorithm (such as `HS256`). For example, the [Node.js jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) library uses the same function for both public key and HMAC based tokens, as shown in the example below:
+如果所有这些条件都成立，则攻击者可以使用公钥使用基于HMAC的算法（如`HS256`）对JWT进行签名。例如，[Node.js jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)库对公钥和基于HMAC的令牌使用相同的函数，如下所示：
 
 ```javascript
 // Verify a JWT signed using RS256
@@ -163,33 +163,33 @@ jwt.verify(token, publicKey);
 jwt.verify(token, secretKey);
 ```
 
-This means that if the JWT is signed using `publicKey` as a secret key for the `HS256` algorithm, the signature will be considered valid.
+这意味着如果JWT使用`publicKey`作为`HS256`算法的密钥进行签名，则签名将被视为有效。
 
-In order to exploit this issue, the public key must be obtained. The most common way this can happen is if the application re-uses the same key for both signing JWTs and as part of the TLS certificate. In this case, the key can be downloaded from the server using a command such as the following:
+为了利用此问题，必须获取公钥。最常见的情况是应用将同一密钥用于签名JWT和作为TLS证书的一部分。在这种情况下，可以使用以下命令从服务器下载密钥：
 
 ```sh
 openssl s_client -connect example.org:443 | openssl x509 -pubkey -noout
 ```
 
-Alternatively, the key may be available from a public file on the site at a common location such as `/.well-known/jwks.json`.
+或者，密钥可能以公共文件的形式在站点的常见位置提供，例如`/.well-known/jwks.json`。
 
-In order to test this, modify the contents of the JWT, and then use the previously obtained public key to sign the JWT using the `HS256` algorithm. This is often difficult to perform when testing without access to the source code or implementation details, because the format of the key must be identical to the one used by the server, so issues such as empty space or CRLF encoding may result in the keys not matching.
+为了测试这个，修改JWT的内容，然后使用先前获取的公钥使用`HS256`算法对JWT进行签名。当在没有访问源代码或实现细节的情况下进行测试时，这通常很困难，因为密钥的格式必须与服务器使用的格式完全相同，因此诸如空格或CRLF编码等问题可能导致密钥不匹配。
 
-### Attacker Provided Public Key
+### 攻击者提供的公钥
 
-The [JSON Web Signature (JWS) standard](https://tools.ietf.org/html/rfc7515) (which defines the header and signatures used by JWTs) allows the key used to sign the token to be embedded in the header. If the library used to validate the token supports this, and doesn't check the key against a list of approved keys, this allows an attacker to sign an JWT with an arbitrary key that they provide.
+[JSON Web Signature (JWS)标准](https://tools.ietf.org/html/rfc7515)（定义JWT使用的头部和签名）允许将用于签名令牌的密钥嵌入头部。如果用于验证令牌的库支持此功能，并且不将密钥与已批准密钥列表进行检查，则允许攻击者使用他们提供的任意密钥对JWT进行签名。
 
-There are a variety of scripts that can be used to do this, such as [jwk-node-jose.py](https://github.com/zi0Black/POC-CVE-2018-0114) or [jwt_tool](https://github.com/ticarpi/jwt_tool).
+有各种脚本可用于执行此操作，例如[jwk-node-jose.py](https://github.com/zi0Black/POC-CVE-2018-0114)或[jwt_tool](https://github.com/ticarpi/jwt_tool)。
 
-### Key ID (kid) Manipulation
+### 密钥ID（kid）操作
 
-The `kid` header parameter is typically used to retrieve the key needed to verify the signature from a file system or database. It can be vulnerable to several injection attacks.
+`kid`头参数通常用于从文件系统或数据库检索验证签名所需的密钥。它可能容易受到多种注入攻击。
 
-#### Directory Traversal
+#### 目录遍历
 
-If the application uses the `kid` parameter to read a key file from the filesystem, an attacker might specify a path to a known empty file, such as `../../../../dev/null` (on Linux) or `nul` (on Windows).
+如果应用使用`kid`参数从文件系统读取密钥文件，攻击者可能会指定一个已知的空文件路径，例如`../../../../dev/null`（在Linux上）或`nul`（在Windows上）。
 
-For example, an attacker can modify the header to point to an empty file:
+例如，攻击者可以修改头部以指向一个空文件：
 
 ```json
 {
@@ -199,13 +199,13 @@ For example, an attacker can modify the header to point to an empty file:
 }
 ```
 
-Since the content of `/dev/null` is empty, the attacker can then sign the malicious token using an **empty string** as the secret key. If the server is vulnerable, it will read the empty file, use the empty string to verify the signature, and accept the forged token.
+由于`/dev/null`的内容为空，攻击者可以使用**空字符串**作为密钥对恶意令牌进行签名。如果服务器易受攻击，它将读取空文件，使用空字符串验证签名，并接受伪造的令牌。
 
-#### Command/SQL Injection
+#### 命令/SQL注入
 
-If the `kid` is passed unsanitized to a database query or a system command to retrieve the key, it may be vulnerable to SQL Injection or Command Injection.
+如果`kid`未经过滤地传递到数据库查询或系统命令以检索密钥，则可能容易受到SQL注入或命令注入的影响。
 
-For example, an attacker can inject a SQL payload into the `kid` parameter to control the key returned by the database:
+例如，攻击者可以将SQL有效负载注入`kid`参数，以控制数据库返回的密钥：
 
 ```json
 {
@@ -215,24 +215,24 @@ For example, an attacker can inject a SQL payload into the `kid` parameter to co
 }
 ```
 
-This allows an attacker to force the application to use a known key (e.g., "attacker-controlled-key") for verification, enabling them to forge valid tokens.
+这允许攻击者强制应用使用已知密钥（例如"attacker-controlled-key"）进行验证，使他们能够伪造有效令牌。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for Sensitive Information Sent via Unencrypted Channels](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md).
-- [Testing for Cookie Attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md).
-- [Testing Browser Storage](../11-Client-side_Testing/12-Testing_Browser_Storage.md).
+- [测试通过未加密通道发送的敏感信息](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md)。
+- [测试Cookie属性](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)。
+- [测试浏览器存储](../11-Client-side_Testing/12-Testing_Browser_Storage.md)。
 
-## Remediation
+## 修复方案
 
-- Use a secure and up to date library to handle JWTs.
-- Ensure that the signature is valid, and that it is using the expected algorithm.
-- Use a strong HMAC key or a unique private key to sign them.
-- Ensure that there is no sensitive information exposed in the payload.
-- Ensure that JWTs are securely stored and transmitted.
-- See the [OWASP JSON Web Tokens Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html).
+- 使用安全且最新的库来处理JWT。
+- 确保签名有效，并且使用预期的算法。
+- 使用强HMAC密钥或唯一私钥进行签名。
+- 确保负载中没有敏感信息暴露。
+- 确保JWT被安全存储和传输。
+- 参阅[OWASP JSON Web令牌Java速查表](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)。
 
-## Tools
+## 工具
 
 - [John the Ripper](https://github.com/openwall/john)
 - [jwt2john](https://github.com/Sjord/jwtcrack)
@@ -240,7 +240,7 @@ This allows an attacker to force the application to use a known key (e.g., "atta
 - [JSON Web Tokens Burp Extension](https://portswigger.net/bappstore/f923cbf91698420890354c1d8958fee6)
 - [ZAP JWT Add-on](https://github.com/SasanLabs/owasp-zap-jwt-addon)
 
-## References
+## 参考资料
 
 - [RFC 7515 JSON Web Signature (JWS)](https://tools.ietf.org/html/rfc7515)
 - [RFC 7519 JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)

@@ -1,18 +1,18 @@
-# Testing for JavaScript Execution
+# 测试JavaScript执行
 
 |ID          |
 |------------|
 |WSTG-CLNT-02|
 
-## Summary
+## 概述
 
-A JavaScript injection vulnerability is a subtype of cross site scripting (XSS) that involves the ability to inject arbitrary JavaScript code that is executed by the application inside the victim's browser. This vulnerability can have many consequences, like the disclosure of a user's session cookies that could be used to impersonate the victim, or, more generally, it can allow the attacker to modify the page content seen by the victims or the application's behavior.
+JavaScript注入漏洞是跨站脚本（XSS）的一种子类型，涉及注入任意JavaScript代码的能力，这些代码由应用程序在受害者浏览器中执行。此漏洞可能有许多后果，例如泄露用户的会话Cookie，这些Cookie可用于模拟受害者，或者更一般情况下，它允许攻击者修改受害者看到的页面内容或应用程序的行为。
 
-JavaScript injection vulnerabilities can occur when the application lacks proper user-supplied input and output validation. As JavaScript is used to dynamically populate web pages, this injection occurs during this content processing phase and consequently affects the victim.
+当应用程序缺乏适当的用户提供的输入和输出验证时，可能发生JavaScript注入漏洞。由于JavaScript用于动态填充网页，因此在内容处理阶段发生此注入，并因此影响受害者。
 
-When testing for this vulnerability, consider that some characters are treated differently by different browsers. For reference, see [DOM-based XSS](https://owasp.org/www-community/attacks/DOM_Based_XSS).
+测试此漏洞时，请注意某些字符在不同浏览器中的处理方式不同。请参阅[基于DOM的XSS](https://owasp.org/www-community/attacks/DOM_Based_XSS)。
 
-Here is an example of a script that does not perform any validation of the variable `rr`. The variable contains user-supplied input via the query string, and additionally does not apply any form of encoding:
+这是不执行任何变量`rr`验证的脚本示例。该变量通过查询字符串接收用户提供的输入，此外不应用任何形式的编码：
 
 ```js
 var rr = location.search.substring(1);
@@ -21,17 +21,17 @@ if(rr) {
 }
 ```
 
-This implies that an attacker could inject JavaScript code simply by submitting the following query string: `www.victim.com/?javascript:alert(1)`.
+这意味着攻击者可以简单通过提交以下查询字符串来注入JavaScript代码：`www.victim.com/?javascript:alert(1)`。
 
-## Test Objectives
+## 测试目标
 
-- Identify sinks and possible JavaScript injection points.
+- 识别接收器和可能的JavaScript注入点。
 
-## How to Test
+## 如何测试
 
-Consider the following: [DOM XSS exercise](http://www.domxss.com/domxss/01_Basics/04_eval.html)
+考虑以下内容：[DOM XSS练习](http://www.domxss.com/domxss/01_Basics/04_eval.html)
 
-The page contains the following script:
+该页面包含以下脚本：
 
 ```html
 <script>
@@ -48,4 +48,4 @@ if(window.location.hash.indexOf('message')==-1) {
 </script>
 ```
 
-The above code contains a source `location.hash` that is controlled by the attacker that can inject directly in the `message` value a JavaScript Code to take the control of the user browser.
+上述代码包含一个可由攻击者控制的源`location.hash`，该源可以直接注入到`message`值中的JavaScript代码中，以获取对用户浏览器的控制。

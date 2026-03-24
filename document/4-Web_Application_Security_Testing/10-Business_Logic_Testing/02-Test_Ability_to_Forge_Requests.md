@@ -1,62 +1,62 @@
-# Test Ability to Forge Requests
+# 测试伪造请求的能力
 
 |ID          |
 |------------|
 |WSTG-BUSL-02|
 
-## Summary
+## 概述
 
-Forging requests is a method that attackers use to circumvent the frontend GUI application to directly submit information for backend processing. The goal of the attacker is to send HTTP POST/GET requests through an intercepting proxy with data values that are not supported, guarded against, or expected by the application's business logic. Some examples of forged requests include exploiting guessable or predictable parameters or exposing "hidden" features and functionality such as enabling debugging or presenting special screens or windows that are very useful during development but may leak information or bypass the business logic.
+伪造请求是攻击者用来规避前端GUI应用程序直接提交信息进行后端处理的方法。攻击者的目标是发送带有数据值的HTTP POST/GET请求，这些值不受应用程序业务逻辑的支持、保护或预期。伪造请求的一些示例包括利用可猜测或可预测的参数，或暴露"隐藏"功能和特性，如启用调试或呈现特殊屏幕或窗口，这些在开发过程中非常有用，但可能泄露信息或绕过业务逻辑。
 
-Vulnerabilities related to the ability to forge requests are unique to each application and different from business logic data validation in that its focus is on breaking the business logic workflow.
+与伪造请求能力相关的漏洞对每个应用程序都是独特的，与业务逻辑数据验证的不同之处在于其重点是破坏业务逻辑工作流。
 
-Applications should have logic checks in place to prevent the system from accepting forged requests that may allow attackers the opportunity to exploit the business logic, process, or flow of the application. Request forgery is nothing new; the attacker uses an intercepting proxy to send HTTP POST/GET requests to the application. Through request forgeries attackers may be able to circumvent the business logic or process by finding, predicting and manipulating parameters to make the application think a process or task has or has not taken place.
+应用程序应该有逻辑检查，以防止系统接受可能允许攻击者有机会利用应用程序的业务逻辑、流程或流程的伪造请求。请求伪造不是什么新鲜事；攻击者使用拦截代理向应用程序发送HTTP POST/GET请求。通过请求伪造，攻击者可能通过发现、预测和操作参数来绕过业务逻辑或流程，使应用程序认为某个流程或任务已经或尚未发生。
 
-Also, forged requests may allow subversion of programmatic or business logic flow by invoking "hidden" features or functionality such as debugging initially used by developers and testers sometimes referred to as an ["Easter egg"](https://en.wikipedia.org/wiki/Easter_egg_(media)). "An Easter egg is an intentional inside joke, hidden message, or feature in a work such as a computer program, movie, book, or crossword. According to game designer Warren Robinett, the term was coined at Atari by personnel who were alerted to the presence of a secret message which had been hidden by Robinett in his already widely distributed game, Adventure. The name has been said to evoke the idea of a traditional Easter egg hunt."
+此外，伪造请求可能通过调用"隐藏"功能或特性（如最初供开发人员和测试人员使用的调试功能）来允许颠覆程序化或业务逻辑流程，有时称为["复活节彩蛋"](https://en.wikipedia.org/wiki/Easter_egg_(media))。"复活节彩蛋是一种有意的内部笑话、隐藏消息或功能，如电脑程序、电影、书籍或纵横填字游戏等作品中。据游戏设计师Warren Robinett称，这个名字源于Atari公司人员Alert，他们注意到Robinett在他已经广泛分发的游戏《Adventure》中隐藏了一条秘密信息后出现。关于这个名字，有一种说法是唤起了传统复活节彩蛋狩猎的想法。"
 
-### Example 1
+### 示例1
 
-Suppose an e-commerce theater site allows users to select their ticket, apply a onetime 10% Senior discount on the entire sale, view the subtotal and tender the sale. If an attacker is able to see through a proxy that the application has a hidden field (of 1 or 0) used by the business logic to determine if a discount has been taken already or not. The attacker is then able to submit the 1 or "no discount has been taken" value multiple times to take advantage of the same discount multiple times.
+假设一个电子商务票务网站允许用户选择门票，在整个销售中应用一次性10%老年人折扣，查看小计并付款。如果攻击者能够通过代理看到应用程序有一个隐藏字段（1或0），业务逻辑用它来确定折扣是否已被采用。然后攻击者能够多次提交1或"未采取折扣"值，以多次利用相同的折扣。
 
-### Example 2
+### 示例2
 
-Suppose an online video game pays out tokens for points scored for finding pirate's treasure, pirates, and for each level completed. These tokens can later be exchanged for prizes. Additionally each level's points have a multiplier value equal to the level. If an attacker was able to see through a proxy that the application has a hidden field used during development and testing to quickly get to the highest levels of the game they could quickly get to the highest levels and accumulate unearned points quickly.
+假设一个在线视频游戏为找到海盗宝藏、海盗以及每个关卡完成的积分支付代币。这些代币以后可以兑换奖品。此外，每个关卡的积分有一个等于关卡级别的倍数值。如果攻击者能够通过代理看到应用程序在开发和测试过程中有一个隐藏字段，用于快速进入游戏的最高关卡，他们可以快速进入最高关卡并快速积累未获得的积分。
 
-Also, if an attacker was able to see through a proxy that the application has a hidden field used during development and testing to enable a log that indicated where other online players, or hidden treasures were in relation to the attacker, they would then be able to quickly go to these locations and score points.
+此外，如果攻击者能够通过代理看到应用程序有一个隐藏字段，用于在开发和测试期间启用日志，指示其他在线玩家或隐藏宝藏相对于攻击者的位置，他们将能够快速前往这些位置并得分。
 
-## Test Objectives
+## 测试目标
 
-- Review the project documentation looking for guessable, predictable, or hidden functionality of fields.
-- Insert logically valid data in order to bypass normal business logic workflow.
+- 审查项目文档，寻找可猜测、可预测或隐藏的字段功能。
+- 插入逻辑上有效的数据以绕过正常业务逻辑工作流。
 
-## How to Test
+## 如何测试
 
-### Through Identifying Guessable Values
+### 通过识别可猜测的值
 
-- Using an intercepting proxy observe the HTTP POST/GET looking for some indication that values are incrementing at a regular interval or are easily guessable.
-- If it is found that some value is guessable this value may be changed and one may gain unexpected visibility.
+- 使用拦截代理观察HTTP POST/GET，寻找一些值以规律间隔递增或容易猜测的指示。
+- 如果发现某个值是可猜测的，则可以更改该值，并且可以获得意外的可见性。
 
-### Through Identifying Hidden Options
+### 通过识别隐藏选项
 
-- Using an intercepting proxy observe the HTTP POST/GET looking for some indication of hidden features such as debug that can be switched on or activated.
-- If any are found try to guess and change these values to get a different application response or behavior.
+- 使用拦截代理观察HTTP POST/GET，寻找隐藏功能的指示，如可开启或激活的调试。
+- 如果发现任何，尝试猜测并更改这些值以获得不同的应用程序响应或行为。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for Exposed Session Variables](../06-Session_Management_Testing/04-Testing_for_Exposed_Session_Variables.md)
-- [Testing for Cross Site Request Forgery (CSRF)](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)
-- [Testing for Account Enumeration and Guessable User Account](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)
+- [测试暴露的会话变量](../06-Session_Management_Testing/04-Testing_for_Exposed_Session_Variables.md)
+- [测试跨站请求伪造 (CSRF)](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)
+- [测试账户枚举和可猜测用户账户](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)
 
-## Remediation
+## 修复
 
-The application must be smart enough and designed with business logic that will prevent attackers from predicting and manipulating parameters to subvert programmatic or business logic flow, or exploiting hidden/undocumented functionality such as debugging.
+应用程序必须足够智能，并设计有业务逻辑，防止攻击者预测和操作参数来颠覆程序化或业务逻辑流程，或利用隐藏/未记录的功能（如调试）。
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
 
-## References
+## 参考资料
 
-- [Easter egg](https://en.wikipedia.org/wiki/Easter_egg_(media))
-- [Top 10 Software Easter Eggs](https://lifehacker.com/371083/top-10-software-easter-eggs)
+- [复活节彩蛋](https://en.wikipedia.org/wiki/Easter_egg_(media))
+- [十大软件复活节彩蛋](https://lifehacker.com/371083/top-10-software-easter-eggs)

@@ -1,49 +1,49 @@
-# Testing for Session Puzzling
+# 测试会话 puzzle
 
 |ID          |
 |------------|
 |WSTG-SESS-08|
 
-## Summary
+## 概述
 
-Session Variable Overloading (also known as Session Puzzling) is an application level vulnerability which can enable an attacker to perform a variety of malicious actions, including but not limited to:
+会话变量重载（也称为会话puzzle）是一种应用级漏洞，可使攻击者执行各种恶意操作，包括但不限于：
 
-- Bypass efficient authentication enforcement mechanisms, and impersonate legitimate users.
-- Elevate the privileges of a malicious user account, in an environment that would otherwise be considered foolproof.
-- Skip over qualifying phases in multi-phase processes, even if the process includes all the commonly recommended code level restrictions.
-- Manipulate server-side values in indirect methods that cannot be predicted or detected.
-- Execute traditional attacks in locations that were previously unreachable, or even considered secure.
+- 绕过有效的认证 enforcement 机制，并冒充合法用户。
+- 在否则被认为是万无一失的环境中提升恶意用户账户的权限。
+- 跳过多阶段过程中的资格阶段，即使该过程包括所有通常推荐的代码级别限制。
+- 以无法预测或检测的间接方法操作服务器端值。
+- 在以前无法访问甚至被认为是安全的位置执行传统攻击。
 
-This vulnerability occurs when an application uses the same session variable for more than one purpose. An attacker can potentially access pages in an order unanticipated by the developers so that the session variable is set in one context and then used in another.
+当应用将同一会话变量用于多个目的时，会出现此漏洞。攻击者可能能够以开发人员未预期的顺序访问页面，从而使会话变量在一个上下文中设置，然后在另一个上下文中使用。
 
-For example, an attacker could use session variable overloading to bypass authentication enforcement mechanisms of applications that enforce authentication by validating the existence of session variables that contain identity–related values, which are usually stored in the session after a successful authentication process. This means an attacker first accesses a location in the application that sets session context and then accesses privileged locations that examine this context.
+例如，攻击者可以使用会话变量重载来绕过通过验证包含身份相关值的会话变量的存在来进行认证的应用的认证 enforcement 机制，这些变量通常在成功认证过程后存储在会话中。这意味着攻击者首先访问应用中的一个位置，该位置设置会话上下文，然后访问检查此上下文的特权位置。
 
-For example - an authentication bypass attack vector could be executed by accessing a publicly accessible entry point (e.g. a password recovery page) that populates the session with an identical session variable, based on fixed values or on user originating input.
+例如——可以通过访问公开可用的入口点（例如密码恢复页面）来执行认证绕过攻击向量，该入口点使用固定值或用户来源输入在会话中填充相同的会话变量。
 
-## Test Objectives
+## 测试目标
 
-- Identify all session variables.
-- Break the logical flow of session generation.
+- 识别所有会话变量。
+- 打破会话生成的逻辑流程。
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-This vulnerability can be detected and exploited by enumerating all of the session variables used by the application and in which context they are valid. In particular this is possible by accessing a sequence of entry points and then examining exit points. In case of black-box testing this procedure is difficult and requires some luck since every different sequence could lead to a different result.
+可以通过枚举应用使用的所有会话变量及其在哪些上下文中有效来检测和利用此漏洞。特别是，这可以通过访问一系列入口点然后检查出口点来实现。在黑盒测试的情况下，此过程很困难，需要一些运气，因为每个不同的序列可能导致不同的结果。
 
-#### Examples
+#### 示例
 
-A very simple example could be the password reset functionality that, in the entry point, could request the user to provide some identifying information such as the username or the email address. This page might then populate the session with these identifying values, which are received directly from the client-side, or obtained from queries or calculations based on the received input. At this point there may be some pages in the application that show private data based on this session object. In this manner the attacker could bypass the authentication process.
+一个非常简单的例子可能是密码重置功能，在入口点，可能要求用户提供一些身份信息，如用户名或电子邮件地址。然后，此页面可能使用从客户端直接接收的识别值或基于接收到的输入的查询或计算来在会话中填充这些识别值。此时，应用中可能有某些页面根据此会话对象显示私人数据。通过这种方式，攻击者可以绕过认证过程。
 
-### Gray-Box Testing
+### 灰盒测试
 
-The most effective way to detect these vulnerabilities is via a source code review.
+检测这些漏洞的最有效方法是通过源代码审查。
 
-## Remediation
+## 修复方案
 
-Session variables should only be used for a single consistent purpose.
+会话变量应该只用于一个一致的目的。
 
-## References
+## 参考资料
 
 - [Session Puzzles](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/puzzlemall/Session%20Puzzles%20-%20Indirect%20Application%20Attack%20Vectors%20-%20May%202011%20-%20Whitepaper.pdf)
 - [Session Puzzling and Session Race Conditions](https://sectooladdict.blogspot.com/2011/09/session-puzzling-and-session-race.html)

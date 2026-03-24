@@ -1,100 +1,100 @@
-# Testing for IMAP SMTP Injection
+# 测试IMAP SMTP注入
 
 |ID          |
 |------------|
 |WSTG-INPV-10|
 
-## Summary
+## 概述
 
-This threat affects all applications that communicate with mail servers (IMAP/SMTP), generally webmail applications. The aim of this test is to verify the capacity to inject arbitrary IMAP/SMTP commands into the mail servers, due to input data not being properly sanitized.
+此威胁影响所有与邮件服务器（IMAP/SMTP）通信的应用程序，通常是Webmail应用程序。此测试的目的是验证由于输入数据未正确清理而向邮件服务器注入任意IMAP/SMTP命令的能力。
 
-The IMAP/SMTP Injection technique is more effective if the mail server is not directly accessible from Internet. Where full communication with the backend mail server is possible, it is recommended to conduct direct testing.
+IMAP/SMTP注入技术在邮件服务器不能直接从Internet访问时更有效。在可以与后端邮件服务器进行完整通信的情况下，建议进行直接测试。
 
-An IMAP/SMTP Injection makes it possible to access a mail server which otherwise would not be directly accessible from the Internet. In some cases, these internal systems do not have the same level of infrastructure security and hardening that is applied to the front-end web servers. Therefore, mail server results may be more vulnerable to attacks by end users (see the scheme presented in Figure 1).
+IMAP/SMTP注入可以访问否则不能从Internet直接访问的邮件服务器。在某些情况下，这些内部系统没有与前端Web服务器相同的基础设施安全和强化级别。因此，邮件服务器结果可能更容易受到最终用户的攻击（请参阅图1中呈现的方案）。
 
-![IMAP SMTP Injection](images/Imap-smtp-injection.png)\
-*Figure 4.7.10-1: Communication with the mail servers using the IMAP/SMTP Injection technique*
+![IMAP SMTP注入](images/Imap-smtp-injection.png)\
+*图4.7.10-1：使用IMAP/SMTP注入技术与邮件服务器通信*
 
-Figure 1 depicts the flow of traffic generally seen when using webmail technologies. Step 1 and 2 is the user interacting with the webmail client, whereas step 2 is the tester bypassing the webmail client and interacting with the back-end mail servers directly.
+图1描述了使用Webmail技术时通常看到的流量。步骤1和2是用户与Webmail客户端交互，而步骤2是测试人员绕过Webmail客户端直接与后端邮件服务器交互。
 
-This technique allows a wide variety of actions and attacks. The possibilities depend on the type and scope of injection and the mail server technology being tested.
+此技术允许各种操作和攻击。可能性取决于注入的类型和范围以及正在测试的邮件服务器技术。
 
-Some examples of attacks using the IMAP/SMTP Injection technique are:
+一些使用IMAP/SMTP注入技术的攻击示例：
 
-- Exploitation of vulnerabilities in the IMAP/SMTP protocol
-- Application restrictions evasion
-- Anti-automation process evasion
-- Information leaks
-- Relay/SPAM
+- 利用IMAP/SMTP协议中的漏洞
+- 规避应用程序限制
+- 反自动化流程规避
+- 信息泄露
+- 中继/垃圾邮件
 
-## Test Objectives
+## 测试目标
 
-- Identify IMAP/SMTP injection points.
-- Understand the data flow and deployment structure of the system.
-- Assess the injection impacts.
+- 识别IMAP/SMTP注入点。
+- 了解系统的数据流和部署结构。
+- 评估注入影响。
 
-## How to Test
+## 如何测试
 
-### Identifying Vulnerable Parameters
+### 识别易受攻击的参数
 
-In order to detect vulnerable parameters, the tester has to analyze the application's ability in handling input. Input validation testing requires the tester to send bogus, or malicious, requests to the server and analyse the response. In a secure application, the response should be an error with some corresponding action telling the client that something has gone wrong. In a vulnerable application, the malicious request may be processed by the back-end application that will answer with a `HTTP 200 OK` response message.
+为了检测易受攻击的参数，测试人员必须分析应用程序处理输入的能力。输入验证测试要求测试人员向服务器发送虚假的或恶意的请求并分析响应。在安全应用程序中，响应应该是错误以及一些告诉客户端出现问题已发生的相应操作。在易受攻击的应用程序中，恶意请求可能被后端应用程序处理，后端应用程序将回复`HTTP 200 OK`响应消息。
 
-It is important to note that the requests being sent should match the technology being tested. Sending SQL injection strings for Microsoft SQL server when a MySQL server is being used will result in false positive responses. In this case, sending malicious IMAP commands is modus operandi since IMAP is the underlying protocol being tested.
+重要的是，请求是所测试的技术匹配的。发送针对Microsoft SQL Server的SQL注入字符串，而使用MySQL服务器时，将导致误报响应。在这种情况下，发送恶意IMAP命令是 modus operandi，因为IMAP是正在测试的底层协议。
 
-IMAP special parameters that should be used are:
+IMAP特殊参数应使用：
 
-| On the IMAP server     | On the SMTP server |
+| 在IMAP服务器上     | 在SMTP服务器上 |
 |------------------------|--------------------|
-| Authentication         | Emissor email     |
-| operations with mail boxes (list, read, create, delete, rename) | Destination email |
-| operations with messages (read, copy, move, delete) | Subject   |
-| Disconnection          | Message body       |
-|                        | Attached files     |
+| 身份验证         | 发件人电子邮件     |
+| 邮箱操作（列出、读取、创建、删除、重命名） | 目标电子邮件 |
+| 消息操作（读取、复制、移动、删除） | 主题   |
+| 断开连接          | 消息正文       |
+|                        | 附件     |
 
-In this example, the "mailbox" parameter is being tested by manipulating all requests with the parameter in:
+在此示例中，通过操作参数的所有请求测试"邮箱"参数：
 
 `https://<webmail>/src/read_body.php?mailbox=INBOX&passed_id=46106&startMessage=1`
 
-The following examples can be used.
+以下示例可以使用。
 
-- Assign a null value to the parameter:
+- 为参数分配空值：
 
 `https://<webmail>/src/read_body.php?mailbox=&passed_id=46106&startMessage=1`
 
-- Substitute the value with a random value:
+- 用随机值替换值：
 
 `https://<webmail>/src/read_body.php?mailbox=NOTEXIST&passed_id=46106&startMessage=1`
 
-- Add other values to the parameter:
+- 向参数添加其他值：
 
 `https://<webmail>/src/read_body.php?mailbox=INBOX PARAMETER2&passed_id=46106&startMessage=1`
 
-- Add non-standard special characters (i.e.: `\`, `'`, `"`, `@`, `#`, `!`, `|`):
+- 添加非标准特殊字符（即：`\`、'`、`"`、`@`、`#`、`!`、`|`）：
 
 `https://<webmail>/src/read_body.php?mailbox=INBOX"&passed_id=46106&startMessage=1`
 
-- Eliminate the parameter:
+- 消除参数：
 
 `https://<webmail>/src/read_body.php?passed_id=46106&startMessage=1`
 
-The final result of the above testing gives the tester three possible situations:
-S1 - The application returns a error code/message
-S2 - The application does not return an error code/message, but it does not realize the requested operation
-S3 - The application does not return an error code/message and realizes the operation requested normally
+上述测试的最终结果为测试人员提供了三种可能的情况：
+S1 - 应用程序返回错误代码/消息
+S2 - 应用程序不返回错误代码/消息，但未实现请求的操作
+S3 - 应用程序不返回错误代码/消息并正常实现请求的操作
 
-Situations S1 and S2 represent successful IMAP/SMTP injection.
+情况S1和S2表示成功的IMAP/SMTP注入。
 
-An attacker's aim is receiving the S1 response, as it is an indicator that the application is vulnerable to injection and further manipulation.
+攻击者的目标是接收S1响应，因为它是应用程序容易受到注入和进一步操纵的指标。
 
-Let's suppose that a user retrieves the email headers using the following HTTP request:
+让我们假设用户使用以下HTTP请求检索电子邮件头：
 
 `https://<webmail>/src/view_header.php?mailbox=INBOX&passed_id=46105&passed_ent_id=0`
 
-An attacker might modify the value of the parameter INBOX by injecting the character `"` (%22 using URL encoding):
+攻击者可以通过注入字符`"`（使用URL编码为`%22`）修改参数INBOX的值：
 
 `https://<webmail>/src/view_header.php?mailbox=INBOX%22&passed_id=46105&passed_ent_id=0`
 
-In this case, the application answer may be:
+在这种情况下，应用程序响应可能为：
 
 ```txt
 ERROR: Bad or malformed request.
@@ -102,28 +102,28 @@ Query: SELECT "INBOX""
 Server responded: Unexpected extra arguments to Select
 ```
 
-The situation S2 is harder to test successfully. The tester needs to use blind command injection in order to determine if the server is vulnerable.
+情况S2更难以成功测试。测试人员需要使用盲命令注入以确定服务器是否容易受到攻击。
 
-On the other hand, the last situation (S3) is not relevant in this paragraph.
+另一方面，最后一种情况（S3）与本段无关。
 
-> List of vulnerable parameters
+> 易受攻击的参数列表
 >
-> - Affected functionality
-> - Type of possible injection (IMAP/SMTP)
+> - 受影响的函数
+> - 可能注入的类型（IMAP/SMTP）
 
-### Understanding the Data Flow and Deployment Structure of the Client
+### 了解客户端的数据流和部署结构
 
-After identifying all vulnerable parameters (for example, `passed_id`), the tester needs to determine what level of injection is possible and then design a testing plan to further exploit the application.
+在识别所有易受攻击的参数（例如`passed_id`）后，测试人员需要确定可以注入的程度，然后设计测试计划以进一步利用应用程序。
 
-In this test case, we have detected that the application's `passed_id` parameter is vulnerable and is used in the following request:
+在此测试用例中，我们检测到应用程序的`passed_id`参数容易受到攻击，并用于以下请求：
 
 `https://<webmail>/src/read_body.php?mailbox=INBOX&passed_id=46225&startMessage=1`
 
-Using the following test case (providing an alphabetical value when a numerical value is required):
+使用以下测试用例（当需要数值时提供字母值）：
 
 `https://<webmail>/src/read_body.php?mailbox=INBOX&passed_id=test&startMessage=1`
 
-will generate the following error message:
+将生成以下错误消息：
 
 ```txt
 ERROR : Bad or malformed request.
@@ -131,46 +131,46 @@ Query: FETCH test:test BODY[HEADER]
 Server responded: Error in IMAP command received by server.
 ```
 
-In this example, the error message returned the name of the executed command and the corresponding parameters.
+在此示例中，返回的错误消息显示了所执行命令的名称和相应参数。
 
-In other situations, the error message (`not controlled` by the application) contains the name of the executed command, but reading the suitable [RFC](#references) allows the tester to understand what other possible commands can be executed.
+在其他情况下，错误消息（应用程序的`not controlled`）包含执行的命令的名称，但阅读适当的[RFC](#参考资料)允许测试人员了解与上述功能相关的其他可能的命令。
 
-If the application does not return descriptive error messages, the tester needs to analyze the affected functionality to deduce all the possible commands (and parameters) associated with the above mentioned functionality. For example, if a vulnerable parameter has been detected in the create mailbox functionality, it is logical to assume that the affected IMAP command is `CREATE`. According to the RFC, the `CREATE` command accepts one parameter which specifies the name of the mailbox to create.
+如果应用程序不返回描述性错误消息，测试人员需要分析受影响的功能以推断所有与上述功能相关的可能命令（和参数）。例如，如果在创建邮箱功能中检测到易受攻击的参数，则可以合理地假设受影响的IMAP命令是`CREATE`。根据RFC，`CREATE`命令接受一个参数，该参数指定要创建的邮箱的名称。
 
-> List of IMAP/SMTP commands affected
+> 受影响的IMAP/SMTP命令列表
 >
-> - Type, value, and number of parameters expected by the affected IMAP/SMTP commands
+> - 受影响的IMAP/SMTP命令预期的类型、值和参数数量
 
-### IMAP/SMTP Command Injection
+### IMAP/SMTP命令注入
 
-Once the tester has identified vulnerable parameters and has analyzed the context in which they are executed, the next stage is exploiting the functionality.
+一旦测试人员识别出易受攻击的参数并分析了执行它们的上下文，下一阶段就是利用功能。
 
-This stage has two possible outcomes:
+此阶段有两种可能的结果：
 
-1. The injection is possible in an unauthenticated state: the affected functionality does not require the user to be authenticated. The injected (IMAP) commands available are limited to: `CAPABILITY`, `NOOP`, `AUTHENTICATE`, `LOGIN`, and `LOGOUT`.
-2. The injection is only possible in an authenticated state: the successful exploitation requires the user to be fully authenticated before testing can continue.
+1. 可以在未认证状态下进行注入：受影响的功能不需要用户进行身份验证。可用的注入（IMAP）命令限于：`CAPABILITY`、`NOOP`、`AUTHENTICATE`、`LOGIN`和`LOGOUT`。
+2. 只能在认证状态下进行注入：成功利用需要用户在测试继续之前完全认证。
 
-In any case, the typical structure of an IMAP/SMTP Injection is as follows:
+在任何情况下，IMAP/SMTP注入的典型结构如下：
 
-- Header: ending of the expected command;
-- Body: injection of the new command;
-- Footer: beginning of the expected command.
+- 头：预期命令的结尾；
+- 正文：新命令的注入；
+- 页脚：预期命令的开始。
 
-It is important to remember that, in order to execute an IMAP/SMTP command, the previous command must be terminated with the CRLF (`%0d%0a`) sequence.
+重要的是要记住，为了执行IMAP/SMTP命令，必须使用CRLF（`%0d%0a`）序列终止上一个命令。
 
-Let's suppose that in the [Identifying vulnerable parameters](#identifying-vulnerable-parameters) stage, the attacker detects that the parameter `message_id` in the following request is vulnerable:
+让我们假设在[识别易受攻击的参数](#identifying-vulnerable-parameters)阶段，攻击者检测到以下请求中的参数`message_id`容易受到攻击：
 
 `https://<webmail>/read_email.php?message_id=4791`
 
-Let's suppose also that the outcome of the analysis performed in the stage 2 ("Understanding the data flow and deployment structure of the client") has identified the command and arguments associated with this parameter as:
+让我们还假设在阶段2（"了解客户端的数据流和部署结构"）执行的分析将命令和与此参数关联的参数识别为：
 
 `FETCH 4791 BODY[HEADER]`
 
-In this scenario, the IMAP injection structure would be:
+在这种情况下，IMAP注入结构为：
 
 `https://<webmail>/read_email.php?message_id=4791 BODY[HEADER]%0d%0aV100 CAPABILITY%0d%0aV101 FETCH 4791`
 
-Which would generate the following commands:
+这将生成以下命令：
 
 ```sql
 ???? FETCH 4791 BODY[HEADER]
@@ -178,7 +178,7 @@ V100 CAPABILITY
 V101 FETCH 4791 BODY[HEADER]
 ```
 
-where:
+其中：
 
 ```sql
 Header = 4791 BODY[HEADER]
@@ -186,13 +186,13 @@ Body   = %0d%0aV100 CAPABILITY%0d%0a
 Footer = V101 FETCH 4791
 ```
 
-> List of IMAP/SMTP commands affected
+> 受影响的IMAP/SMTP命令列表
 >
-> - Arbitrary IMAP/SMTP command injection
+> - 任意IMAP/SMTP命令注入
 
-## References
+## 参考资料
 
-### Whitepapers
+### 白皮书
 
-- [RFC 0821 "Simple Mail Transfer Protocol"](https://tools.ietf.org/html/rfc821)
-- [RFC 3501 "Internet Message Access Protocol - Version 4rev1"](https://tools.ietf.org/html/rfc3501)
+- [RFC 0821"简单邮件传输协议"](https://tools.ietf.org/html/rfc821)
+- [RFC 3501"Internet消息访问协议 - 版本4rev1"](https://tools.ietf.org/html/rfc3501)

@@ -1,105 +1,105 @@
-# Testing Browser Storage
+# 测试浏览器存储
 
-|ID          |
+|ID          |
 |------------|
 |WSTG-CLNT-12|
 
-## Summary
+## 概述
 
-Browsers provide the following client-side storage mechanisms for developers to store and retrieve data:
+浏览器为开发人员提供以下客户端存储机制以存储和检索数据：
 
 - LocalStorage
 - SessionStorage
 - IndexedDB
-- Web SQL (Deprecated)
+- Web SQL（已弃用）
 - Cookies
 
-These storage mechanisms can be viewed and edited using the browser's developer tools, such as [Google Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/storage/localstorage) or [Firefox's Storage Inspector](https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector).
+这些存储机制可以使用浏览器的开发者工具（如[Google Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/storage/localstorage)或[Firefox的存储检查器](https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector)）查看和编辑。
 
-Note: While cache is also a form of storage it is covered in a [separate section](../04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses.md) covering its own peculiarities and concerns.
+注意：虽然缓存也是存储的一种形式，但它在[单独的部分](../04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses.md)中介绍，涵盖其自身的特性和关注点。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether the site is storing sensitive data in client-side storage.
-- The code handling of the storage objects should be examined for possibilities of injection attacks, such as utilizing unvalidated input or vulnerable libraries.
+- 确定站点是否在客户端存储中存储敏感数据。
+- 应检查处理存储对象的代码是否有注入攻击的可能性，如利用未验证的输入或易受攻击的库。
 
-## How to Test
+## 如何测试
 
 ### LocalStorage
 
-`window.localStorage` is a global property that implements the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) and provides **persistent** key-value storage in the browser.
+`window.localStorage`是实现[Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)的全局属性，并在浏览器中提供**持久化**键值存储。
 
-Both the keys and values can only be strings, so any non-string values must be converted to strings first before storing them, usually done via [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify).
+键和值都只能是字符串，因此任何非字符串值必须首先转换为字符串才能存储，通常通过[JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)完成。
 
-Entries to `localStorage` persist even when the browser window closes, with the exception of windows in Private/Incognito mode.
+`localStorage`条目的持久化甚至在浏览器窗口关闭后仍然存在，私人/隐身模式窗口除外。
 
-The maximum storage capacity of `localStorage` varies between browsers.
+`localStorage`的最大存储容量因浏览器而异。
 
-#### List All Key-Value Entries
+#### 列出所有键值条目
 
 ```javascript
 for (let i = 0; i < localStorage.length; i++) {
-  const key = localStorage.key(i);
-  const value = localStorage.getItem(key);
-  console.log(`${key}: ${value}`);
+  const key = localStorage.key(i);
+  const value = localStorage.getItem(key);
+  console.log(`${key}: ${value}`);
 }
 ```
 
 ### SessionStorage
 
-`window.sessionStorage` is a global property that implements the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) and provides **ephemeral** key-value storage in the browser.
+`window.sessionStorage`是实现[Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)的全局属性，并在浏览器中提供**临时性**键值存储。
 
-Both the keys and values can only be strings, so any non-string values must be converted to strings first before storing them, usually done via [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify).
+键和值都只能是字符串，因此任何非字符串值必须首先转换为字符串才能存储，通常通过[JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)完成。
 
-Entries to `sessionStorage` are ephemeral because they are cleared when the browser tab/window is closed.
+`sessionStorage`条目是临时性的，因为当浏览器选项卡/窗口关闭时会清除。
 
-The maximum storage capacity of `sessionStorage` varies between browsers.
+`sessionStorage`的最大存储容量因浏览器而异。
 
-#### List All Key-Value Entries
+#### 列出所有键值条目
 
 ```javascript
 for (let i = 0; i < sessionStorage.length; i++) {
-  const key = sessionStorage.key(i);
-  const value = sessionStorage.getItem(key);
-  console.log(`${key}: ${value}`);
+  const key = sessionStorage.key(i);
+  const value = sessionStorage.getItem(key);
+  console.log(`${key}: ${value}`);
 }
 ```
 
 ### IndexedDB
 
-IndexedDB is a transactional, object-oriented database intended for structured data. An IndexedDB database can have multiple object stores and each object store can have multiple objects.
+IndexedDB是一个面向对象的数据库，旨在处理结构化数据。IndexedDB数据库可以具有多个对象存储，每个对象存储可以具有多个对象。
 
-In contrast to localStorage and sessionStorage, IndexedDB can store more than just strings. Any objects supported by the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) can be stored in IndexedDB.
+与localStorage和sessionStorage相比，IndexedDB可以存储比字符串更多的内容。任何受[结构化克隆算法](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)支持的对象都可以存储在IndexedDB中。
 
-An example of a complex JavaScript object that can be stored in IndexedDB, but not in localStorage/sessionStorage are [CryptoKeys](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey).
+可以存储在IndexedDB中但不能存储在localStorage/sessionStorage中的复杂JavaScript对象的一个示例是[CryptoKeys](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey)。
 
-W3C recommendation on [Web Crypto API](https://www.w3.org/TR/WebCryptoAPI/) [recommends](https://www.w3.org/TR/WebCryptoAPI/#concepts-key-storage) that CryptoKeys that need to be persisted in the browser, to be stored in IndexedDB. When testing a web page, look for any CryptoKeys in IndexedDB and check if they are set as `extractable: true` when they should have been set to `extractable: false` (i.e. ensure the underlying private key material is never exposed during cryptographic operations.)
+关于[Web Crypto API](https://www.w3.org/TR/WebCryptoAPI/)的W3C建议[推荐](https://www.w3.org/TR/WebCryptoAPI/#concepts-key-storage)需要保存在浏览器中的CryptoKeys存储在IndexedDB中。测试网页时，在IndexedDB中查找任何CryptoKeys，并检查当它们应该设置为`extractable: false`时是否设置为`extractable: true`（即确保底层私钥材料在加密操作期间永不暴露）。
 
-#### Print All the Contents of IndexedDB
+#### 打印IndexedDB的全部内容
 
 ```javascript
 const dumpIndexedDB = dbName => {
-  const DB_VERSION = 1;
-  const req = indexedDB.open(dbName, DB_VERSION);
-  req.onsuccess = function() {
-    const db = req.result;
-    const objectStoreNames = db.objectStoreNames || [];
+  const DB_VERSION = 1;
+  const req = indexedDB.open(dbName, DB_VERSION);
+  req.onsuccess = function() {
+    const db = req.result;
+    const objectStoreNames = db.objectStoreNames || [];
 
-    console.log(`[*] Database: ${dbName}`);
+    console.log(`[*] Database: ${dbName}`);
 
-    Array.from(objectStoreNames).forEach(storeName => {
-      const txn = db.transaction(storeName, 'readonly');
-      const objectStore = txn.objectStore(storeName);
+    Array.from(objectStoreNames).forEach(storeName => {
+      const txn = db.transaction(storeName, 'readonly');
+      const objectStore = txn.objectStore(storeName);
 
-      console.log(`\t[+] ObjectStore: ${storeName}`);
+      console.log(`\t[+] ObjectStore: ${storeName}`);
 
-      // Print all entries in objectStore with name `storeName`
-      objectStore.getAll().onsuccess = event => {
-        const items = event.target.result || [];
-        items.forEach(item => console.log(`\t\t[-] `, item));
-      };
-    });
-  };
+      // 打印对象存储中名为`storeName`的所有条目
+      objectStore.getAll().onsuccess = event => {
+        const items = event.target.result || [];
+        items.forEach(item => console.log(`\t\t[-] `, item));
+      };
+    });
+  };
 };
 
 indexedDB.databases().then(dbs => dbs.forEach(db => dumpIndexedDB(db.name)));
@@ -107,98 +107,98 @@ indexedDB.databases().then(dbs => dbs.forEach(db => dumpIndexedDB(db.name)));
 
 ### Web SQL
 
-Web SQL is deprecated since November 18, 2010 and it's recommended that web developers do not use it.
+Web SQL自2010年11月18日起已弃用，建议Web开发人员不要使用它。
 
 ### Cookies
 
-Cookies are a key-value storage mechanism that is primarily used for session management but web developers can still use it to store arbitrary string data.
+Cookies是一种主要用于会话管理但Web开发人员仍可用于存储任意字符串数据的主要键值存储机制。
 
-Cookies are covered extensively in the [testing for Cookies attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md) scenario.
+Cookies在[测试Cookies属性](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)场景中有广泛介绍。
 
-#### List All Cookies
+#### 列出所有Cookies
 
 ```javascript
 console.log(window.document.cookie);
 ```
 
-### Global Window Object
+### 全局Window对象
 
-Sometimes web developers initialize and maintain global state that is available only during the runtime life of the page by assigning custom attributes to the global `window` object. For example:
+有时Web开发人员通过向全局`window`对象分配自定义属性来初始化和维护仅在页面运行生命周期中可用的全局状态。例如：
 
 ```javascript
 window.MY_STATE = {
-  counter: 0,
-  flag: false,
+  counter: 0,
+  flag: false,
 };
 ```
 
-Any data attached on the `window` object will be lost when the page is refreshed or closed.
+`window`对象上附加的任何数据在页面刷新或关闭时将丢失。
 
-#### List All Entries on the Window Object
+#### 列出Window对象上的所有条目
 
 ```javascript
 (() => {
-  // create an iframe and append to body to load a clean window object
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+  // 创建一个iframe并追加到body以加载干净的window对象
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
 
-  // get the current list of properties on window
-  const currentWindow = Object.getOwnPropertyNames(window);
+  // 获取window上当前属性列表
+  const currentWindow = Object.getOwnPropertyNames(window);
 
-  // filter the list against the properties that exist in the clean window
-  const results = currentWindow.filter(
-    prop => !iframe.contentWindow.hasOwnProperty(prop)
-  );
+  // 根据干净window中存在的属性过滤列表
+  const results = currentWindow.filter(
+    prop => !iframe.contentWindow.hasOwnProperty(prop)
+  );
 
-  // remove iframe
-  document.body.removeChild(iframe);
+  // 移除iframe
+  document.body.removeChild(iframe);
 
-  // log key-value entries that are different
-  results.forEach(key => console.log(`${key}: ${window[key]}`));
+  // 记录不同的键值条目
+  results.forEach(key => console.log(`${key}: ${window[key]}`));
 })();
 ```
 
-_(Modified version of this [snippet](https://stackoverflow.com/a/17246535/3099132))_
+*（修改自此[片段](https://stackoverflow.com/a/17246535/3099132)）*
 
-### Security Implications
+### 安全影响
 
-When reviewing browser storage mechanisms, testers should evaluate whether sensitive data is unnecessarily exposed on the client-side. Modern applications, especially SPAs, frequently store authentication tokens or application state in browser storage, which may introduce security risks.
+当审查浏览器存储机制时，测试人员应评估敏感数据是否不必要地在客户端暴露。现代应用程序，特别是SPA，经常在浏览器存储中存储认证令牌或应用程序状态，这可能引入安全风险。
 
-Common concerns include:
+常见问题包括：
 
-- Authentication tokens (e.g., JWTs) stored in `localStorage` or `sessionStorage`, which are accessible via JavaScript and may be exposed through XSS.
-- Tokens or session identifiers persisting after logout.
-- Sensitive business data stored in IndexedDB or localStorage without a clear requirement.
-- Cryptographic material stored as extractable when it should be protected.
+- 存储在`localStorage`或`sessionStorage`中的认证令牌（如JWT），可通过JavaScript访问并可能通过XSS暴露。
+- 登出后会话标识符或令牌持续存在。
+- 在IndexedDB或localStorage中存储敏感业务数据，没有明确要求。
+- 密码学材料在应为受保护时被设置为可提取。
 
-Improper client-side storage may increase the impact of client-side attacks such as DOM-based XSS.
+不当的客户端存储可能增加客户端攻击（如基于DOM的XSS）的影响。
 
-### General Testing Guidance
+### 一般测试指导
 
-In addition to enumerating storage entries, testers should:
+除了枚举存储条目，测试人员还应：
 
-- Inspect browser storage using developer tools (Application/Storage tab).
-- Identify authentication tokens, session identifiers, or sensitive business data.
-- Attempt to access stored values via the JavaScript console.
-- Verify whether storage entries are cleared after logout or session expiration.
-- Assess whether stored data could be leveraged in a client-side attack chain.
+- 使用开发者工具（Application/Storage选项卡）检查浏览器存储。
+- 识别认证令牌、会话标识符或敏感业务数据。
+- 尝试通过JavaScript控制台访问存储的值。
+- 验证登出或会话到期后是否清除存储条目。
+- 评估存储数据是否可用于客户端攻击链。
 
-### Attack Chain
+### 攻击链
 
-Following the identification of any of the above attack vectors, an attack chain can be formed with different types of client-side attacks, such as [DOM based XSS](01-Testing_for_DOM-based_Cross_Site_Scripting.md) attacks.
+在识别上述任何攻击向量后，可以与不同类型的客户端攻击（如[基于DOM的XSS](01-Testing_for_DOM-based_Cross_Site_Scripting.md)攻击）形成攻击链。
 
-## Remediation
+## 修复
 
-Applications should be storing sensitive data on the server-side, and not on the client-side, in a secured manner following best practices.
+应用程序应在服务器端存储敏感数据，而不是在客户端，以安全方式遵循最佳实践。
 
-## References
+## 参考资料
 
 - [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
 - [SessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage)
 - [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
-- [Web Crypto API: Key Storage](https://www.w3.org/TR/WebCryptoAPI/#concepts-key-storage)
+- [Web Crypto API: 密钥存储](https://www.w3.org/TR/WebCryptoAPI/#concepts-key-storage)
 - [Web SQL](https://www.w3.org/TR/webdatabase/)
 - [Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
 
-For more OWASP resources on the HTML5 Web Storage API, see the [Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#html5-web-storage-api).
+有关HTML5 Web Storage API的更多OWASP资源，请参阅[会话管理速查表](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#html5-web-storage-api)。

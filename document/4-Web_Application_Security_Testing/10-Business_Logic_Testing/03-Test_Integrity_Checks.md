@@ -1,76 +1,76 @@
-# Test Integrity Checks
+# 测试完整性检查
 
 |ID          |
 |------------|
 |WSTG-BUSL-03|
 
-## Summary
+## 概述
 
-Many applications are designed to display different fields depending on the user or situation by leaving some inputs hidden. However, in many cases it is possible to submit hidden field values to the server using a proxy. In these cases the server-side controls must be smart enough to perform relational or server-side edits to ensure that the proper data is allowed to the server based on user and application specific business logic.
+许多应用程序被设计为根据用户或情况显示不同字段，方法是保留一些输入隐藏。然而，在许多情况下，可以直接使用代理将隐藏字段值提交到服务器。在这些情况下，服务器端控制必须足够智能，以执行关系或服务器端编辑，确保基于用户和应用程序特定业务逻辑的适当数据被允许到服务器。
 
-Additionally, the application must not depend on non-editable controls, drop-down menus or hidden fields for business logic processing because these fields remain non-editable only in the context of the browsers. Users may be able to edit their values using proxy editor tools and try to manipulate business logic. If the application exposes values related to business rules like quantity, etc. as non-editable fields, it must maintain a copy on the server-side and use the same for business logic processing. Finally, aside from application/system data, log systems must be secured to prevent read, writing, and updating.
+此外，应用程序不能依赖不可编辑控件、下拉菜单或隐藏字段进行业务逻辑处理，因为这些字段仅在浏览器上下文中保持不可编辑。用户可以使用代理编辑器工具编辑其值，并尝试操纵业务逻辑。如果应用程序将业务规则相关值（如数量等）作为不可编辑字段公开，则必须在服务器端维护副本，并将其用于业务逻辑处理。最后，除应用程序/系统数据外，日志系统必须安全，以防止读取、写入和更新。
 
-Business logic integrity check vulnerabilities are unique in that these misuse cases are application specific and if users are able to make changes, one should only be able to write or update/edit specific artifacts at specific times as per the business process logic.
+业务逻辑完整性检查漏洞是独特的，因为这些误用例是特定于应用程序的，如果用户能够进行更改，用户应该只能按照业务流程逻辑在特定时间写入或更新/编辑特定工件。
 
-The application must be smart enough to check for relational edits and not allow users to submit information directly to the server that is not valid, trusted because it came from a non-editable controls or the user is not authorized to submit through the frontend. Additionally, system artifacts such as logs must be "protected" from unauthorized read, writing and removal.
+应用程序必须足够智能地检查关系编辑，不允许用户直接向服务器提交非有效、受信任的信息，因为信息来自不可编辑控件或用户无权通过前端提交。此外，系统工件（如日志）必须"受保护"免受未授权读取、写入和删除。
 
-### Example 1
+### 示例1
 
-Imagine an ASP.NET GUI application that only allows the admin user to change the password for other users in the system. The admin user will see the username and password fields to enter a username and password while other users will not see either field. However, if a non admin user submits information in the username and password field through a proxy they may be able to "trick" the server into believing that the request has come from an admin user and change password of other users.
+想象一个ASP.NET GUI应用程序，只允许管理员用户更改系统中其他用户的密码。管理员用户将看到用户名和密码字段以输入用户名和密码，而其他用户两个字段都看不到。但是，如果非管理员用户通过代理在用户名和密码字段中提交信息，他们可能能够"欺骗"服务器相信请求来自管理员用户并更改其他用户的密码。
 
-### Example 2
+### 示例2
 
-Most web applications have dropdown lists making it easy for the user to quickly select their state, month of birth, etc. Suppose a Project Management application allowed users to login and depending on their privileges presented them with a drop down list of projects they have access to. What happens if an attacker finds the name of another project that they should not have access to and submits the information via a proxy. Will the application give access to the project? They should not have access even though they skipped an authorization business logic check.
+大多数Web应用程序都有下拉列表，方便用户快速选择他们的州、出生月份等。假设一个项目管理应用程序允许用户登录，并根据其权限向他们呈现可访问的项目下拉列表。如果攻击者发现他们不应访问的其他项目的名称，并通过代理提交信息，会发生什么？应用程序会给他们项目访问权限吗？他们不应该访问，即使他们跳过了授权业务逻辑检查。
 
-### Example 3
+### 示例3
 
-Suppose the motor vehicle administration system required an employee initially verify each citizens' documentation and information when they issue an identification or driver's license. At this point the business process has created data with a high level of integrity as the integrity of submitted data is checked by the employees. Now suppose the application is moved to the internet so employees can log on for full service or citizens can log on for a reduced self-service application to update certain information. At this point an attacker may be able to use an intercepting proxy to add or update data that they should not have access to and they could destroy the integrity of the data by stating that the citizen was not married but supplying data for a spouse’s name. This type of inserting or updating of unverified data destroys the data integrity and might have been prevented if the business process logic was followed.
+假设机动车管理部门要求员工在发放身份证或驾驶证时初步验证每个公民的文档和信息。此时，业务流程创建的数据具有高完整性，因为提交数据的完整性由员工检查。现在假设应用程序迁移到互联网，以便员工可以登录全服务或公民可以登录减少的自助服务应用程序以更新某些信息。在这一点上，攻击者可能能够使用拦截代理添加或更新他们不应访问的数据，他们可以通过声明公民未结婚但提供配偶姓名数据来破坏数据完整性。如果遵循业务流程逻辑，这种未验证数据的插入或更新可能会被阻止。
 
-### Example 4
+### 示例4
 
-Many systems include logging for auditing and troubleshooting purposes. But, how good/valid is the information in these logs? Can they be manipulated by attackers either intentionally or accidentally having their integrity destroyed?
+许多系统包含用于审计和故障排除目的的日志。但是，这些日志中的信息有多好/有效？它们能被攻击者有意或无意地操纵，使其完整性被破坏？
 
-## Test Objectives
+## 测试目标
 
-- Review the project documentation for components of the system that move, store, or handle data.
-- Determine what type of data is logically acceptable by the component and what types the system should guard against.
-- Determine who should be allowed to modify or read that data in each component.
-- Attempt to insert, update, or delete data values used by each component that should not be allowed per the business logic workflow.
+- 审查项目文档，了解移动、存储或处理数据的系统组件。
+- 确定组件在逻辑上可接受什么类型的数据，以及系统应该防范什么类型。
+- 确定谁应该被允许在每个组件中修改或读取该数据。
+- 尝试插入、更新或删除每个组件使用的但根据业务流程工作流不应允许的数据值。
 
-## How to Test
+## 如何测试
 
-### Specific Testing Method 1
+### 特定测试方法1
 
-- Using a proxy capture HTTP traffic looking for hidden fields.
-- If a hidden field is found, see how these fields compare with the GUI application and start interrogating this value through the proxy by submitting different data values trying to circumvent the business process and manipulate values you were not intended to have access to.
+- 使用代理捕获HTTP流量寻找隐藏字段。
+- 如果找到隐藏字段，请查看这些字段与GUI应用程序的比较，并开始通过代理询问此值，提交不同数据值，试图绕过业务流程并操纵您不应访问的值。
 
-### Specific Testing Method 2
+### 特定测试方法2
 
-- Using a proxy capture HTTP traffic looking for a place to insert information into areas of the application that are non-editable.
-- If it is found, see how these fields compare with the GUI application and start interrogating this value through the proxy by submitting different data values trying to circumvent the business process and manipulate values you were not intended to have access to.
+- 使用代理捕获HTTP流量寻找将信息插入应用程序非可编辑区域的位置。
+- 如果找到，请查看这些字段与GUI应用程序的比较，并开始通过代理询问此值，提交不同数据值，试图绕过业务流程并操纵您不应访问的值。
 
-### Specific Testing Method 3
+### 特定测试方法3
 
-- List components of the application or system that could be impacted, for example logs or databases.
-- For each component identified, try to read, edit or remove its information. For example log files should be identified and Testers should try to manipulate the data/information being collected.
+- 列出可能受影响的应用程序或系统组件，例如日志或数据库。
+- 对于识别的每个组件，尝试读取、编辑或删除其信息。例如，应识别日志文件，测试人员应尝试操纵收集的数据/信息。
 
-## Related Test Cases
+## 相关测试用例
 
-All [Input Validation](../07-Input_Validation_Testing/README.md) test cases.
+所有[输入验证](../07-Input_Validation_Testing/README.md)测试用例。
 
-## Remediation
+## 修复
 
-The application should follow strict access controls on how data and artifacts can be modified and read, and through trusted channels that ensure the integrity of the data. Proper logging should be set in place to review and ensure that no unauthorized access or modification is happening.
+应用程序应遵循关于如何修改和读取数据及工件的严格访问控制，并通过确保数据完整性的可信通道进行。应设置适当的日志记录以进行审查和确保未发生未授权访问或修改。
 
-## Tools
+## 工具
 
-- Various system/application tools such as editors and file manipulation tools.
+- 各种系统/应用程序工具，如编辑器和文件操作工具。
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
 
-## References
+## 参考资料
 
-- [Implementing Referential Integrity and Shared Business Logic in a RDB](https://agiledata.org/essays/referentialIntegrity.html)
-- [On Rules and Integrity Constraints in Database Systems](https://www.comp.nus.edu.sg/~lingtw/papers/IST92.teopk.pdf)
-- [Use referential integrity to enforce basic business rules in Oracle](https://www.techrepublic.com/article/use-referential-integrity-to-enforce-basic-business-rules-in-oracle/)
-- [Maximizing Business Logic Reuse with Reactive Logic](https://dzone.com/articles/maximizing-business-logic)
+- [在RDB中实现引用完整性和共享业务逻辑](https://agiledata.org/essays/referentialIntegrity.html)
+- [数据库系统中的规则和完整性约束](https://www.comp.nus.edu.sg/~lingtw/papers/IST92.teopk.pdf)
+- [使用引用完整性在Oracle中强制执行业务规则](https://www.techrepublic.com/article/use-referential-integrity-to-enforce-basic-business-rules-in-oracle/)
+- [通过反应式逻辑最大化业务逻辑重用](https://dzone.com/articles/maximizing-business-logic)

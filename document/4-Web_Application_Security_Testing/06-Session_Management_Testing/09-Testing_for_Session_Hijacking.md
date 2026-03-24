@@ -1,60 +1,60 @@
-# Testing for Session Hijacking
+# 测试会话劫持
 
 |ID          |
 |------------|
 |WSTG-SESS-09|
 
-## Summary
+## 概述
 
-An attacker who gets access to user session cookies can impersonate them by presenting such cookies. This attack is known as session hijacking. When considering network attackers, i.e., attackers who control the network used by the victim, session cookies can be unduly exposed to the attacker over HTTP. To prevent this, session cookies should be marked with the `Secure` attribute so that they are only communicated over HTTPS.
+攻击者获取用户会话Cookie后，可以通过显示这些Cookie来冒充他们。这种攻击称为会话劫持。在考虑网络攻击者（即控制受害者使用的网络的攻击者）时，会话Cookie可能通过HTTP被不当暴露给攻击者。为防止这种情况，应使用`Secure`属性标记会话Cookie，以便它们仅通过HTTPS通信。
 
-Note that the `Secure` attribute should also be used when the web application is entirely deployed over HTTPS, otherwise the following cookie theft attack is possible. Assume that `example.com` is entirely deployed over HTTPS, but does not mark its session cookies as `Secure`. The following attack steps are possible:
+请注意，当Web应用完全部署在HTTPS上时，也应使用`Secure`属性，否则可能发生以下Cookie盗窃攻击。假设`example.com`完全部署在HTTPS上，但未将其会话Cookie标记为`Secure`。可能发生以下攻击步骤：
 
-1. The victim sends a request to `https://another-site.com`.
-2. The attacker corrupts the corresponding response so that it triggers a request to `https://example.com`.
-3. The browser now tries to access `https://example.com`.
-4. Though the request fails, the session cookies are leaked in the clear over HTTP.
+1. 受害者向`https://another-site.com`发送请求。
+2. 攻击者破坏相应响应，使其触发对`https://example.com`的请求。
+3. 浏览器现在尝试访问`https://example.com`。
+4. 虽然请求失败，但会话Cookie通过HTTP明文泄露。
 
-Alternatively, session hijacking can be prevented by banning use of HTTP using [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security). Note that there is a subtlety here related to cookie scoping. In particular, full HSTS adoption is required when session cookies are issued with the `Domain` attribute set.
+或者，可以通过使用[HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security)禁止使用HTTP来防止会话劫持。请注意，这里有一个与Cookie作用域相关的微妙之处。特别是，当会话Cookie使用设置了`Domain`属性时，需要完整的HSTS采用。
 
-Full HSTS adoption is described in a paper called *Testing for Integrity Flaws in Web Sessions* by Stefano Calzavara, Alvise Rabitti, Alessio Ragazzo, and Michele Bugliesi. Full HSTS adoption occurs when a host activates HSTS for itself and all its sub-domains. Partial HSTS adoption is when a host activates HSTS just for itself.
+完整的HSTS采用在一篇名为*Testing for Integrity Flaws in Web Sessions*的论文中描述，作者是Stefano Calzavara、Alvise Rabitti、Alessio Ragazzo和Michele Bugliesi。完整的HSTS采用发生在主机为自己及其所有子域激活HSTS时。部分HSTS采用是主机仅为自己激活HSTS。
 
-With the `Domain` attribute set, session cookies can be shared across sub-domains. Use of HTTP with sub-domains should be avoided to prevent the disclosure of unencrypted cookies sent over HTTP. To exemplify this security flaw, assume that the site `example.com` activates HSTS without the `includeSubDomains` option. The site issues session cookies with the `Domain` attribute set to `example.com`. The following attack is possible:
+使用设置了`Domain`属性，会话Cookie可以在子域之间共享。应避免与子域一起使用HTTP，以防止通过HTTP发送的未加密Cookie泄露。为了说明这个安全缺陷，假设站点`example.com`激活HSTS但没有`includeSubDomains`选项。该站点发出将`Domain`属性设置为`example.com`的会话Cookie。可能发生以下攻击：
 
-1. The victim sends a request to `https://another-site.com`.
-2. The attacker corrupts the corresponding response so that it triggers a request to `https://fake.example.com`.
-3. The browser now tries to access `https://fake.example.com`, which is permitted by the HSTS configuration.
-4. Since the request is sent to a sub-domain of `example.com` with the `Domain` attribute set, it includes the session cookies, which are leaked in the clear over HTTP.
+1. 受害者向`https://another-site.com`发送请求。
+2. 攻击者破坏相应响应，使其触发对`https://fake.example.com`的请求。
+3. 浏览器现在尝试访问`https://fake.example.com`，这是HSTS配置允许的。
+4. 由于请求被发送到具有设置`Domain`属性的`example.com`子域，它包含会话Cookie，这些Cookie通过HTTP明文泄露。
 
-Full HSTS should be activated on the apex domain to prevent this attack.
+应在apex域上激活完整HSTS以防止此攻击。
 
-## Test Objectives
+## 测试目标
 
-- Identify vulnerable session cookies.
-- Hijack vulnerable cookies and assess the risk level.
+- 识别有漏洞的会话Cookie。
+- 劫持有漏洞的Cookie并评估风险级别。
 
-## How to Test
+## 如何测试
 
-The testing strategy is targeted at network attackers, hence it only needs to be applied to sites without full HSTS adoption (sites with full HSTS adoption are secure, since their cookies are not communicated over HTTP). We assume to have two testing accounts on the site under test, one to act as the victim and one to act as the attacker. We simulate a scenario where the attacker steals all the cookies which are not protected against disclosure over HTTP, and presents them to the site to access the victim's account. If these cookies are enough to act on the victim's behalf, session hijacking is possible.
+测试策略针对网络攻击者，因此只需应用于没有完整HSTS采用的站点（具有完整HSTS采用的站点是安全的，因为它们的Cookie不会通过HTTP通信）。我们假设在测试站点上有两个测试账户，一个充当受害者，一个充当攻击者。我们模拟一个场景，攻击者窃取所有未通过HTTP泄露保护的Cookie，并将它们呈现给站点以访问受害者的账户。如果这些Cookie足以代表受害者行事，会话劫持是可能的。
 
-Here are the steps for executing this test:
+以下是执行此测试的步骤：
 
-1. Login to the site as the victim and reach any page offering a secure function requiring authentication.
-2. Delete from the cookie jar all the cookies which satisfy any of the following conditions.
-    - in case there is no HSTS adoption: the `Secure` attribute is set.
-    - in case there is partial HSTS adoption: the `Secure` attribute is set or the `Domain` attribute is not set.
-3. Save a snapshot of the cookie jar.
-4. Trigger the secure function identified at step 1.
-5. Observe whether the operation at step 4 has been performed successfully. If so, the attack was successful.
-6. Clear the cookie jar, login as the attacker and reach the page at step 1.
-7. Write in the cookie jar, one by one, the cookies saved at step 3.
-8. Trigger again the secure function identified at step 1.
-9. Clear the cookie jar and login again as the victim.
-10. Observe whether the operation at step 8 has been performed successfully in the victim's account. If so, the attack was successful; otherwise, the site is secure against session hijacking.
+1. 以受害者身份登录并到达任何需要认证的安全功能页面。
+2. 从Cookie存储中删除满足以下任何条件的Cookie：
+    - 如果没有HSTS采用：设置了`Secure`属性。
+    - 如果有部分HSTS采用：设置了`Secure`属性或未设置`Domain`属性。
+3. 保存Cookie存储的快照。
+4. 触发步骤1中识别的安全功能。
+5. 观察步骤4中的操作是否成功执行。如果成功，攻击成功。
+6. 清除Cookie存储，以攻击者身份登录并到达步骤1中的页面。
+7. 逐个将步骤3中保存的Cookie写入Cookie存储。
+8. 再次触发步骤1中识别的安全功能。
+9. 清除Cookie存储，再次以受害者身份登录。
+10. 观察步骤8中的操作是否在受害者的账户中成功执行。如果成功，攻击成功；否则，站点可以防御会话劫持。
 
-We recommend using two different machines or browsers for the victim and the attacker. This allows you to decrease the number of false positives if the web application does fingerprinting to verify access enabled from a given cookie. A shorter but less precise variant of the testing strategy only requires one testing account. It follows the same pattern, but it halts at step 5 (note that this makes step 3 useless).
+我们建议为受害者和攻击者使用两台不同的机器或浏览器。这允许您在Web应用进行指纹识别以验证从给定Cookie启用的访问时减少误报。测试策略的一个更短但精度较低的变体只需要一个测试账户。它遵循相同的模式，但在步骤5停止（请注意，这使得步骤3无用）。
 
-## Tools
+## 工具
 
 - [ZAP](https://www.zaproxy.org)
-- [JHijack - a numeric session hijacking tool](https://sourceforge.net/projects/jhijack/)
+- [JHijack - 数字会话劫持工具](https://sourceforge.net/projects/jhijack/)

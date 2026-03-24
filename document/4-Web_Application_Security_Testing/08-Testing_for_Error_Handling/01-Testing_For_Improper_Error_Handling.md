@@ -1,82 +1,82 @@
-# Testing for Improper Error Handling
+# 测试不当错误处理
 
 |ID          |
 |------------|
 |WSTG-ERRH-01|
 
-## Summary
+## 概述
 
-All types of applications (web apps, web servers, databases, etc.) will generate errors for various reasons. Developers often ignore handling these errors, or push away the idea that a user will ever try to trigger an error purposefully (*e.g.* sending a string where an integer is expected). When the developer only consider the happy path, they forget all other possible user-input the code can receive but can't handle.
+所有类型的应用程序（Web应用、Web服务器、数据库等）都会因各种原因产生错误。开发人员通常会忽略处理这些错误，或者认为用户永远不会故意触发错误（例如在需要整数的地方发送字符串）。当开发人员只考虑愉快路径（happy path）时，他们会忘记代码可能接收但无法处理的所有其他可能的用户输入。
 
-Errors sometimes rise as:
+错误有时表现为：
 
-- stack traces,
-- network timeouts,
-- input mismatch,
-- and memory dumps.
+- 堆栈跟踪
+- 网络超时
+- 输入不匹配
+- 内存转储
 
-Improper error handling can allow attackers to:
+不当错误处理可能允许攻击者：
 
-- Understand the APIs being used internally.
-- Map the various services integrating with each other by gaining insight on internal systems and frameworks used, which opens up doors to attack chaining.
-- Gather the versions and types of applications being used.
-- DoS the system by forcing the system into a deadlock or an unhandled exception that sends a panic signal to the engine running it.
-- Controls bypass where a certain exception is not restricted by the logic set around the happy path.
+- 了解内部使用的API。
+- 通过深入了解内部系统和框架使用的集成情况，绘制与彼此集成的各种服务的映射，这为攻击链打开了大门。
+- 收集正在使用的应用程序的版本和类型。
+- 通过迫使系统进入死锁或未处理的异常来发送运行引擎的恐慌信号，从而导致DoS（拒绝服务）。
+- 控制绕过，当某个异常不受围绕愉快路径设置的逻辑限制时。
 
-## Test Objectives
+## 测试目标
 
-- Identify existing error output.
-- Analyze the different output returned.
+- 识别现有错误输出。
+- 分析返回的不同输出。
 
-## How to Test
+## 如何测试
 
-Errors are usually seen as benign as they provide diagnostics data and messages that could help the user understand the problem at hand, or for the developer to debug that error.
+错误通常被视为良性信息，因为它们提供诊断数据和消息，可以帮助用户理解当前问题，或帮助开发人员调试该错误。
 
-By trying to send unexpected data, or forcing the system into certain edge cases and scenarios, the system or application will, most of the time, give out a bit on what's happening internally, unless the developers turned off all possible errors and return a certain custom message.
+通过尝试发送意外数据，或将系统强制进入某些边缘情况和场景，系统或应用程序在大多数情况下会泄露一些内部信息，除非开发人员关闭了所有可能的错误并返回某个自定义消息。
 
-### Web Servers
+### Web服务器
 
-All web apps run on a web server, whether it was an integrated one or a fully fledged one. Web apps must handle and parse HTTP requests, and for that a web server is always part of the stack. Some of the most famous web servers are Nginx, Apache, and IIS.
+所有Web应用都运行在Web服务器上，无论是集成服务器还是完全独立的服务器。Web应用必须处理和解析HTTP请求，因此Web服务器始终是技术栈的一部分一些最著名的Web服务器是Nginx、Apache和IIS。
 
-Web servers have known error messages and formats. If one is not familiar with how they look, searching online for them would provide examples. Another way would be to look into their documentation, or simply setup a server locally and discover the errors by going through the pages that the web server uses.
+Web服务器具有已知的错误消息和格式。如果不熟悉它们的外观，可以在网上搜索获取示例。另一种方法是查看文档，或者简单地在本地设置一个服务器，通过浏览Web服务器使用的页面来发现错误。
 
-In order to trigger error messages, a tester must:
+为了触发错误消息，测试人员必须：
 
-- Search for random files and folders that will not be found (404s).
-- Try to request folders that exist and see the server behavior (403s, blank page, or directory listing).
-- Try sending a request that breaks the [HTTP RFC](https://tools.ietf.org/html/rfc7231). One example would be to send a very large path, break the headers format, or change the HTTP version.
-    - Even if errors are handled on the application level, breaking the HTTP RFC may make the integrated web server show itself since it has to handle the request, and developers forget to override these errors.
+- 搜索不存在的随机文件和文件夹（404）。
+- 尝试请求存在的文件夹并查看服务器行为（403、空白页面或目录列表）。
+- 尝试发送破坏[HTTP RFC](https://tools.ietf.org/html/rfc7231)的请求。一个例子是发送一个非常大的路径、破坏头部格式或更改HTTP版本。
+    - 即使在应用程序级别处理了错误，破坏HTTP RFC可能会使集成的Web服务器暴露自己，因为它必须处理请求，而开发人员忘记覆盖这些错误。
 
-### Applications
+### 应用程序
 
-Applications are the most susceptible to let out a wide variety of error messages, which include: stack traces, memory dumps, mishandled exceptions, and generic errors. This happens due to the fact that applications are custom built most of the time and the developers need to observe and handle all possible error cases (or have a global error catching mechanism), and these errors can appear from integrations with other services.
+应用程序最容易泄露各种错误消息，包括：堆栈跟踪、内存转储、处理不当的异常和通用错误。发生这种情况是因为应用程序大多数时候是定制构建的，开发人员需要观察和处理所有可能的错误情况（或拥有全局错误捕获机制），而且这些错误可能来自与其他服务的集成。
 
-In order to make an application throw these errors, a tester must:
+为了使应用程序抛出这些错误，测试人员必须：
 
-1. Identify possible input points where the application is expecting data.
-2. Analyse the expected input type (strings, integers, JSON, XML, etc.).
-3. Fuzz every input point based on the previous steps to have a more focused test scenario.
-   - Fuzzing every input with all possible injections is not the best solution unless you have unlimited testing time and the application can handle that much input.
-   - If fuzzing isn't an option, handpick viable inputs that have the highest chance to break a certain parser (*e.g.* a closing bracket for a JSON body, a large text where only a couple of characters are expected, CLRF injection with parameters that might be parsed by servers and input validation controls, special characters that aren't applicable for filenames, etc.).
-   - Fuzzing with jargon data should be ran for every type as sometimes the interpreters will break outside of the developer's exception handling.
-4. Understand the service responding with the error message and try to make a more refined fuzz list to bring out more information or error details from that service (it could be a database, a standalone service, etc.).
+1. 识别应用程序期望接收数据的可能输入点。
+2. 分析预期输入类型（字符串、整数、JSON、XML等）。
+3. 根据前几步对每个输入点进行模糊测试，以获得更有针对性的测试场景。
+   - 对每个输入使用所有可能的注入进行模糊测试并不是最佳解决方案，除非你有无限的测试时间且应用程序可以处理那么多输入。
+   - 如果模糊测试不是一种选择，请手动挑选具有最高可能性来破坏某个解析器的可行输入（例如，JSON正文的右括号、只期望几个字符的大文本、具有可能被服务器和输入验证控制解析的参数CRLF注入、不适用于文件名的特殊字符等）。
+   - 应对每种类型运行乱码数据模糊测试，因为有时解释器会在开发人员的异常处理之外崩溃。
+4. 了解使用错误消息响应的服务，并尝试创建更精确的模糊测试列表，以从该服务引出更多信息或错误详情（它可能是数据库、独立服务等）。
 
-Error messages are sometimes the main weakness in mapping out systems, especially under a microservice architecture. If services are not properly set to handle errors in a generic and uniform manner, error messages would let a tester identify which service handles which requests, and allows for a more focused attack per service.
+错误消息有时是绘制系统映射的主要弱点，特别是在微服务架构下。如果服务没有正确设置以通用和统一的方式处理错误，错误消息会让测试人员识别哪个服务处理哪些请求，并允许对每个服务进行更有针对性的攻击。
 
-> The tester needs to keep a vigilant eye for the response type. Sometimes errors are returned as success with an error body, hide the error in a 302, or simply by having a custom way of representing that error.
+> 测试人员需要密切关注响应类型。有时错误作为带有错误体的成功返回，通过自定义方式表示该错误隐藏在302中，或者简单地说。
 
-## Remediation
+## 修复
 
-For remediation, check out the [Proactive Controls C10](https://owasp.org/www-project-proactive-controls/v3/en/c10-errors-exceptions) and the [Error Handling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html).
+有关修复，请查看[主动控制C10](https://owasp.org/www-project-proactive-controls/v3/en/c10-errors-exceptions)和[错误处理速查表](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html)。
 
-## Playgrounds
+## 实验环境
 
-- [Juice Shop - Error Handling](https://pwning.owasp-juice.shop/companion-guide/latest/part2/security-misconfiguration.html#provoke-an-error-that-is-neither-very-gracefully-nor-consistently-handled)
+- [Juice Shop - 错误处理](https://pwning.owasp-juice.shop/companion-guide/latest/part2/security-misconfiguration.html#provoke-an-error-that-is-neither-very-gracefully-nor-consistently-handled)
 
-## References
+## 参考资料
 
-- [WSTG: Appendix C - Fuzzing](../../6-Appendix/C-Fuzzing.md)
-- [Proactive Controls C10: Handle All Errors and Exceptions](https://owasp.org/www-project-proactive-controls/v3/en/c10-errors-exceptions)
-- [ASVS v4.1 v7.4: Error handling](https://github.com/OWASP/ASVS/blob/master/4.0/en/0x15-V7-Error-Logging.md#v74-error-handling)
-- [CWE 728 - Improper Error Handling](https://cwe.mitre.org/data/definitions/728.html)
-- [Cheat Sheet Series: Error Handling](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html)
+- [WSTG: 附录C - 模糊测试](../../6-Appendix/C-Fuzzing.md)
+- [主动控制C10：处理所有错误和异常](https://owasp.org/www-project-proactive-controls/v3/en/c10-errors-exceptions)
+- [ASVS v4.1 v7.4：错误处理](https://github.com/OWASP/ASVS/blob/master/4.0/en/0x15-V7-Error-Logging.md#v74-error-handling)
+- [CWE 728 - 不当错误处理](https://cwe.mitre.org/data/definitions/728.html)
+- [速查表系列：错误处理](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html)

@@ -1,80 +1,74 @@
-# Testing for Bypassing Authorization Schema
+# 测试绕过授权架构
 
 |ID          |
 |------------|
 |WSTG-ATHZ-02|
 
-## Summary
+## 概述
 
-This test case focuses on identifying authorization weaknesses where an authenticated
-user is able to access resources or perform actions beyond their assigned permissions,
-including horizontal and vertical privilege escalation.
+本测试用例重点识别授权弱点，在这些弱点中，已认证的用户能够访问超出其分配权限的资源或执行超出其权限的操作，包括水平权限提升和垂直权限提升。
 
-While some checks may include scenarios such as direct access to protected resources
-without an active session or after logout, the primary intent of this test is to
-validate that authorization controls are correctly enforced for authenticated users
-and roles.
+虽然某些检查可能包括直接访问受保护资源而无需活动会话或注销后的场景，但本测试的主要目的是验证授权控制是否针对已认证用户和角色正确执行。
 
-Detailed unauthenticated and post-authentication scenarios are covered in the
-How to Test section.
+详细的未认证和认证后场景在"如何测试"部分中介绍。
 
-## Test Objectives
+## 测试目标
 
-- Assess if unauthenticated, horizontal, or vertical access is possible.
+- 评估是否可能进行未认证访问、水平访问或垂直访问。
 
-## How to Test
+## 如何测试
 
-- Access resources and conduct operations without login. - Direct page request ([forced browsing](https://owasp.org/www-community/attacks/Forced_browsing))
-- Access resources and conduct operations horizontally.
-- Access resources and conduct operations vertically.
+- 在未登录的情况下访问资源并执行操作。- 直接页面请求（[强制浏览](https://owasp.org/www-community/attacks/Forced_browsing)）
+- 水平访问资源并执行操作。
+- 垂直访问资源并执行操作。
 
-### Testing for Basic Unauthenticated Access
+### 测试基本未认证访问
 
-#### Using a Browser Manually
+#### 手动使用浏览器
 
-When a web application does not properly enforce access control mechanisms, sensitive resources become exposed, allowing unauthenticated users to view them. For example, if a user directly requests a different page via forced browsing, that page may not check the authorization of the anonymous user before granting access. Attempt to directly access a protected page through the address bar in your browser to test using this method.
+当 Web 应用程序未正确执行访问控制机制时，敏感资源会暴露，允许未认证用户查看。例如，如果用户通过强制浏览直接请求不同的页面，该页面可能在授予访问权限之前不检查匿名用户的授权。尝试通过浏览器地址栏直接访问受保护页面来使用此方法进行测试。
 
-![Direct Request to Protected Page](images/Basm-directreq.jpg)\
-*Figure 4.5.2-1: Direct Request to Protected Page*
+![直接请求受保护页面](images/Basm-directreq.jpg)\
+*图 4.5.2-1：直接请求受保护页面*
 
-#### Using Automation
+#### 使用自动化工具
 
-This process can be automated if you have a list of all endpoints with tools like ffuf, gobuster, ZAP, and Burp Suite Intruder.
+如果您有所有端点的列表，可以使用 ffuf、gobuster、ZAP 和 Burp Suite Intruder 等工具实现此过程自动化。
 
-For ZAP, using a adddon for [Access Control Testing](https://www.zaproxy.org/docs/desktop/addons/access-control-testing/) allows testers to determine which parts of the application are available to anonymous users, and identify potential access control issues.
+对于 ZAP，使用 [Access Control Testing](https://www.zaproxy.org/docs/desktop/addons/access-control-testing/) 插件允许测试人员确定应用程序的哪些部分可供匿名用户访问，并识别潜在的访问控制问题。
 
-For Burp Suite, built-in tools such as Intruder, and a number of plugins, including Autorize, help the tester automate testing authorization.
+对于 Burp Suite，Intruder 等内置工具以及许多插件（包括 Autorize）可帮助测试人员自动化授权测试。
 
-### Testing for Horizontal Bypassing Authorization Schema
+### 测试水平绕过授权架构
 
-For every function, specific role, or request that the application executes, it is necessary to verify:
+对于应用程序执行的每个功能、特定角色或请求，需要验证：
 
-- Is it possible to access resources that should be accessible to a user that holds a different identity with the same role or privilege?
-- Is it possible to operate functions on resources that should be accessible to a user that holds a different identity?
+- 是否可以访问应该可供持有不同身份但具有相同角色或权限的用户访问的资源？
+- 是否可以操作应该可供持有不同身份的用户访问的资源上的功能？
 
-For each role:
+对于每个角色：
 
-1. Register or generate two users with identical privileges.
-2. Establish and keep two different sessions active (one for each user).
-3. For every request, change the relevant parameters and the session identifier from token one to token two and diagnose the responses for each token.
-4. An application will be considered vulnerable if the responses are the same, contain same private data or indicate successful operation on other users' resource or data.
+1. 注册或生成两个具有相同权限的用户。
+2. 保持两个不同的会话处于活动状态（每个用户一个）。
+3. 对于每个请求，更改相关参数和从令牌一到令牌二的会话标识符，并诊断每个令牌的响应。
+4. 如果响应相同、包含相同的私人数据或表明在其他用户的资源或数据上成功操作，则该应用程序被认为是存在漏洞的。
 
-For example, suppose that the `viewSettings` function is part of every account menu of the application with the same role, and it is possible to access it by requesting the following URL: `https://www.example.com/account/viewSettings`. Then, the following HTTP request is generated when calling the `viewSettings` function:
+例如，假设 `viewSettings` 功能是应用程序每个账户菜单的一部分，具有相同的角色，并且可以通过请求以下 URL 访问：`https://www.example.com/account/viewSettings`。然后，在调用 `viewSettings` 功能时生成以下 HTTP 请求：
 
 ```http
 POST /account/viewSettings HTTP/1.1
 Host: www.example.com
-[other HTTP headers]
+[其他 HTTP 头]
 Cookie: SessionID=USER_SESSION
 
 username=example_user
 ```
 
-Valid and legitimate response:
+有效且合法的响应：
 
 ```html
 HTTP1.1 200 OK
-[other HTTP headers]
+[其他 HTTP 头]
 
 {
   "username": "example_user",
@@ -83,24 +77,24 @@ HTTP1.1 200 OK
 }
 ```
 
-The attacker may try and execute that request with the same `username` parameter:
+攻击者可能尝试使用相同的 `username` 参数执行该请求：
 
 ```html
 POST /account/viewCCpincode HTTP/1.1
 Host: www.example.com
-[other HTTP headers]
+[其他 HTTP 头]
 Cookie: SessionID=ATTACKER_SESSION
 
 username=example_user
 ```
 
-If the attacker's response contain the data of the `example_user`, then the application is vulnerable for lateral movement attacks, where a user can read or write other user's data.
+如果攻击者的响应包含 `example_user` 的数据，则该应用程序容易受到横向移动攻击，用户可以在其中读取或写入其他用户的数据。
 
-### Testing for Access to Administrative Functions
+### 测试对管理功能的访问
 
-For example, suppose that the `addUser` function is part of the administrative menu of the application, and it is possible to access it by requesting the following URL `https://www.example.com/admin/addUser`.
+例如，假设 `addUser` 功能是应用程序管理菜单的一部分，并且可以通过请求以下 URL 访问 `https://www.example.com/admin/addUser`。
 
-Then, the following HTTP request is generated when calling the `addUser` function:
+然后，在调用 `addUser` 功能时生成以下 HTTP 请求：
 
 ```http
 POST /admin/addUser HTTP/1.1
@@ -110,29 +104,29 @@ Host: www.example.com
 userID=fakeuser&role=3&group=grp001
 ```
 
-Further questions or considerations would go in the following direction:
+进一步的疑问或考虑将沿以下方向：
 
-- What happens if a non-administrative user tries to execute that request?
-- Will the user be created?
-- If so, can the new user use their privileges?
+- 如果非管理员用户尝试执行该请求，会发生什么？
+- 用户会被创建吗？
+- 如果是这样，新用户可以使用他们的权限吗？
 
-### Testing for Access to Resources Assigned to a Different Role
+### 测试对分配给不同角色的资源的访问
 
-Various applications setup resource controls based on user roles. Let's take an example resumes or CVs (curriculum vitae) uploaded on a careers form to an S3 bucket.
+各种应用程序根据用户角色设置资源控制。让我们以简历（CV）上传到 S3 存储桶为例。
 
-As a normal user, try accessing the location of those files. If you are able to retrieve them, modify them, or delete them, then the application is vulnerable.
+作为普通用户，尝试访问这些文件的位置。如果您能够检索、修改或删除它们，则该应用程序存在漏洞。
 
-### Testing for Special Request Header Handling
+### 测试特殊请求头处理
 
-Some applications support non-standard headers such as `X-Original-URL` or `X-Rewrite-URL` in order to allow overriding the target URL in requests with the one specified in the header value.
+一些应用程序支持非标准头，如 `X-Original-URL` 或 `X-Rewrite-URL`，以便允许使用头值中指定的 URL 覆盖请求中的目标 URL。
 
-This behavior can be leveraged in a situation in which the application is behind a component that applies access control restriction based on the request URL.
+当应用程序位于根据请求 URL 应用访问控制限制的组件后面时，可以利用这种行为。
 
-The kind of access control restriction based on the request URL can be, for example, blocking access from internet to an administration console exposed on `/console` or `/admin`.
+基于请求 URL 的访问控制限制的示例可能是阻止从互联网访问在 `/console` 或 `/admin` 上暴露的管理控制台。
 
-To detect the support for the header `X-Original-URL` or `X-Rewrite-URL`, the following steps can be applied.
+要检测对 `X-Original-URL` 或 `X-Rewrite-URL` 头的支持，可以应用以下步骤。
 
-#### 1. Send a Normal Request without Any X-Original-Url or X-Rewrite-Url Header
+#### 1. 发送没有任何 X-Original-Url 或 X-Rewrite-Url 头的正常请求
 
 ```http
 GET / HTTP/1.1
@@ -140,7 +134,7 @@ Host: www.example.com
 [...]
 ```
 
-#### 2. Send a Request with an X-Original-Url Header Pointing to a Non-Existing Resource
+#### 2. 发送带有指向不存在资源的 X-Original-Url 头的请求
 
 ```html
 GET / HTTP/1.1
@@ -149,7 +143,7 @@ X-Original-URL: /donotexist1
 [...]
 ```
 
-#### 3. Send a Request with an X-Rewrite-Url Header Pointing to a Non-Existing Resource
+#### 3. 发送带有指向不存在资源的 X-Rewrite-Url 头的请求
 
 ```html
 GET / HTTP/1.1
@@ -158,45 +152,45 @@ X-Rewrite-URL: /donotexist2
 [...]
 ```
 
-If the response for either request contains markers that the resource was not found, this indicates that the application supports the special request headers. These markers may include the HTTP response status code 404, or a "resource not found" message in the response body.
+如果任一请求的响应包含资源未找到的标记，则表明应用程序支持特殊请求头。这些标记可能包括 HTTP 响应状态代码 404，或响应体中的"资源未找到"消息。
 
-Once the support for the header `X-Original-URL` or `X-Rewrite-URL` was validated then the tentative of bypass against the access control restriction can be leveraged by sending the expected request to the application but specifying a URL "allowed" by the frontend component as the main request URL and specifying the real target URL in the `X-Original-URL` or `X-Rewrite-URL` header depending on the one supported. If both are supported then try one after the other to verify for which header the bypass is effective.
+一旦验证了对 `X-Original-URL` 或 `X-Rewrite-URL` 头的支持，就可以通过向应用程序发送预期请求（但将前端组件"允许"的 URL 指定为主请求 URL，并根据支持的头将真实目标 URL 指定在 `X-Original-URL` 或 `X-Rewrite-URL` 头中）来利用绕过访问控制限制的尝试。如果两者都支持，则逐一尝试以验证哪个头的绕过是有效的。
 
-#### 4. Other Headers to Consider
+#### 4. 需要考虑的其他头
 
-Often admin panels or administrative related bits of functionality are only accessible to clients on local networks, therefore it may be possible to abuse various proxy or forwarding related HTTP headers to gain access. Some headers and values to test with are:
+通常，管理面板或与管理相关的功能仅供本地网络上的客户端访问，因此可能滥用各种代理或转发相关的 HTTP头来获得访问权限。一些要测试的头和值包括：
 
-- Headers:
+- 头：
     - `X-Forwarded-For`
     - `X-Forward-For`
     - `X-Remote-IP`
     - `X-Originating-IP`
     - `X-Remote-Addr`
     - `X-Client-IP`
-- Values
-    - `127.0.0.1` (or anything in the `127.0.0.0/8` or `::1/128` address spaces)
+- 值
+    - `127.0.0.1`（或 `127.0.0.0/8` 或 `::1/128` 地址空间中的任何地址）
     - `localhost`
-    - Any [RFC1918](https://tools.ietf.org/html/rfc1918) address:
+    - 任何 [RFC1918](https://tools.ietf.org/html/rfc1918) 地址：
         - `10.0.0.0/8`
         - `172.16.0.0/12`
         - `192.168.0.0/16`
-    - Link local addresses: `169.254.0.0/16`
+    - 链路本地地址：`169.254.0.0/16`
 
-Note: Including a port element along with the address or hostname may also help bypass edge protections such as web application firewalls, etc.
-For example: `127.0.0.4:80`, `127.0.0.4:443`, `127.0.0.4:43982`
+注意：除了地址或主机名外，还包括端口元素也可能有助于绕过边缘保护（如 Web 应用防火墙等）。
+例如：`127.0.0.4:80`、`127.0.0.4:443`、`127.0.0.4:43982`
 
-## Remediation
+## 修复方案
 
-Employ the least privilege principles on the users, roles, and resources to ensure that no unauthorized access occurs.
+对用户、角色和资源采用最小权限原则，确保不发生未授权访问。
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org/)
-    - [ZAP add-on: Access Control Testing](https://www.zaproxy.org/docs/desktop/addons/access-control-testing/)
+    - [ZAP 插件：Access Control Testing](https://www.zaproxy.org/docs/desktop/addons/access-control-testing/)
 - [Port Swigger Burp Suite](https://portswigger.net/burp)
-    - [Burp extension: AuthMatrix](https://github.com/SecurityInnovation/AuthMatrix/)
-    - [Burp extension: Autorize](https://github.com/Quitten/Autorize)
+    - [Burp 扩展：AuthMatrix](https://github.com/SecurityInnovation/AuthMatrix/)
+    - [Burp 扩展：Autorize](https://github.com/Quitten/Autorize)
 
-## References
+## 参考资料
 
-[OWASP Application Security Verification Standard 4.0.1](https://github.com/OWASP/ASVS/tree/master/4.0), v4.0.1-1, v4.0.1-4, v4.0.1-9, v4.0.1-16
+[OWASP 应用安全验证标准 4.0.1](https://github.com/OWASP/ASVS/tree/master/4.0)，v4.0.1-1、v4.0.1-4、v4.0.1-9、v4.0.1-16

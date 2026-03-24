@@ -1,31 +1,31 @@
-# Testing for Concurrent Sessions
+# 测试并发会话
 
 |ID          |
 |------------|
 |WSTG-SESS-11|
 
-## Summary
+## 概述
 
-Concurrent sessions are a common aspect of web applications that enable multiple simultaneous user interactions. This test case aims to evaluate the application's ability to handle multiple active sessions for a single user. This functionality is essential for effectively managing concurrent user sessions, particularly in sensitive areas such as admin panels containing Personally Identifiable Information (PII), personal user accounts, or APIs reliant on third-party services to enrich user-provided data. The primary objective is to ensure that concurrent sessions align with the application's security requirements.
+并发会话是Web应用的常见方面，支持多个同时的用户交互。本测试用例旨在评估应用处理单个用户的多个活动会话的能力。此功能对于有效管理并发用户会话至关重要，特别是在包含个人身份信息（PII）的管理员面板、个人用户账户或依赖第三方服务来丰富用户提供数据的API等敏感区域。主要目标是确保并发会话与应用的安全要求保持一致。
 
-Understanding the security needs in an application is key to assessing whether enabling concurrent sessions corresponds with the intended features. Allowing concurrent sessions isn't inherently detrimental and is intentionally permitted in many applications. However, it is crucial to ensure that the application’s functionality is effectively aligned with its security measures concerning concurrent sessions. If concurrent sessions are intended, it is vital to ensure additional security controls, such as managing active sessions, terminating sessions, and potential new session notifications. Conversely, if concurrent sessions are not intended or planned within the application, it is crucial to validate existing checks for session management vulnerabilities.
+理解应用中的安全需求是评估启用并发会话是否与预期功能相对应的关键。允许并发会话并非本质上是有害的，在许多应用中是有意允许的。但是，至关重要的是确保应用的功能与其关于并发会话的安全措施有效对齐。如果打算进行并发会话，必须确保额外的安全控制，例如管理活动会话、终止会话和潜在的 新会话通知。相反，如果应用内不打算或计划并发会话，则必须验证现有的会话管理漏洞检查。
 
-To recognize that concurrent sessions are essential, you should consider the following factors:
+要认识到并发会话是必需的，应考虑以下因素：
 
-- Understanding the application's nature, particularly situations where users might require simultaneous access from different locations or devices.
-- Identifying critical operations, such as financial transactions that require secure access.
-- Handling sensitive data like Personally Identifiable Information (PII), indicating the necessity for secure interactions.
-- Distinguishing between a management panel and a standard user dashboard for normal user access.
+- 了解应用的性质，特别是用户可能需要从不同位置或设备同时访问的情况。
+- 识别关键操作，例如需要安全访问的金融交易。
+- 处理敏感数据（如个人身份信息（PII）），表明需要安全交互。
+- 区分管理面板和普通用户仪表板以进行正常用户访问。
 
-## Test Objectives
+## 测试目标
 
-- Evaluate the application's session management by assessing the handling of multiple active sessions for a single user account.
+- 通过评估单个用户账户的多个活动会话的处理来评估应用的会话管理。
 
-## How to Test
+## 如何测试
 
-1. **Generate Valid Session:**
-   - Submit valid credentials (username and password) to create a session.
-   - Example HTTP Request:
+1. **生成有效会话：**
+   - 提交有效凭证（用户名和密码）以创建会话。
+   - 示例HTTP请求：
 
      ```http
      POST /login HTTP/1.1
@@ -35,42 +35,42 @@ To recognize that concurrent sessions are essential, you should consider the fol
      username=admin&password=admin123
      ```
 
-   - Example Response:
+   - 示例响应：
 
      ```http
      HTTP/1.1 200 OK
      Set-Cookie: SESSIONID=0add0d8eyYq3HIUy09hhus; Path=/; Secure
      ```
 
-   - Store the generated authentication cookie. In some cases, the generated authentication cookie is replaced by tokens such as JSON Web Tokens (JWT).
+   - 存储生成的认证Cookie。在某些情况下，生成的认证Cookie会被JSON Web令牌（JWT）等令牌替换。
 
-2. **Test for Generating Active Sessions:**
-   - Attempt to create multiple authentication cookies by submitting login requests (e.g., one hundred times).
+2. **测试生成活动会话：**
+   - 尝试通过提交登录请求（例如一百次）来创建多个认证Cookie。
 
-   Note: Utilizing private browsing mode or multi-account containers might be beneficial for conducting these tests, as they can provide separate environments for testing session management without interference from existing sessions or cookies stored in the browser.
+   注意：利用隐私浏览模式或多账户容器可能有利于进行这些测试，因为它们可以提供单独的环境来测试会话管理，而不会干扰现有会话或存储在浏览器中的Cookie。
 
-3. **Test for Validating Active Sessions:**
-   - Try accessing the application using the initial session token (e.g., `SESSIONID=0add0d8eyYq3HIUy09hhus`).
-   - If successful authentication occurs with the first generated token, consider it a potential issue indicating inadequate session management.
+3. **测试验证活动会话：**
+   - 尝试使用初始会话令牌（例如`SESSIONID=0add0d8eyYq3HIUy09hhus`）访问应用。
+   - 如果使用第一个生成的令牌成功认证，请考虑这是一个潜在问题，表明会话管理不当。
 
-Also, there are additional test cases that extend the scope of the testing methodology to include scenarios involving multiple sessions originating from various IPs and locations. These test cases aid in identifying potential vulnerabilities or irregularities in session handling related to geographical or network-based factors:
+此外，还有扩展测试方法范围的额外测试用例，包括涉及来自不同IP和位置的多个会话的场景。这些测试用例有助于识别与地理或基于网络的因素相关的会话处理中的潜在漏洞或异常：
 
-- Test Multiple sessions from the same IP.
-- Test Multiple sessions from different IPs.
-- Test Multiple sessions from locations that are unlikely or impossible to be visited by the same user in a short period of time (e.g., one session created in a specific country, followed by another session generated five minutes later from a different country).
+- 测试来自同一IP的多个会话。
+- 测试来自不同IP的多个会话。
+- 测试来自同一用户在短时间内不太可能或不可能访问的位置的多个会话（例如，一个会话在特定国家创建，五分钟后从不同国家生成的另一个会话）。
 
-## Remediation
+## 修复方案
 
-The application should monitor and limit the number of active sessions per user account. If the maximum allowed sessions are surpassed, the system must invalidate previous sessions to maintain security. Implementing additional solutions can further mitigate this vulnerability:
+应用应监视并限制每个用户账户的活动会话数。如果超过允许的最大会话数，系统必须使先前的会话失效以保持安全。实施额外的解决方案可以进一步缓解此漏洞：
 
-   1. **User Notification:** Notify users after each successful login to raise awareness of active sessions.
-   2. **Session Management Page:** Create a dedicated page to display and allow termination of active sessions for enhanced user control.
-   3. **IP Address Tracking:** Track the IP addresses of users who log in to an account and flag any suspicious activity, such as multiple logins from different locations.
-   4. **IP Address Restrictions:** Allow users to specify trusted IP addresses or ranges from which they can access their accounts, enhancing security by restricting sessions to known and approved locations.
+   1. **用户通知：** 在每次成功登录后通知用户，以提高对活动会话的认识。
+   2. **会话管理页面：** 创建专用页面以显示并允许终止活动会话，以增强用户控制。
+   3. **IP地址跟踪：** 跟踪登录到账户的用户IP地址，并标记任何可疑活动，例如来自不同位置的多次登录。
+   4. **IP地址限制：** 允许用户指定可以从中访问其账户的受信任IP地址或范围，从而通过将会话限制为已知和批准的位置来增强安全性。
 
-## Recommended Tools
+## 推荐工具
 
-### Intercepting Proxy Tools
+### 拦截代理工具
 
 - [Zed Attack Proxy](https://www.zaproxy.org)
 - [Burp Suite Web Proxy](https://portswigger.net)

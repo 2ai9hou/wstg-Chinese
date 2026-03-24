@@ -1,9 +1,9 @@
-# Testing for Weak or Unenforced Username Policy
+# 测试弱用户名或未强制执行的用户名策略
 
 |ID          |
 |------------|
 |WSTG-IDNT-05|
 
-This test has been merged into WSTG-IDNT-04 (Testing for Account Enumeration and Guessable User Accounts) due to overlapping scope related to predictable username structures and enumeration techniques.
+此测试已合并到 WSTG-IDNT-04（测试账户枚举和可猜测的用户账户），因为与可预测的用户名结构和枚举技术相关的范围重叠。
 
 [merged]: # (WSTG-IDNT-04)

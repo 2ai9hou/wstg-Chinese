@@ -1,186 +1,186 @@
-# Testing Multi-Factor Authentication (MFA)
+# 测试多因素认证（MFA）
 
 |ID          |
 |------------|
 |WSTG-ATHN-11|
 
-## Summary
+## 概述
 
-Many applications implement Multi-Factor Authentication (MFA) as an additional layer of security to protect the login process. This is also known as two-factor authentication (2FA) or two-step verification (2SV) - although these are not strictly the same thing. MFA means asking the user to provide *at least* two different [authentication factors](#types-of-mfa) when logging in.
+许多应用程序实施多因素认证（MFA）作为保护登录过程的额外安全层。这也称为双因素认证（2FA）或两步验证（2SV）——尽管这些并不完全相同。MFA 意味着在登录时要求用户提供*至少*两个不同的[认证因素](#mfa-的类型)。
 
-MFA adds additional complexity to both the authentication functionality, and also to other security-related areas (such as credential management and password recovery), meaning that it is critical for it to be implemented in a correct and robust manner.
+MFA 为认证功能以及其他安全相关领域（如凭据管理和密码恢复）增加了额外的复杂性，这意味着正确且稳健地实现它至关重要。
 
-## Test Objectives
+## 测试目标
 
-- Identify the type of MFA used by the application.
-- Determine whether the MFA implementation is robust and secure.
-- Attempt to bypass the MFA.
+- 识别应用程序使用的 MFA 类型。
+- 确定 MFA 实现是否稳健且安全。
+- 尝试绕过 MFA。
 
-## How to Test
+## 如何测试
 
-### Types of MFA
+### MFA 的类型
 
-MFA means that *at least* two of the following factors are required to authentication:
+MFA 意味着需要*至少*两个以下因素进行认证：
 
-| Factor | Examples |
-|--------|----------|
-| Something You Know | Passwords, PINs and security questions. |
-| Something You Have | Hardware or software tokens, certificates, email*, SMS, and phone calls. |
-| Something You Are | Fingerprints, facial recognition, iris scans, handprint scans and behavioural factors. |
-| Location | Source IP ranges, and geolocation. |
+| 因素 | 示例 |
+|------|------|
+| 你知道的 | 密码、PIN 和安全问题。 |
+| 你拥有的 | 硬件或软件令牌、证书、电子邮件*、SMS 和电话。 |
+| 你是什么 | 指纹、面部识别、虹膜扫描、掌纹扫描和行为因素。 |
+| 位置 | 源 IP 范围和地理位置。 |
 
-\* Email only really constitutes "something you have" if the email account itself is protected with MFA. As such, it should be considered weaker than other alternatives such as certificates or TOTP, and may not be accepted as MFA under some definitions.
+\* 电子邮件只有在电子邮件账户本身受 MFA 保护时才真正构成"你拥有的"。因此，它应被视为比其他替代方案（如证书或 TOTP）更弱，在某些定义下可能不被接受为 MFA。
 
-Note that requiring multiple examples of a single factor (such as needing both a password and a PIN) **does not constitute MFA**, although it may provide some security benefits over a simple password, and may be considered two-step verification (2SV).
+请注意，要求单个因素的多个示例（如同时需要密码和 PIN）**不构成 MFA**，尽管它可能比简单密码提供一些安全优势，并且可能被视为两步验证（2SV）。
 
-Due to the complexity of implementing biometrics in a browser-based environment, "Something You Are" is rarely used for web applications, although it is starting to be adopted using standards such as WebAuthn. The most common second factor is "Something You Have".
+由于在基于浏览器的环境中实施生物识别的复杂性，"你是什么"很少用于 Web 应用程序，尽管它已开始采用 WebAuthn 等标准。最常见的第二个因素是"你拥有的"。
 
-### Check for MFA Bypasses
+### 检查 MFA 绕过
 
-The first step for testing MFA is to identify all of the authentication functionality in the application, which may include:
+测试 MFA 的第一步是识别应用程序中的所有认证功能，包括：
 
-- The main login page.
-- Security critical functionality (such as disabling MFA or changing a password).
-- Federated login providers.
-- API endpoints (from both the main web interface and mobile apps).
-- Alternative (non-HTTP) protocols.
-- Test or debug functionality.
+- 主登录页面。
+- 安全关键功能（如禁用 MFA 或更改密码）。
+- 联合登录提供商。
+- API 端点（从主 Web 界面和移动应用程序）。
+- 替代（非 HTTP）协议。
+- 测试或调试功能。
 
-All of the different login methods should be reviewed, to ensure that MFA is enforced consistently. If some methods do not require MFA, then these can provide a simple method to bypass them.
+应审查所有不同的登录方法，以确保 MFA 被一致地强制执行。如果某些方法不需要 MFA，则这些方法可能提供简单的绕过方法。
 
-If the authentication is done in multiple steps then it may be possible to bypass it by completing the first step of the authentication process (entering the username and password), and then force-browsing to the application or making direct API requests without completing the second stage (entering the MFA code).
+如果认证是多步骤完成的，则可能通过完成认证过程的第一步（输入用户名和密码）然后强制浏览到应用程序或直接 API 请求来完成第二步（输入 MFA 代码）而不完成来绕过它。
 
-If the authentication is using a OpenID Connect (OIDC) provider that allows custom authentication flows (or policies) such as Azure B2C, there may be multiple flows defined, some of which may not require MFA. For example if the application authenticates with a flow called `B2C_1_SignInWithMFA`, then try tampering that to `B2C_1_SignIn`, `B2C_1_SignInWithoutMFA` or other similar values.
+如果认证使用的是允许自定义认证流程（或策略）的 OpenID Connect（OIDC）提供商（如 Azure B2C），则可能定义了多个流程，其中一些可能不需要 MFA。例如，如果应用程序使用名为 `B2C_1_SignInWithMFA` 的流程进行认证，则尝试将其篡改为 `B2C_1_SignIn`、`B2C_1_SignInWithoutMFA` 或其他类似值。
 
-In some cases, there may also be intentional MFA bypasses implemented, such as not requiring MFA:
+在某些情况下，也可能存在故意的 MFA 绕过实现，例如不要求 MFA：
 
-- From specific IP addresses (which may be spoofable using the `X-Forwarded-For` HTTP header).
-- When a specific HTTP header is set (such as a non-standard header like `X-Debug`).
-- For a specific hard-coded account (such as a "root" or "breakglass" account).
+- 来自特定 IP 地址（可能使用 `X-Forwarded-For` HTTP 头欺骗）。
+- 当设置了特定 HTTP 头时（如非标准头如 `X-Debug`）。
+- 对于特定的硬编码账户（如"root"或"breakglass"账户）。
 
-Where an application supports both local and federated logins, it may be possible to bypass the MFA if there is no strong separation between these two types of accounts. For example, if a user registers a local account and configures MFA for it, but does not have MFA configured on their account on the federated login provider, it may be possible for an attacker to re-register (or link) a federated account on the target application with the same email address by compromising the user's account on the federated login provider.
+如果应用程序同时支持本地和联合登录，如果这两类账户之间没有强分离，则可能绕过 MFA。例如，如果用户注册了一个本地账户并为其配置了 MFA，但未在其联合登录提供商的账户上配置 MFA，则攻击者可能通过损害用户在联合登录提供商上的账户，在目标应用程序上重新注册（或链接）具有相同电子邮件地址的联合账户。
 
-Finally, if the MFA is implemented on a different system to the main application (such as on a reverse proxy, in order to protect a legacy application that does not natively support MFA), then it may be possible to bypass it by connecting directly to the backend application server, as discussed in the guide on how to [map the application architecture](../01-Information_Gathering/10-Map_Application_Architecture.md#content-delivery-network-cdn).
+最后，如果 MFA 是在与主应用程序不同的系统上实现的（如在反向代理上，以保护不支持 MFA 的遗留应用程序），则可能通过直接连接到后端应用程序服务器来绕过它，如[映射应用程序架构](../01-Information_Gathering/10-Map_Application_Architecture.md#content-delivery-network-cdn)指南中所讨论的。
 
-### Check MFA Management
+### 检查 MFA 管理
 
-The functionality used to manage MFA from inside the user's account should be tested for vulnerabilities, including:
+应测试从用户账户内部管理 MFA 的功能的漏洞，包括：
 
-- Is the user required to re-authenticate to remove or change MFA settings?
-- Is the MFA management functionality vulnerable to [cross-site request forgery](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)?
-- Can other users' MFA setting be modified through [IDOR vulnerabilities](../05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References.md)?
+- 是否要求用户重新认证才能移除或更改 MFA 设置？
+- MFA 管理功能是否容易受到[跨站请求伪造](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)？
+- 是否可以通过[不安全的直接对象引用](../05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References.md)修改其他用户的 MFA 设置？
 
-### Check MFA Recovery Options
+### 检查 MFA 恢复选项
 
-Many applications will provide users with a way to regain access to their account if they are unable to authenticate with their second factor (for example if they have lost their phone). These mechanisms can often represent a significant weakness in the application, as they effectively allow the second authentication factor to be bypassed.
+许多应用程序会为用户提供一种方式，在无法使用第二个因素进行认证时重新获得账户访问权（例如，如果他们丢失了手机）。这些机制通常可以代表应用程序的一个重大弱点，因为它们实际上允许绕过第二个认证因素。
 
-#### Recovery Codes
+#### 恢复代码
 
-Some applications will provide the user with a list of recovery or backup codes when they enable MFA, which can be used to login. These should be checked to ensure:
+一些应用程序会在用户启用 MFA 时为其提供一组恢复或备份代码，可用于登录。这些应检查以确保：
 
-- They are sufficiently long and complex to protect against brute-force attacks.
-- They are securely generated.
-- They can only be used once.
-- Brute-force protection is in place (such as account lockout).
-- The user is notified (via email, SMS, etc) when a code is used.
+- 它们足够长且复杂，能够防止暴力破解攻击。
+- 它们是安全生成的。
+- 它们只能使用一次。
+- 有暴力破解保护（如账户锁定）。
+- 当代码被使用时，会通知用户（通过电子邮件、SMS 等）。
 
-See the ["Backup Codes" section in the Forgotten Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html#backup-codes) for further details.
+有关更多信息，请参阅[忘记密码速查表中的"备份代码"部分](https://cheatseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html#backup-codes)。
 
-#### MFA Reset Process
+#### MFA 重置过程
 
-If the application implements an MFA reset process, this should be tested in the same way that the [password reset process](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md) is tested. It is important that this process is *at least* as strong as the MFA implementation for the application.
+如果应用程序实施了 MFA 重置过程，应以与[密码重置过程](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md)相同的方式进行测试。重要的是，此过程应*至少*与应用程序的 MFA 实现一样强。
 
-#### Alternative Authentication
+#### 替代认证
 
-Some applications will allow the user to prove their identity through other means, such as the use of [security questions](08-Testing_for_Weak_Security_Question_Answer.md). This usually represents a significant weakness, as security questions provide a far lower level of security than MFA.
+一些应用程序将允许用户通过其他方式证明其身份，例如使用[安全问题](08-Testing_for_Weak_Security_Question_Answer.md)。这通常代表一个重大弱点，因为安全问题提供的安全级别比 MFA 低得多。
 
-### One-Time Passwords
+### 一次性密码
 
-The most common form of MFA is the one of One-Time Passwords (OTPs), which are typically six-digit numeric codes (although they can be longer or shorter). These can either be generated by both the server and the user (for example, with an authenticator app), or can be generated on the server and sent to the user. There are various ways that this OTP can be provided to the user, including:
+MFA 最常见的形式是一次性密码（OTP），通常是六位数字代码（尽管可以更长或更短）。这些可以由服务器和用户双方生成（例如，使用身份验证器应用程序），也可以在服务器上生成并发送给用户。有多种方式可以向用户提供此 OTP，包括：
 
-| Type | Description |
-|------|-------------|
-| HMAC One-Time Password (HOPT) | Generates a code based on the HMAC of a secret and a shared counter. |
-| Time-based One-Time Password (TOTP) | Generates a code based on HMAC of a secret and the current time. |
-| Email | Sends a code via email. |
-| SMS | Sends a code via SMS. |
-| Phone | Sends a code via a voice call to a phone number. |
+| 类型 | 描述 |
+|------|------|
+| 基于 HMAC 的一次性密码（HOTP） | 基于秘密和共享计数器的 HMAC 生成代码。 |
+| 基于时间的一次性密码（TOTP） | 基于秘密和当前时间的 HMAC 生成代码。 |
+| 电子邮件 | 通过电子邮件发送代码。 |
+| SMS | 通过 SMS 发送代码。 |
+| 电话 | 通过语音呼叫向电话号码发送代码。 |
 
-The OTP is typically entered after the user has provided their username and password. There are various checks that should be performed, including:
+OTP 通常在用户提供用户名和密码后输入。应执行各种检查，包括：
 
-- Is the account locked out after multiple failed MFA attempts?
-- Is the user's IP address blocked after multiple failed MFA attempts across different accounts?
-- Are failed MFA attempts logged?
-- Is the form vulnerable to injection attacks, including [SQL wildcard injection](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md#sql-wildcard-injection)?
+- 多次 MFA 尝试失败后账户是否被锁定？
+- 跨不同账户多次 MFA 尝试失败后是否阻止了用户的 IP 地址？
+- 是否记录了失败的 MFA 尝试？
+- 表格是否容易受到注入攻击，包括 [SQL 通配符注入](../07-Input_Validation_Testing/05-Testing_for_SQL_Injection.md#sql-wildcard-injection)？
 
-Depending on the type of OTPs used, there are also some other specific checks that should be performed:
+根据所使用的 OTP 类型，还应执行一些其他特定检查：
 
-- How are OTPs sent to user (email, SMS, phone, etc)
-    - Is there rate limiting to prevent SMS/phone spam costing money?
-- How strong are OTPs (length and keyspace)?
-- How long are OTPs valid for?
-- Are multiple OTPs valid at once?
-- Can the OTPs be used more than once?
-- Are the OTPs tied to the correct user account or is it possible to authenticate with them on other accounts?
+- 如何向用户发送 OTP（电子邮件、SMS、电话等）
+    - 是否有速率限制以防止 SMS/电话 spam 成本？
+- OTP 有多强（长度和密钥空间）？
+- OTP 有效多长时间？
+- 是否可以同时使用多个 OTP？
+- OTP 可以多次使用吗？
+- OTP 是否绑定到正确的用户账户，或者是否可以在其他账户上进行认证？
 
-#### HOTP and TOTP
+#### HOTP 和 TOTP
 
-HOTP and TOTP codes are both based on a secret that is shared between the server and the user. For TOTP codes, this is usually provided to the user in the form of a QR code that they scan with an authenticator app (although it can also be provided as a text secret for them to manually enter).
+HOTP 和 TOTP 代码都基于服务器和用户之间共享的秘密。对于 TOTP 代码，这通常以用户使用身份验证器应用扫描的 QR 码形式提供（尽管也可以作为文本秘密提供，让他们手动输入）。
 
-Where the secret is generated on the server, it should be checked to ensure that it is sufficiently long and complex ([RFC 4226](https://www.rfc-editor.org/rfc/rfc4226#section-4) recommends at least 160 bits), and that it is generated using a [secure random function](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#secure-random-number-generation).
+如果秘密是在服务器上生成的，应检查以确保它足够长且复杂（[RFC 4226](https://www.rfc-editor.org/rfc/rfc4226#section-4) 建议至少 160 位），并且使用[安全随机函数](https://cheatseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#secure-random-number-generation)生成。
 
-Where the secret can be provided by the user, an appropriate minimum length should be enforced, and the input should be checked for the usual injection attacks.
+如果秘密可以由用户提供，则应强制执行适当的最小长度，并检查输入是否存在通常的注入攻击。
 
-TOTP codes are typically valid for 30 seconds, but some applications choose to accept multiple codes (such as the previous, current, and next codes) in order to deal with differences between the system time on the server and on the user's device. Some applications may allow multiple codes on either side of the current one, which may make it easier for an attacker to guess or brute-force the code. The table below shows the chance of successfully brute-forcing an OTP code based on an attacker being able to make 10 requests a second, for applications that accept either only the current code, or multiple codes (see [this article](https://www.codasecurity.co.uk/articles/mfa-testing#case-study---brute-forcing-totp) for the calculations behind the table).
+TOTP 代码通常有效 30 秒，但一些应用程序选择接受多个代码（如上一个、当前和下一个代码），以处理服务器和用户设备上的系统时间差异。一些应用程序可能允许当前代码两侧的多个代码，这可能使攻击者更容易猜测或暴力破解代码。下表显示了在攻击者能够每秒发出 10 个请求的情况下，成功暴力破解 OTP 代码的概率（有关表背后的计算，请参阅[本文](https://www.codasecurity.co.uk/articles/mfa-testing#case-study---brute-forcing-totp)）。
 
-| Valid Codes | Success rate after 1 hour | Success rate after 4 hours | Success rate after 12 hours | Success rate after 24 hours |
-|-------------|---------------------------|----------------------------|-----------------------------|-----------------------------|
+| 有效代码数 | 1 小时后成功率 | 4 小时后成功率 | 12 小时后成功率 | 24 小时后成功率 |
+|------------|--------------|----------------|-----------------|-----------------|
 | 1 | 4%  | 13% | 35% | 58% |
 | 3 | 10% | 35% | 72% | 92% |
 | 5 | 16% | 51% | 88% | 99% |
 | 7 | 22% | 63% | 95% | 99% |
 
-#### Email, SMS, and Phone
+#### 电子邮件、SMS 和电话
 
-Where codes are generated by the server and sent to the client, the following areas should be considered:
+对于由服务器生成并发送给客户端的代码，应考虑以下领域：
 
-- Is the transport mechanism (email, SMS, or voice) secure enough for the application?
-- Are the codes sufficiently long and complex?
-- Are the codes generated using a [secure random function](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#secure-random-number-generation)?
-- How long are the codes valid for?
-- Are multiple codes valid at once, or does generating a new code invalidate the previous one?
-    - Could this be used to block access to an account by repeatedly requesting codes?
-- Is there sufficient rate-limiting to prevent an attacker requesting large numbers of codes?
-    - Large numbers of emailed code may get the server blocked for sending spam.
-    - Large numbers of SMS or voice calls may cost money, or be used to harass a user.
+- 传输机制（电子邮件、SMS 或语音）是否对应用程序足够安全？
+- 代码是否足够长且复杂？
+- 代码是否使用[安全随机函数](https://cheatseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#secure-random-number-generation)生成？
+- 代码有效多长时间？
+- 是同时有多个代码有效，还是生成新代码会使之前的代码失效？
+    - 这是否可用于通过重复请求代码来阻止账户访问？
+- 是否有足够的速率限制来防止攻击者请求大量代码？
+    - 大量通过电子邮件发送的代码可能导致服务器被阻止发送垃圾邮件。
+    - 大量 SMS 或语音呼叫可能花钱，或用于骚扰用户。
 
-### Mobile Apps and Push Notifications
+### 移动应用和推送通知
 
-An alternative approach to OTP codes is to send a push notification to the user's mobile phone, which they can either approve or deny. This method is less common, as it requires the user to install an application-specific authenticator.
+OTP 代码的替代方法是向用户的手机发送推送通知，用户可以批准或拒绝。这种方法不太常见，因为需要用户安装特定于应用程序的身份验证器。
 
-Properly evaluating the security of this requires the scope of testing to be expanded to cover both the mobile app, and any supporting APIs or services used by it; meaning that it would often be outside of the scope of a traditional web application test. However, there are a couple of simple checks that can be performed without testing the mobile app, including:
+正确评估其安全性需要扩大测试范围以覆盖移动应用及其使用的任何支持 API 或服务；这意味着它通常超出传统 Web 应用程序测试的范围。但是，有一些简单的检查可以在不测试移动应用的情况下执行，包括：
 
-- Does the notification provide sufficient context (IP addresses, location, etc) for the user to make an informed decision about whether to approve or deny it?
-- Is there any kind of challenge and response mechanism (such as providing a code on the site that the user needs to enter into the app - often called "number matching" or "number challenge")?
-- Is there any rate limiting or mechanisms to prevent the user from being spammed with notifications in the hope that they will just blindly accept one?
+- 通知是否提供足够的上下文（IP 地址、位置等）让用户做出明智的决定是批准还是拒绝？
+- 是否有任何质询和响应机制（如在网站上显示代码，用户需要将其输入应用——通常称为"数字匹配"或"数字质询"）？
+- 是否有任何速率限制或机制来防止用户被通知垃圾邮件，希望他们只是盲目接受一个？
 
-### IP Address and Location Filtering
+### IP 地址和位置过滤
 
-One of the factors that is sometimes used with MFA is location ("somewhere you are"), although whether this constitutes a proper authentication factor is debatable. In the context of a web application, this typically means restricting access to specific IP addresses, or not prompting the user for a second factor as long as they are connecting from a specific trusted IP address. A common scenario for this would be to authenticate users with just their password when connecting from the office IP ranges, but requiring an OTP code when they connect from elsewhere.
+有时与 MFA 一起使用的因素之一是位置（"你所在的地方"），尽管这是否构成适当的认证因素是有争议的。在 Web 应用程序的上下文中，这通常意味着限制对特定 IP 地址的访问，或者只要用户从特定可信 IP 地址连接就不提示他们输入第二个因素。这种情况的一个常见场景是，当用户从办公室 IP 范围连接时，仅使用密码对其进行认证，但从其他地方连接时需要 OTP 代码。
 
-Depending on the implementation, it may be possible for a user to spoof a trusted IP address by setting the `X-Forwarded-For` header, which could allow them to bypass this check. Note that if the application does not correctly sanitize the contents of this header, it may also be possible to carry out attack such as SQL injection here. If the application supports IPv6, then this should also be checked to ensure that appropriate restrictions are applied to those connections.
+根据实现方式，用户可能通过设置 `X-Forwarded-For` 头欺骗可信 IP 地址，从而允许他们绕过此检查。请注意，如果应用程序不正确地清理此头的内容，也可能允许在此处进行 SQL 注入等攻击。如果应用程序支持 IPv6，则还应检查以确保对这些连接应用了适当的限制。
 
-Additionally, the trusted IP addresses should be reviewed to ensure that they do not present any weaknesses, such as if they include:
+此外，应审查可信 IP 地址以确保它们不呈现任何弱点，例如它们是否包括：
 
-- IP addresses that could be accessible by untrusted users (such as the guest wireless networks in an office).
-- Dynamically assigned IP address that could change.
-- Public network ranges where an attacker could host their own system (such as Azure or AWS).
+- 可能被不可信用户访问的 IP 地址（如办公室的访客无线网络）。
+- 可能更改的动态分配 IP 地址。
+- 攻击者可能托管自己系统的公共网络范围（如 Azure 或 AWS）。
 
-### Certificates and Smartcards
+### 证书和智能卡
 
-Transport Layer Security (TLS) is commonly used to encrypt traffic between the client and the server, and to provide a mechanism for the client to confirm the identity of the server (by comparing Common Name (CN) or Subject Alternative Name (SAN) on the certificate to the requested domain). However, it can also provide a mechanism for the server to confirm the identity of the client, known as client certificate authentication or mutual TLS (mTLS). A full discussion of client certificate authentication is outside of the scope of this guide, but the key principle is that the user presents a digital certificate (stored either on their machine or on a smartcard), which is validated by the server.
+传输层安全（TLS）通常用于加密客户端和服务器之间的流量，并提供客户端确认服务器身份的机制（通过将证书上的通用名称（CN）或主题备用名称（SAN）与请求的域进行比较）。但是，它还可以提供服务器确认客户端身份的机制，称为客户端证书认证或相互 TLS（mTLS）。客户端证书认证的完整讨论超出了本指南的范围，但关键原则是用户出示数字证书（存储在他们的机器或智能卡上），由服务器验证。
 
-The first step when testing is to determine whether the target application restricts the Certificate Authorities (CAs) that are trusted to issue certificates. This information can be obtained using various tools, or by manually examining the TLS handshake. The simplest way is to use OpenSSL's `s_client`:
+测试时的第一步是确定目标应用程序是否限制受信任的证书颁发机构（CA）来颁发证书。可以使用各种工具获取此信息，或通过手动检查 TLS 握手。最简单的方法是使用 OpenSSL 的 `s_client`：
 
 ```bash
 $ openssl s_client -connect example:443
@@ -190,26 +190,26 @@ C = US, ST = Example, L = Example, O = Example Org, CN = Example Org Root Certif
 Client Certificate Types: RSA sign, DSA sign, ECDSA sign
 ```
 
-If there are no restrictions, then it may be possible to authenticate using a certificate from a different CA. If there are restrictions but they are badly implemented, it may be possible to create a local CA with the correct name ("Example Org Root Certificate Authority" in the example above), and to use this new CA to sign client certificates.
+如果没有限制，则可能能够使用来自其他 CA 的证书进行认证。如果有限制但实施不当，则可能创建一个具有正确名称的本地 CA（"Example Org Root Certificate Authority"如上例），并使用此新 CA 来签署客户端证书。
 
-If a valid certificate can be obtained, then it should also be verified that the certificate can only be used for the user that it is issued for (i.e, that you can't use a certificate issued to Alice to authenticate on Bob's account). Additionally, certificates should be checked to ensure that they have neither expired nor been revoked.
+如果可以获得有效证书，还应验证该证书只能用于颁发给的用户的账户（即，不能使用颁发给 Alice 的证书在 Bob 的账户上进行认证）。此外，应检查证书是否既未过期也未撤销。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for Weak Lock Out Mechanism](03-Testing_for_Weak_Lock_Out_Mechanism.md)
-- [Testing for Weak Password Change or Reset Functionalities](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md)
+- [测试弱锁定机制](03-Testing_for_Weak_Lock_Out_Mechanism.md)
+- [测试弱密码更改或重置功能](09-Testing_for_Weak_Password_Change_or_Reset_Functionalities.md)
 
-## Remediation
+## 修复
 
-Ensure that:
+确保：
 
-- MFA is implemented for all relevant accounts and functionality on the applications.
-- The support MFA methods are appropriate for the application.
-- The mechanisms used to implement MFA are appropriately secured and protected against brute-force attacks.
-- There is appropriate auditing and logging for all MFA-related activity.
+- 在应用程序的所有相关账户和功能上实施 MFA。
+- 支持的 MFA 方法适合应用程序。
+- 用于实施 MFA 的机制适当安全并防止暴力破解攻击。
+- 所有 MFA 相关活动都有适当的审计和日志。
 
-See the [OWASP Multi-Factor Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html) for further recommendations.
+有关进一步建议，请参阅 [OWASP 多因素认证速查表](https://cheatseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html)。
 
-## References
+## 参考资料
 
-- [OWASP Multi-Factor Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html)
+- [OWASP 多因素认证速查表](https://cheatseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html)

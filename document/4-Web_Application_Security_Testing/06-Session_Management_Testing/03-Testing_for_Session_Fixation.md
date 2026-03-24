@@ -1,36 +1,36 @@
-# Testing for Session Fixation
+# 测试会话固定
 
 |ID          |
 |------------|
 |WSTG-SESS-03|
 
-## Summary
+## 概述
 
-Session fixation is enabled by the insecure practice of preserving the same value of the session cookies before and after authentication. This typically happens when session cookies are used to store state information even before login, e.g., to add items to a shopping cart before authenticating for payment.
+会话固定源于在认证前后保持会话Cookie相同值的不安全做法。这通常发生在会话Cookie用于在登录前存储状态信息时，例如在认证支付之前将商品添加到购物车。
 
-In the generic exploit of session fixation vulnerabilities, an attacker can obtain a set of session cookies from the target site without first authenticating. The attacker can then force these cookies into the victim's browser using different techniques. If the victim later authenticates at the target site and the cookies are not refreshed upon login, the victim will be identified by the session cookies chosen by the attacker. The attacker is then able to impersonate the victim with these known cookies.
+在会话固定漏洞的通用利用中，攻击者可以在不首先认证的情况下从目标站点获取一组会话Cookie。攻击者可以使用不同技术将这些Cookie强制注入受害者的浏览器。如果受害者在目标站点稍后进行认证，并且Cookie在登录时未刷新，则受害者将被攻击者选择的会话Cookie识别。攻击者随后能够使用这些已知Cookie冒充受害者。
 
-This issue can be fixed by refreshing the session cookies after the authentication process. Alternatively, the attack can be prevented by ensuring the integrity of session cookies. When considering network attackers, i.e., attackers who control the network used by the victim, use full [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) or add the`__Host-` / `__Secure-` prefix to the cookie name.
+可以通过在认证过程后刷新会话Cookie来修复此问题。或者，可以通过确保会话Cookie的完整性来防止攻击。在考虑网络攻击者（即控制受害者使用的网络的攻击者）时，使用完整的[HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security)或向Cookie名称添加`__Host-` / `__Secure-`前缀。
 
-Full HSTS adoption occurs when a host activates HSTS for itself and all its sub-domains. This is described in a paper called *Testing for Integrity Flaws in Web Sessions* by Stefano Calzavara, Alvise Rabitti, Alessio Ragazzo, and Michele Bugliesi.
+完整的HSTS采用发生在主机为自己及其所有子域激活HSTS时。这在一篇名为*Testing for Integrity Flaws in Web Sessions*的论文中描述，作者是Stefano Calzavara、Alvise Rabitti、Alessio Ragazzo和Michele Bugliesi。
 
-## Test Objectives
+## 测试目标
 
-- Analyze the authentication mechanism and its flow.
-- Force cookies and assess the impact.
+- 分析认证机制及其流程。
+- 强制使用Cookie并评估影响。
 
-## How to Test
+## 如何测试
 
-In this section we give an explanation of the testing strategy that will be shown in the next section.
+在本节中，我们将解释将在下一节中显示的测试策略。
 
-The first step is to make a request to the site to be tested (*e.g.* `www.example.com`). If the tester requests the following:
+第一步是向要测试的站点发送请求（例如`www.example.com`）。如果测试人员请求以下内容：
 
 ```http
-GET / HTTP/1.1
+GET / HTTP/1.1
 Host: www.example.com
 ```
 
-They will obtain the following response:
+他们将获得以下响应：
 
 ```html
 HTTP/1.1 200 OK
@@ -45,9 +45,9 @@ Content-Type: text/html;charset=Cp1254
 Content-Language: en-US
 ```
 
-The application sets a new session identifier, `JSESSIONID=0000d8eyYq3L0z2fgq10m4v-rt4:-1`, for the client.
+应用为客户端设置了一个新的会话标识符`JSESSIONID=0000d8eyYq3L0z2fgq10m4v-rt4:-1`。
 
-Next, if the tester successfully authenticates to the application with the following POST to `https://www.example.com/authentication.php`:
+接下来，如果测试人员通过以下POST成功认证到应用：`https://www.example.com/authentication.php`：
 
 ```http
 POST /authentication.php HTTP/1.1
@@ -61,7 +61,7 @@ Content-length: 57
 Name=Meucci&wpPassword=secret!&wpLoginattempt=Log+in
 ```
 
-The tester observes the following response from the server:
+测试人员观察到服务器的以下响应：
 
 ```http
 HTTP/1.1 200 OK
@@ -79,41 +79,41 @@ HTML data
 ...
 ```
 
-As no new cookie has been issued upon a successful authentication, the tester knows that it is possible to perform session hijacking unless the integrity of the session cookie is ensured.
+由于在成功认证后没有颁发新的Cookie，测试人员知道除非确保会话Cookie的完整性，否则可以进行会话劫持。
 
-The tester can send a valid session identifier to a user (possibly using a social engineering trick), wait for them to authenticate, and subsequently verify that privileges have been assigned to this cookie.
+测试人员可以将有效的会话标识符发送给用户（可能使用社会工程技巧），等待他们认证，然后验证权限是否已分配给此Cookie。
 
-### Test with Forced Cookies
+### 使用强制Cookie进行测试
 
-This testing strategy is targeted at network attackers, hence it only needs to be applied to sites without full HSTS adoption (sites with full HSTS adoption are secure, since all their cookies have integrity). We assume to have two testing accounts on the site under test, one to act as the victim and one to act as the attacker. We simulate a scenario where the attacker forces in the victim's browser all the cookies which are not freshly issued after login and do not have integrity. After the victim's login, the attacker presents the forced cookies to the site to access the victim's account: if they are enough to act on the victim's behalf, session fixation is possible.
+此测试策略针对网络攻击者，因此只需应用于没有完整HSTS采用的站点（具有完整HSTS采用的站点是安全的，因为它们的所有Cookie都具有完整性）。我们假设在测试站点上有两个测试账户，一个充当受害者，一个充当攻击者。我们模拟一个场景，攻击者在受害者的浏览器中强制所有在登录后未新鲜颁发且没有完整性的Cookie。在受害者登录后，攻击者向站点呈现强制Cookie以访问受害者的账户：如果这些Cookie足以代表受害者行事，则会话固定是可能的。
 
-Here are the steps for executing this test:
+以下是执行此测试的步骤：
 
-1. Reach the login page of the site.
-2. Save a snapshot of the cookie jar before logging in, excluding cookies which contain the `__Host-` or `__Secure-` prefix in their name.
-3. Login to the site as the victim and reach any page offering a secure function requiring authentication.
-4. Set the cookie jar to the snapshot taken at step 2.
-5. Trigger the secure function identified at step 3.
-6. Observe whether the operation at step 5 has been performed successfully. If so, the attack was successful.
-7. Clear the cookie jar, login as the attacker and reach the page at step 3.
-8. Write in the cookie jar, one by one, the cookies saved at step 2.
-9. Trigger again the secure function identified at step 3.
-10. Clear the cookie jar and login again as the victim.
-11. Observe whether the operation at step 9 has been performed successfully in the victim's account. If so, the attack was successful; otherwise, the site is secure against session fixation.
+1. 到达站点的登录页面。
+2. 在登录前保存Cookie存储的快照，不包括名称中包含`__Host-`或`__Secure-`前缀的Cookie。
+3. 以受害者身份登录并到达任何需要认证的安全功能页面。
+4. 将Cookie存储设置为步骤2中拍摄的快照。
+5. 触发步骤3中识别的安全功能。
+6. 观察步骤5中的操作是否成功执行。如果成功，攻击成功。
+7. 清除Cookie存储，以攻击者身份登录并到达步骤3中的页面。
+8. 逐个将步骤2中保存的Cookie写入Cookie存储。
+9. 再次触发步骤3中识别的安全功能。
+10. 清除Cookie存储，再次以受害者身份登录。
+11. 观察步骤9中的操作是否在受害者的账户中成功执行。如果成功，攻击成功；否则，站点可以防御会话固定。
 
-We recommend using two different machines or browsers for the victim and the attacker. This allows you to decrease the number of false positives if the web application does fingerprinting to verify access enabled from a given cookie. A shorter but less precise variant of the testing strategy only requires one testing account. It follows the same steps, but it halts at step 6.
+我们建议为受害者和攻击者使用两台不同的机器或浏览器。这允许您在Web应用进行指纹识别以验证从给定Cookie启用的访问时减少误报。测试策略的一个更短但精度较低的变体只需要一个测试账户。它遵循相同的步骤，但在步骤6停止。
 
-## Remediation
+## 修复方案
 
-Implement a session token renewal after a user successfully authenticates.
+在用户成功认证后实施会话令牌更新。
 
-The application should always first invalidate the existing session ID before authenticating a user, and if the authentication is successful, provide another session ID.
+应用应首先使现有会话ID失效，然后在对用户进行认证，如果认证成功，则提供另一个会话ID。
 
-## Tools
+## 工具
 
 - [ZAP](https://www.zaproxy.org)
 
-## References
+## 参考资料
 
 - [Session Fixation](https://owasp.org/www-community/attacks/Session_fixation)
 - [ACROS Security](https://www.acrossecurity.com/papers/session_fixation.pdf)

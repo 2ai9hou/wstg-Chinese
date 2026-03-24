@@ -1,22 +1,22 @@
-# Testing for Reverse Tabnabbing
+# 测试反向标签劫持
 
 |ID          |
 |------------|
 |WSTG-CLNT-14|
 
-## Summary
+## 概述
 
-[Reverse Tabnabbing](https://owasp.org/www-community/attacks/Reverse_Tabnabbing) is an attack which can be used to redirect users to phishing pages. This usually becomes possible due to the `target` attribute of the `<a>` tag being set to `_blank` which causes the link to be opened in a new tab. When the attribute `rel='noopener noreferrer'` is not used in the same `<a>` tag, the newly opened page can influence the original page and redirect it to a domain controlled by the attacker.
+[反向标签劫持](https://owasp.org/www-community/attacks/Reverse_Tabnabbing)是一种可用于将用户重定向到钓鱼页面的攻击。这通常由于`<a>`标签的`target`属性设置为`_blank`而导致链接在新选项卡中打开而成为可能。当属性`rel='noopener noreferrer'`未在同一`<a>`标签中使用时，新打开的页面可以影响原始页面并将其重定向到攻击者控制的域。
 
-Since the user was on the original domain when the new tab opened, they are less likely to notice that the page has changed, especially if the phishing page is identical to the original domain. Any credentials entered on the attacker-controlled domain will thus end up in the attacker's possession.
+由于用户在原始域上新选项卡打开时，他们不太可能注意到页面已更改，特别是如果钓鱼页面与原始域相似。用户在任何时候在攻击者控制的域上输入的凭据都将落入攻击者手中。
 
-Links opened via the `window.open` JavaScript function are also vulnerable to this attack.
+通过`window.open` JavaScript函数打开的链接也容易受到此攻击。
 
-_NOTE: This is a legacy issue that does not affect [modern browsers](https://caniuse.com/mdn-html_elements_a_implicit_noopener). Older versions of popular browsers (For example, versions prior to Google Chrome 88) as well as Internet Explorer are vulnerable to this attack._
+_注意：这是一个不影响[现代浏览器](https://caniuse.com/mdn-html_elements_a_implicit_noopener)的遗留问题。旧版流行浏览器（例如Google Chrome 88之前的版本）以及Internet Explorer容易受到此攻击。_
 
-### Example
+### 示例
 
-Imagine a web application where users are allowed to insert a URL in their profile. If the application is vulnerable to reverse tabnabbing, a malicious user will be able to provide a link to a page that has the following code:
+想象一个允许用户在个人资料中插入URL的Web应用程序。如果应用程序容易受到反向标签劫持，恶意用户将能够提供指向具有以下代码的页面的链接：
 
 ```html
 <html>
@@ -29,21 +29,21 @@ Imagine a web application where users are allowed to insert a URL in their profi
 </html>
 ```
 
-Clicking on the link will open up a new tab while the original tab will redirect to "example.org". Suppose "example.org" looks similar to the vulnerable web application, the user is less likely to notice the change and is more likely to enter sensitive information on the page.
+点击链接将打开新选项卡，而原始选项卡将重定向到"example.org"。假设"example.org"看起来类似于易受攻击的Web应用程序，用户不太可能注意到更改，更可能在页面上输入敏感信息。
 
-## How to Test
+## 如何测试
 
-- Check the HTML source of the application to see if links with `target="_blank"` are using the `noopener` and `noreferrer` keywords in the `rel` attribute. If not, it is likely that the application is vulnerable to reverse tabnabbing. Such a link becomes exploitable if it either points to a third-party site that has been compromised by the attacker, or if it is user-controlled.
-- Check for areas where an attacker can insert links, i.e. control the `href` argument of an `<a>` tag. Try to insert a link to a page which has the source code given in the above example, and see if the original domain redirects. This test can be done in IE if other browsers don't work.
+- 检查应用程序的HTML源代码，查看带有`target="_blank"`的链接是否在`rel`属性中使用`noopener`和`noreferrer`关键字。如果没有，应用程序可能容易受到反向标签劫持。如果链接指向已被攻击者破坏的第三方站点，或者是用户控制的，则此类链接可被利用。
+- 检查攻击者可以插入链接的区域，即控制`<a>`标签的`href`参数的位置。尝试插入指向具有上述示例源代码的页面的链接，并查看原始域是否重定向。如果其他浏览器不起作用，此测试可以在IE中进行。
 
-## Remediation
+## 修复
 
-It is recommended to make sure that the `rel` HTML attribute is set with the `noreferrer` and `noopener` keywords for all links.
+建议确保所有链接的`rel` HTML属性都设置了`noreferrer`和`noopener`关键字。
 
-## References
+## 参考资料
 
-- [Tabnabbing - HTML5 Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#tabnabbing)
-- [The target="_blank" vulnerability by example](https://dev.to/ben/the-targetblank-vulnerability-by-example)
-- [About rel=noopener](https://mathiasbynens.github.io/rel-noopener/)
-- [Target=”_blank” — the most underestimated vulnerability ever](https://medium.com/@jitbit/target-blank-the-most-underestimated-vulnerability-ever-96e328301f4c)
-- [Reverse tabnabbing vulnerability affects IBM Business Automation Workflow and IBM Business Process Manager](https://www.ibm.com/support/pages/security-bulletin-reverse-tabnabbing-vulnerability-affects-ibm-business-automation-workflow-and-ibm-business-process-manager-bpm-cve-2020-4490-0)
+- [Tabnabbing - HTML5速查表](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#tabnabbing)
+- [目标="_blank"漏洞示例](https://dev.to/ben/the-targetblank-vulnerability-by-example)
+- [关于rel=noopener](https://mathiasbynens.github.io/rel-noopener/)
+- [目标="_blank" — 最被低估的漏洞](https://medium.com/@jitbit/target-blank-the-most-underestimated-vulnerability-ever-96e328301f4c)
+- [反向标签劫持漏洞影响IBM Business Automation Workflow和IBM Business Process Manager](https://www.ibm.com/support/pages/security-bulletin-reverse-tabnabbing-vulnerability-affects-ibm-business-automation-workflow-and-ibm-business-process-manager-bpm-cve-2020-4490-0)

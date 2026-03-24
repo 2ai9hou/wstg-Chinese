@@ -1,40 +1,40 @@
-# Testing for Cross Site Request Forgery
+# 测试跨站请求伪造
 
 |ID          |
 |------------|
 |WSTG-SESS-05|
 
-## Summary
+## 概述
 
-Cross-Site Request Forgery ([CSRF](https://owasp.org/www-community/attacks/csrf)) is an attack that forces an end user to execute unintended actions on a web application in which they are currently authenticated. With a little social engineering help (like sending a link via email or chat), an attacker may force the users of a web application to execute actions of the attacker's choosing. A successful CSRF exploit can compromise end user data and operation when it targets a normal user. If the targeted end user is the administrator account, a CSRF attack can compromise the entire web application.
+跨站请求伪造（[CSRF](https://owasp.org/www-community/attacks/csrf)）是一种攻击，迫使最终用户在当前认证的Web应用中执行非预期的操作。通过一点社会工程帮助（如通过电子邮件或聊天发送链接），攻击者可能迫使Web应用的用户执行攻击者选择的操作。成功的CSRF漏洞利用可以危及最终用户的数据和操作（当目标是普通用户时）。如果目标最终用户是管理员账户，CSRF攻击可能危及整个Web应用。
 
-CSRF relies on:
+CSRF依赖于：
 
-1. Web browser behavior regarding the handling of session-related information such as cookies and HTTP authentication information.
-2. An attacker's knowledge of valid web application URLs, requests, or functionality.
-3. Application session management relying only on information known by the browser.
-4. Existence of HTML tags whose presence cause immediate access to an HTTP[S] resource; for example the image tag `img`.
+1. 浏览器处理会话相关信息（如Cookie和HTTP认证信息）的行为。
+2. 攻击者对有效Web应用URL、请求或功能的了解。
+3. 应用仅依赖浏览器已知的信息进行会话管理。
+4. 存在导致立即访问HTTP[S]资源的HTML标签；例如图像标签`img`。
 
-Points 1, 2, and 3 are essential for the vulnerability to be present, while point 4 facilitates the actual exploitation, but is not strictly required.
+第1、2和3点对于漏洞的存在至关重要，而第4点促进了实际利用，但不是严格必需的。
 
-1. Browsers automatically send information used to identify a user session. Suppose *site* is a site hosting a web application, and the user *victim* has just authenticated to *site*. In response, *site* sends *victim* a cookie that identifies requests sent by *victim* as belonging to *victim’s* authenticated session. Once the browser receives the cookie set by *site*, it will automatically send it along with any further requests directed to *site*.
-2. If the application does not make use of session-related information in URLs, then the application URLs, their parameters, and legitimate values may be identified. This may be accomplished by code analysis or by accessing the application and taking note of forms and URLs embedded in the HTML or JavaScript.
-3. "Known by the browser" refers to information such as cookies or HTTP-based authentication information (such as Basic Authentication and not form-based authentication), that are stored by the browser and subsequently present at each request directed towards an application area requesting that authentication. The vulnerabilities discussed next apply to applications that rely entirely on this kind of information to identify a user session.
+1. 浏览器自动发送用于识别用户会话的信息。假设*site*是托管Web应用的站点，用户*victim*刚刚在*site*上认证。作为回应，*site*向*victim*发送一个Cookie，用于识别由*victim*发送的请求属于*victim*的已认证会话。一旦浏览器收到*site*设置的Cookie，它将自动随后续指向*site*的任何请求一起发送。
+2. 如果应用不使用URL中的会话相关信息，则可以识别应用URL、其参数和合法值。这可以通过代码分析或访问应用并记下HTML或JavaScript中嵌入的表单和URL来实现。
+3. "浏览器已知"指的是Cookie或HTTP认证信息（如基本认证，而非表单认证）等信息，这些信息由浏览器存储，随后在面向需要该认证的应用区域的每个请求中出现。接下来讨论的漏洞适用于完全依赖此类信息来识别用户会话的应用。
 
-For simplicity's sake, consider GET-accessible URLs (though the discussion applies as well to POST requests). If *victim* has already authenticated themselves, submitting another request causes the cookie to be automatically sent with it. The figure below illustrates the user accessing an application on `www.example.com`.
+为简单起见，考虑GET可访问的URL（尽管讨论也适用于POST请求）。如果*victim*已经认证了自己，提交另一个请求会导致Cookie自动随其发送。下图说明了用户访问`www.example.com`上应用的情况。
 
-![Session Riding](images/Session_riding.GIF)\
-*Figure 4.6.5-1: Session Riding*
+![会话劫持](images/Session_riding.GIF)\
+*图4.6.5-1：会话劫持*
 
-The GET request could be sent by the user in several different ways:
+GET请求可以通过几种不同的方式由用户发送：
 
-- Using the web application
-- Typing the URL directly in the browser
-- Following an external link that points to the URL
+- 使用Web应用
+- 直接在浏览器中输入URL
+- 遵循指向URL的外部链接
 
-These invocations are indistinguishable by the application. In particular, the third may be quite dangerous. There are a number of techniques and vulnerabilities that can disguise the real properties of a link. The link can be embedded in an email message, appear in a malicious site to which the user is lured, or appear in content hosted by a third-party (such as another site or HTML email) and point to a resource of the application. If the user clicks on the link, since they are already authenticated by the web application on *site*, the browser will issue a GET request to the web application, accompanied by authentication information (the session ID cookie). This results in a valid operation being performed on the web application that the user does not expect; for example, a funds transfer on a web banking application.
+这些调用对应用来说是无法区分的。特别是，第三种可能非常危险。有许多技术和漏洞可以伪装链接的真实属性。链接可以嵌入电子邮件消息中，出现在用户被诱骗到的恶意站点上，或出现在托管在第三方（如另一个站点或HTML电子邮件）的内容中，并指向应用的资源。如果用户点击链接，由于他们已经由*site*上的Web应用认证，浏览器将向Web应用发出GET请求，并附带认证信息（会话ID Cookie）。这将导致在用户非预期的Web应用上执行有效操作；例如，在Web银行应用上进行资金转移。
 
-By using a tag such as `img`, as specified in point 4 above, it is not even necessary that the user follows a particular link. Suppose the attacker sends the user an email inducing them to visit a URL referring to a page containing the following (oversimplified) HTML.
+通过使用上述第4点中指定的`img`等标签，甚至不需要用户遵循特定链接。假设攻击者向用户发送一封电子邮件，诱使他们访问引用包含以下（过度简化）HTML的页面的URL。
 
 ```html
 <html>
@@ -46,85 +46,85 @@ By using a tag such as `img`, as specified in point 4 above, it is not even nece
 </html>
 ```
 
-When the browser displays this page, it will try to display the specified zero-dimension (thus, invisible) image from `https://www.company.example` as well. This results in a request being automatically sent to the web application hosted on *site*. It is not important that the image URL does not refer to a proper image, as its presence will trigger the request `action` specified in the `src` field anyway. This happens provided that image download is not disabled in the browser. Most browsers do not have image downloads disabled since that would cripple most web applications beyond usability.
+当浏览器显示此页面时，它将尝试显示指定的来自`https://www.company.example`的零尺寸（因此不可见）图像。这会导致请求自动发送到托管在*site*上的Web应用。图像URL引用的是否是正确的图像并不重要，因为其存在将触发`src`字段中指定的`action`请求。这是在浏览器未禁用图像下载的情况下发生的。大多数浏览器不禁用图像下载，因为这会使大多数Web应用无法使用。
 
-The problem here is a consequence of:
+这里的问题是以下原因的后果：
 
-- HTML tags on the page resulting in automatic HTTP request execution (`img` being one of those).
-- The browser having no way to tell that the resource referenced by `img` is not a legitimate image.
-- Image loading that happens regardless of the location of the alleged image source, i.e., the form and the image itself need not be located on the same host or even the same domain.
+- 页面上的HTML标签导致自动HTTP请求执行（`img`就是其中之一）。
+- 浏览器没有办法知道`img`引用的资源不是合法的图像。
+- 图像加载无论所谓图像源的位置如何都会发生，即表单和图像本身不需要位于同一主机上，甚至不需要位于同一域上。
 
-The fact that HTML content unrelated to the web application may refer to components in the application, and the fact that the browser automatically composes a valid request towards the application, allows this kind of attack. There is no way to prohibit this behavior unless it is made impossible for the attacker to interact with application functionality.
+HTML内容可以引用应用中的组件，而浏览器会自动向应用组成有效请求，这一事实允许这种攻击。除非使攻击者无法与应用功能交互成为不可能，否则无法禁止此行为。
 
-In integrated mail/browser environments, simply displaying an email message containing the image reference would result in the execution of the request to the web application with the associated browser cookie. Email messages may reference seemingly valid image URLs such as:
+在集成邮件/浏览器环境中，简单显示包含图像引用的电子邮件也会导致执行带有关联浏览器Cookie的对Web应用的请求。电子邮件可能引用看似有效的图像URL，例如：
 
 ```html
 <img src="https://[attacker]/picture.gif" width="0" height="0">
 ```
 
-In this example, `[attacker]` is a site controlled by the attacker. By utilizing a redirect mechanism, the malicious site may use `https://[attacker]/picture.gif` to direct the victim to `https://[thirdparty]/action` and trigger the `action`.
+在这个例子中，`[attacker]`是攻击者控制的站点。通过利用重定向机制，恶意站点可以使用`https://[attacker]/picture.gif`将受害者引导至`https://[thirdparty]/action`并触发`action`。
 
-Cookies are not the only example involved in this kind of vulnerability. Web applications whose session information is entirely supplied by the browser are vulnerable too. This includes applications relying on HTTP authentication mechanisms alone, since the authentication information is known by the browser and is sent automatically upon each request. This does not include form-based authentication, which occurs just once and generates some form of session-related information, usually a cookie.
+Cookie不是这种漏洞的唯一例子。仅由浏览器提供的会话信息的Web应用也容易受到攻击。这包括仅依赖HTTP认证机制的应用，因为认证信息由浏览器知道并随每个请求自动发送。这不包括基于表单的认证，它只发生一次并生成某种形式的会话相关信息，通常是Cookie。
 
-Let’s suppose that the victim is logged on to a firewall web management console. To log in, a user has to authenticate themselves and session information is stored in a cookie.
+让我们假设受害者登录了防火墙Web管理控制台。要登录，用户必须进行身份认证，会话信息存储在Cookie中。
 
-Let's suppose the firewall web management console has a function that allows an authenticated user to delete a rule specified by its numerical ID, or all the rules in the configuration if the user specifies `*` (a dangerous feature in reality, but one that makes for a more interesting example). The delete page is shown next. Let’s suppose that the form – for the sake of simplicity – issues a GET request. To delete rule number one:
+让我们假设防火墙Web管理控制台有一个功能，允许认证用户删除由数字ID指定的规则，如果用户指定`*`，则删除配置中的所有规则（实际上这是一个危险的功能，但会使示例更有趣）。删除页面如下所示。让我们假设该表单为简单起见发出GET请求。要删除第一条规则：
 
 ```text
 https://[target]/fwmgt/delete?rule=1
 ```
 
-To delete all rules:
+要删除所有规则：
 
 ```text
 https://[target]/fwmgt/delete?rule=*
 ```
 
-This example is intentionally naive, but shows in a simplified way the dangers of CSRF.
+这个例子是故意天真的，但以简化的方式展示了CSRF的危险。
 
-![Session Riding Firewall Management](images/Session_Riding_Firewall_Management.gif)\
-*Figure 4.6.5-2: Session Riding Firewall Management*
+![会话劫持防火墙管理](images/Session_Riding_Firewall_Management.gif)\
+*图4.6.5-2：会话劫持防火墙管理*
 
-Using the form pictured in the figure above, entering the value `*` and clicking the Delete button will submit the following GET request:
+使用上图中的表单，输入值`*`并点击删除按钮将提交以下GET请求：
 
 ```text
 https://www.company.example/fwmgt/delete?rule=*
 ```
 
-This would delete all firewall rules.
+这将删除所有防火墙规则。
 
-![Session Riding Firewall Management 2](images/Session_Riding_Firewall_Management_2.gif)\
-*Figure 4.6.5-3: Session Riding Firewall Management 2*
+![会话劫持防火墙管理2](images/Session_Riding_Firewall_Management_2.gif)\
+*图4.6.5-3：会话劫持防火墙管理2*
 
-The user might also have accomplished the same results by manually submitting the URL:
+用户也可以通过手动提交URL来实现相同的结果：
 
 ```text
 https://[target]/fwmgt/delete?rule=*
 ```
 
-Or by following a link pointing, directly or via a redirection, to the above URL. Or, again, by accessing an HTML page with an embedded `img` tag pointing to the same URL.
+或者通过遵循直接或通过重定向指向上述URL的链接。或者通过访问带有嵌入指向相同URL的`img`标签的HTML页面。
 
-In all of these cases, if the user is currently logged in to the firewall management application, the request will succeed and will modify the configuration of the firewall. One can imagine attacks targeting sensitive applications and making automatic auction bids, money transfers, orders, changing the configuration of critical software components, etc.
+在所有这些情况下，如果用户当前登录到防火墙管理应用，请求将成功，并将修改防火墙的配置。可以想象针对敏感应用的攻击，自动进行拍卖出价、资金转移、订单、更改关键软件组件的配置等。
 
-An interesting thing is that these vulnerabilities may be exercised behind a firewall; i.e. it is sufficient that the link being attacked be reachable by the victim and not directly by the attacker. In particular, it can be any intranet web server; for example, in the firewall management scenario mentioned before, which is unlikely to be exposed to the internet.
+有趣的是，这些漏洞可以在防火墙后面进行；也就是说，链接被攻击的目标只需要被受害者访问，而不需要被攻击者直接访问。例如，它可以是任何内部网Web服务器；例如，之前提到的防火墙管理场景，不太可能暴露于互联网。
 
-Self-vulnerable applications, i.e. applications that are used both as attack vector and target (such as web mail applications), make things worse. Since users are logged in when they read their email messages, a vulnerable application of this type can allow attackers to perform actions such as deleting messages or sending messages that appear to originate from the victim.
+自我脆弱的应用，即同时用作攻击矢量和目标的应用（如Web邮件应用），使情况更糟。由于用户在阅读电子邮件时已登录，此类易受攻击的应用可以允许攻击者执行删除消息或发送看似来自受害者的消息等操作。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether it is possible to initiate requests on a user's behalf that are not initiated by the user.
+- 确定是否可能代表用户发起非用户主动的请求。
 
-## How to Test
+## 如何测试
 
-Audit the application to ascertain if its session management is vulnerable. If session management relies only on client-side values (information available to the browser), then the application is vulnerable. "Client-side values" refers to cookies and HTTP authentication credentials (Basic Authentication and other forms of HTTP authentication; not form-based authentication, which is an application-level authentication).
+审查应用以确定其会话管理是否有漏洞。如果会话管理仅依赖客户端值（浏览器可用的信息），则应用存在漏洞。"客户端值"指的是Cookie和HTTP认证凭证（基本认证和其他形式的HTTP认证；非基于表单的认证，它是应用级认证）。
 
-Resources accessible via HTTP GET requests are easily vulnerable, though POST requests can be automated via JavaScript and are vulnerable as well; therefore, the use of POST alone is not enough to correct the occurrence of CSRF vulnerabilities.
+可通过HTTP GET请求访问的资源容易受到攻击，虽然POST请求可以通过JavaScript自动化，但也容易受到攻击；因此，单独使用POST不足以纠正CSRF漏洞的发生。
 
-In case of POST, the following sample can be used.
+如果是POST，可以使用以下示例。
 
-1. Create an HTML page similar to that shown below
-2. Host the HTML on a malicious or third-party site
-3. Send the link for the page to the victim(s) and induce them to click it.
+1. 创建一个类似于下面显示的HTML页面
+2. 将HTML托管在恶意或第三方站点上
+3. 将页面链接发送给受害者并诱导他们点击
 
 ```html
 <html>
@@ -139,7 +139,7 @@ In case of POST, the following sample can be used.
 </html>
 ```
 
-In case of web applications in which developers are utilizing JSON for browser to server communication, a problem may arise with the fact that there are no query parameters with the JSON format, which are a must with self-submitting forms. To bypass this case, we can use a self-submitting form with JSON payloads including hidden input to exploit CSRF. We'll have to change the encoding type (`enctype`) to `text/plain` to ensure the payload is delivered as-is. The exploit code will look like the following:
+对于使用JSON进行浏览器到服务器通信的Web应用，可能会出现一个问题，即JSON格式没有查询参数，而自我提交表单必须有查询参数。为了绕过这种情况，我们可以使用带有JSON负载的自我提交表单，包括隐藏输入来利用CSRF。我们必须将编码类型（`enctype`）更改为`text/plain`以确保负载按原样传递。攻击代码将如下所示：
 
 ```html
 <html>
@@ -153,7 +153,7 @@ In case of web applications in which developers are utilizing JSON for browser t
 </html>
 ```
 
-The POST request will be as follow:
+POST请求将如下所示：
 
 ```http
 POST / HTTP/1.1
@@ -163,19 +163,19 @@ Content-Type: text/plain
 {"name":"hacked","password":"hacked","padding":"=something"}
 ```
 
-When this data is sent as a POST request, the server will happily accept the name and password fields and ignore the one with the name padding as it does not need it.
+当此数据作为POST请求发送时，服务器将愉快地接受名称和密码字段，并忽略名称为padding的字段，因为它不需要它。
 
-## Remediation
+## 修复方案
 
-- See the [OWASP CSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) for prevention measures.
+- 有关预防措施，请参阅[OWASP CSRF预防速查表](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 
-## Tools
+## 工具
 
 - [ZAP](https://www.zaproxy.org/)
 - [CSRF Tester](https://wiki.owasp.org/index.php/Category:OWASP_CSRFTester_Project)
 - [Pinata-csrf-tool](https://code.google.com/archive/p/pinata-csrf-tool/)
 
-## References
+## 参考资料
 
 - [Peter W: "Cross-Site Request Forgeries"](https://web.archive.org/web/20160303230910/http://www.tux.org/~peterw/csrf.txt)
 - [Thomas Schreiber: "Session Riding"](https://web.archive.org/web/20160304001446/https://www.securenet.de/papers/Session_Riding.pdf)

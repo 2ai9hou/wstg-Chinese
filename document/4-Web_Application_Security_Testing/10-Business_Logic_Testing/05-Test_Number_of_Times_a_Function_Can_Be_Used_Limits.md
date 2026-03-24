@@ -1,40 +1,40 @@
-# Test Number of Times a Function Can Be Used Limits
+# 测试函数使用次数限制
 
 |ID          |
 |------------|
 |WSTG-BUSL-05|
 
-## Summary
+## 概述
 
-Many of the problems that applications are solving require limits to the number of times a function can be used or action can be executed. Applications must be "smart enough" to not allow the user to exceed their limit on the use of these functions since in many cases each time the function is used the user may gain some type of benefit that must be accounted for to properly compensate the owner. For example: an eCommerce site may only allow a users apply a discount once per transaction, or some applications may be on a subscription plan and only allow users to download three complete documents monthly.
+应用程序正在解决的许多问题要求限制函数可以使用或操作可以执行的次数。应用程序必须"足够智能"，不允许用户超过这些函数使用限制，因为在许多情况下，每次使用函数用户都可能获得某种利益，必须适当补偿所有者。例如：电子商务网站可能只允许用户每笔交易应用一次折扣，或者某些应用程序可能是订阅计划，只允许用户每月下载三份完整文档。
 
-Vulnerabilities related to testing for the function limits are application specific and misuse cases must be created that strive to exercise parts of the application/functions/actions more than the allowable number of times.
+与测试函数限制相关的漏洞是特定于应用程序的，必须创建误用例，努力在超过允许次数的情况下执行应用程序/功能/操作的部分。
 
-Attackers may be able to circumvent the business logic and execute a function more times than "allowable" exploiting the application for personal gain.
+攻击者可能能够绕过业务逻辑并执行比"允许"次数更多的功能，为个人利益利用应用程序。
 
-### Example
+### 示例
 
-Suppose an eCommerce site allows users to take advantage of any one of many discounts on their total purchase and then proceed to checkout and tendering. What happens of the attacker navigates back to the discounts page after taking and applying the one "allowable" discount? Can they take advantage of another discount? Can they take advantage of the same discount multiple times?
+假设一个电子商务网站允许用户利用其总购买的许多折扣之一，然后进行结账和付款。如果攻击者在采取并应用一次"允许"折扣后返回折扣页面，会发生什么？他们能再利用另一个折扣吗？他们能多次利用相同的折扣吗？
 
-## Test Objectives
+## 测试目标
 
-- Identify functions that must set limits to the times they can be called.
-- Assess if there is a logical limit set on the functions and if it is properly validated.
+- 识别必须设置限制调用次数的函数。
+- 评估是否在函数上设置了逻辑限制，并且是否得到正确验证。
 
-## How to Test
+## 如何测试
 
-- Review the project documentation and use exploratory testing looking for functions or features in the application or system that should not be executed more that a single time or specified number of times during the business logic workflow.
-- For each of the functions and features found that should only be executed a single time or specified number of times during the business logic workflow, develop abuse/misuse cases that may allow a user to execute more than the allowable number of times. For example, can a user navigate back and forth through the pages multiple times executing a function that should only execute once? or can a user load and unload shopping carts allowing for additional discounts.
+- 审查项目文档，使用探索性测试寻找应用程序或系统中不应在业务流程工作流期间执行超过一次或指定次数的功能或特性。
+- 对于业务流程工作流期间应仅执行一次或指定次数的每个功能和特性，开发滥用/误用例，允许用户执行超过允许次数。例如，用户是否可以在页面之间来回导航多次，执行应仅执行一次的函数？或者用户是否可以加载和卸载购物车以获得额外折扣。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Testing for Account Enumeration and Guessable User Account](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)
-- [Testing for Weak lock out mechanism](../04-Authentication_Testing/03-Testing_for_Weak_Lock_Out_Mechanism.md)
+- [测试账户枚举和可猜测用户账户](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)
+- [测试弱锁定机制](../04-Authentication_Testing/03-Testing_for_Weak_Lock_Out_Mechanism.md)
 
-## Remediation
+## 修复
 
-The application should set hard controls to prevent limit abuse. This can be achieved by setting a coupon to be no longer valid on the database level, to set a counter limit per user on the backend or database level, as all users should be identified through a session, whichever is better to the business requirement.
+应用程序应设置硬控制以防止限制滥用。这可以通过在数据库级别将优惠券设置为无效，为后端或数据库级别的每个用户设置计数器限制来实现，因为所有用户都应通过会话来识别，无论哪种方式更好地满足业务需求。
 
-## References
+## 参考资料
 
-- [Gold Trading Was Temporarily Halted On The CME This Morning](https://www.businessinsider.com/gold-halted-on-cme-for-stop-logic-event-2013-10)
+- [今早CME黄金交易暂时停止](https://www.businessinsider.com/gold-halted-on-cme-for-stop-logic-event-2013-10)

@@ -1,107 +1,104 @@
-# Test Defenses Against Application Misuse
+# 测试应用程序滥用防御
 
 |ID          |
 |------------|
 |WSTG-BUSL-07|
 
-## Summary
+## 概述
 
-The misuse and invalid use of valid functionality can identify attacks attempting to enumerate the web application, identify weaknesses, and exploit vulnerabilities. Tests should be undertaken to determine whether there are application-layer defensive mechanisms in place to protect the application.
+有效功能的误用和无效使用可以识别试图枚举Web应用程序、识别弱点和利用漏洞的攻击。测试应确定是否有应用程序层防御机制来保护应用程序。
 
-The lack of active defenses allows an attacker to hunt for vulnerabilities without any recourse. The application's owner will thus not know their application is under attack.
+缺乏主动防御使攻击者能够不受任何追索权地寻找漏洞。因此，应用程序所有者不会知道他们的应用程序正在受到攻击。
 
-### Example
+### 示例
 
-An authenticated user undertakes the following (unlikely) sequence of actions:
+认证用户执行以下不太可能的操作序列：
 
-1. Attempt to access a file ID their roles is not permitted to download
-2. Substitutes a single tick `'` instead of the file ID number
-3. Alters a GET request to a POST
-4. Adds an extra parameter
-5. Duplicates a parameter name/value pair
+1. 尝试访问其角色不允许下载的文件ID
+2. 用单个引号`'`替换文件ID号
+3. 将GET请求更改为POST
+4. 添加额外参数
+5. 复制参数名/值对
 
-The application is monitoring for misuse and responds after the 5th event with extremely high confidence the user is an attacker. For example the application:
+应用程序正在监控滥用，并在第5个事件后以极高置信度响应，确信用户是攻击者。例如，应用程序：
 
-- Disables critical functionality
-- Enables additional authentication steps to the remaining functionality
-- Adds time-delays into every request-response cycle
-- Begins to record additional data about the user's interactions (e.g. sanitized HTTP request headers, bodies and response bodies)
+- 禁用关键功能
+- 为剩余功能启用额外认证步骤
+- 在每个请求-响应周期中添加时间延迟
+- 开始记录有关用户交互的其他数据（例如，清理的HTTP请求头、正文和响应正文）
 
-If the application does not respond in any way and the attacker can continue to abuse functionality and submit clearly malicious content at the application, the application has failed this test case. In practice the discrete example actions in the example above are unlikely to occur like that. It is much more probable that a fuzzing tool is used to identify weaknesses in each parameter in turn. This is what a security tester will have undertaken too.
+如果应用程序不以任何方式响应，攻击者可以继续滥用功能并以明显恶意内容提交到应用程序，则应用程序未通过此测试用例。在实践中，上述示例中的离散操作不太可能那样发生。更可能的是，模糊测试工具用于识别每个参数中的弱点。这也就是安全测试人员将要做的。
 
-## Test Objectives
+## 测试目标
 
-- Generate notes from all tests conducted against the system.
-- Review which tests had a different functionality based on aggressive input.
-- Understand the defenses in place and verify if they are enough to protect the system against bypassing techniques.
+- 从对系统进行的所有测试中生成笔记。
+- 审查哪些测试基于激进输入具有不同的功能。
+- 了解现有防御并验证它们是否足以保护系统免受绕过技术的影响。
 
-## How to Test
+## 如何测试
 
-This test is unusual in that the result can be drawn from all the other tests performed against the web application. While performing all the other tests, take note of measures that might indicate the application has in-built self-defense:
+此测试不同寻常，因为结果可以从对Web应用程序执行的所有其他测试中得出。在执行所有其他测试时，记下可能表明应用程序有内置自我防御的措施：
 
-- Changed responses
-- Blocked requests
-- Actions that log a user out or lock their account
+- 更改的响应
+- 被阻止的请求
+- 将用户注销或锁定其账户的操作
 
-These may only be localized. Common localized (per function) defenses are:
+这些可能只是本地化的。每个功能的常见本地化（每功能）防御包括：
 
-- Rejecting input containing certain characters
-- Locking out an account temporarily after a number of authentication failures
+- 拒绝包含某些字符的输入
+- 在多次认证失败后临时锁定账户
 
-Localized security controls are not sufficient. There are often no defenses against general mis-use such as:
+本地化安全控制不足。对于一般滥用，通常没有防御，例如：
 
-- Forced browsing
-- Bypassing presentation layer input validation
-- Multiple access control errors
-- Additional, duplicated or missing parameter names
-- Multiple input validation or business logic verification failures with values that cannot be the result of user mistakes or typos
-- Structured data (e.g. JSON, XML) of an invalid format is received
-- Blatant cross-site scripting or SQL injection payloads are received
-- Utilizing the application faster than would be possible without automation tools
-- Change in continental geo-location of a user
-- Change of user agent
-- Accessing a multi-stage business process in the wrong order
-- Large number of, or high rate of use of, application-specific functionality (e.g. voucher code submission, failed credit card payments, file uploads, file downloads, log outs, etc).
+- 强制浏览
+- 绕过呈现层输入验证
+- 多次访问控制错误
+- 额外、重复或缺失的参数名
+- 多次输入验证或业务逻辑验证失败，这些值不可能是用户错误或打字错误的结果
+- 收到结构化数据（如JSON、XML）格式无效
+- 收到明显的跨站脚本或SQL注入有效载荷
+- 以比没有自动化工具可能的更快速度利用应用程序
+- 用户地理区域的变化
+- 用户代理的变化
+- 以错误顺序访问多阶段业务流程
+- 大量或高频率使用应用程序特定功能（例如，优惠券代码提交、信用卡支付失败、文件上传、文件下载、注销等）
 
-### UI Misrepresentation / Content Spoofing
+### UI欺骗/内容欺骗
 
-UI misrepresentation occurs when user-controlled input is rendered in trusted UI elements in a way that can mislead users or administrators, without requiring script execution. Unlike cross-site scripting, these issues rely on visual or contextual deception and can enable workflow abuse or social engineering within the application.
+当用户控制的输入在可信UI元素中呈现时，会发生UI欺骗，这可能误导用户或管理员，而不需要脚本执行。与跨站脚本不同，这些问题依赖于视觉或上下文欺骗，可以启用工作流滥用或社会工程。
 
-These issues represent application misuse because they abuse legitimate UI workflows and trust boundaries rather than exploiting a technical vulnerability.
+这些问题是应用程序滥用，因为它们滥用合法的UI工作流和信任边界，而不是利用技术漏洞。
 
-Common examples include:
+常见示例包括：
 
-- User-controlled filenames, titles, or labels displayed as system-generated messages
-- Renamed file uploads that appear as trusted documents or system artifacts
-- User-supplied text rendered as approval states, sender names, or workflow indicators
+- 显示为系统生成消息的用户控制文件名、标题或标签
+- 重命名为看起来像可信文档或系统工件的 파일上传
+- 呈现为批准状态、发件人名称或工作流指示器的用户提供文本
 
-For example: an application allows users to name uploaded files. An attacker uploads a file named
-"Payment Approved – Finance System". When this filename is displayed in an administrative
-review workflow without clear indication that it is user-supplied, reviewers may be misled
-into approving a fraudulent process.
+例如：应用程序允许用户命名上传的文件。攻击者上传名为"Payment Approved – Finance System"的文件。当此文件名在管理审查工作流中显示而没有明确指示它是用户提供时，审阅者可能被误导，批准欺诈流程。
 
-During testing, assess whether:
+在测试期间，评估是否：
 
-- User-controlled data is reflected in privileged or authoritative UI contexts
-- Injected text can mimic system messages, workflow states, or trusted labels
-- UI presentation could influence user decisions or business processes despite no technical exploit occurring
+- 用户控制的数据在特权或权威UI上下文中反映
+- 注入的文本可以模拟系统消息、工作流状态或可信标签
+- UI呈现可能影响用户决策或业务流程，尽管没有发生技术利用
 
-These defenses work best in authenticated parts of the application, although rate of creation of new accounts or accessing content (e.g. to scrape information) can be of use in public areas.
+这些防御在应用程序的认证部分最有效，尽管创建新账户或访问内容的速率（例如，爬取信息）在公共场所可能有用。
 
-Not all the above need to be monitored by the application, but there is a problem if none of them are. By testing the web application, doing the above type of actions, was any response taken against the tester? If not, the tester should report that the application appears to have no application-wide active defenses against misuse. Note it is sometimes possible that all responses to attack detection are silent to the user (e.g. logging changes, increased monitoring, alerts to administrators and and request proxying), so confidence in this finding cannot be guaranteed. In practice, very few applications (or related infrastructure such as a web application firewall) are detecting these types of misuse.
+并非上述所有都需要由应用程序监控，但如果其中任何一个都不监控，则存在问题。通过测试Web应用程序，执行上述操作类型的操作，是否对测试人员采取了任何响应？如果没有，测试人员应报告应用程序似乎没有应用程序范围的主动防御来防止滥用。请注意，有时所有攻击检测的响应可能对用户是静默的（例如，日志更改、增加监控、向管理员发出警报和请求代理），因此无法保证此发现的置信度。实际上，很少有应用程序（或相关基础设施，如Web应用程序防火墙）检测到这些类型的滥用。
 
-## Related Test Cases
+## 相关测试用例
 
-All other test cases are relevant.
+所有其他测试用例都相关。
 
-## Remediation
+## 修复
 
-Applications should implement active defenses to fend off attackers and abusers.
+应用程序应实施主动防御，以抵御攻击者和滥用者。
 
-## References
+## 参考资料
 
-- [Software Assurance](https://www.cisa.gov/uscert/sites/default/files/publications/infosheet_SoftwareAssurance.pdf), US Department Homeland Security
-- [IR 7684](https://csrc.nist.gov/publications/detail/nistir/7864/final) Common Misuse Scoring System (CMSS), NIST
-- [Common Attack Pattern Enumeration and Classification](https://capec.mitre.org/) (CAPEC), The Mitre Corporation
-- [OWASP AppSensor Project](https://owasp.org/www-project-appsensor/)
-- Watson C, Coates M, Melton J and Groves G, [Creating Attack-Aware Software Applications with Real-Time Defenses](https://pdfs.semanticscholar.org/0236/5631792fa6c953e82cadb0e7268be35df905.pdf), CrossTalk The Journal of Defense Software Engineering, Vol. 24, No. 5, Sep/Oct 2011
+- [软件保障](https://www.cisa.gov/uscert/sites/default/files/publications/infosheet_SoftwareAssurance.pdf)，美国国土安全部
+- [IR 7684](https://csrc.nist.gov/publications/detail/nistir/7864/final) 通用误用评分系统(CMSS)，NIST
+- [通用攻击模式枚举和分类](https://capec.mitre.org/) (CAPEC)，Mitre公司
+- [OWASP AppSensor项目](https://owasp.org/www-project-appsensor/)
+- Watson C, Coates M, Melton J and Groves G，[创建具有实时防御的攻击感知软件应用程序](https://pdfs.semanticscholar.org/0236/5631792fa6c953e82cadb0e7268be35df905.pdf)，CrossTalk国防软件工程期刊，第24卷，第5期，2011年9月/10月

@@ -1,40 +1,40 @@
-# Test Account Provisioning Process
+# 测试账户配置流程
 
 |ID          |
 |------------|
 |WSTG-IDNT-03|
 
-## Summary
+## 概述
 
-The provisioning of accounts presents an opportunity for an attacker to create a valid account without application of the proper identification and authorization process.
+账户的配置为攻击者提供了一个机会，他们可以在没有 proper 的身份识别和授权流程的情况下创建有效账户。
 
-## Test Objectives
+## 测试目标
 
-- Verify which accounts may provision other accounts and of what type.
+- 验证哪些账户可以配置其他账户，以及可以配置什么类型的账户。
 
-## How to Test
+## 如何测试
 
-Determine which roles are able to provision users and what sort of accounts they can provision.
+确定哪些角色能够配置用户，以及他们可以配置什么样的账户。
 
-- Is there any verification, vetting and authorization of provisioning requests?
-- Is there any verification, vetting and authorization of de-provisioning requests?
-- Can an administrator provision other administrators or just users?
-- Can an administrator or other user provision accounts with privileges greater than their own?
-- Can an administrator or user de-provision themselves?
-- How are the files or resources owned by the de-provisioned user managed? Are they deleted? Is access transferred?
+- 对配置请求是否有任何验证、审查和授权？
+- 对取消配置请求是否有任何验证、审查和授权？
+- 管理员可以配置其他管理员还是只能配置普通用户？
+- 管理员或其他用户是否可以配置比自己更高权限的账户？
+- 管理员或用户是否可以取消配置自己？
+- 如何管理被取消配置用户拥有的文件或资源？它们会被删除吗？访问权会被转移吗？
 
-### Example
+### 示例
 
-In WordPress, only a user's name and email address are required to provision the user, as shown below:
+在 WordPress 中，配置用户只需要姓名和电子邮件地址，如下所示：
 
-![WordPress User Add](images/Wordpress_useradd.png)\
-*Figure 4.3.3-1: WordPress User Add*
+![WordPress 添加用户](images/Wordpress_useradd.png)\
+*图 4.3.3-1：WordPress 添加用户*
 
-De-provisioning of users requires the administrator to select the users to be de-provisioned, select Delete from the dropdown menu (circled) and then applying this action. The administrator is then presented with a dialog box asking what to do with the user's posts (delete or transfer them).
+取消配置用户需要管理员选择要取消配置的用户，从下拉菜单中选择删除（圈出的部分），然后执行此操作。随后管理员会看到一个对话框，询问如何处理该用户的文章（删除或转移）。
 
-![WordPress Auth and Users](images/Wordpress_authandusers.png)\
-*Figure 4.3.3-2: WordPress Auth and Users*
+![WordPress 认证和用户](images/Wordpress_authandusers.png)\
+*图 4.3.3-2：WordPress 认证和用户*
 
-## Tools
+## 工具
 
-While the most thorough and accurate approach to completing this test is to conduct it manually, HTTP proxy tools could be also useful.
+虽然完成此测试最彻底和最准确的方法是手动进行，但 HTTP 代理工具也可能有用。

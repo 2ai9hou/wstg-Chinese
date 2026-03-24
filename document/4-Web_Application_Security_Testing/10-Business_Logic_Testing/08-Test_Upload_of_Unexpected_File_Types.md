@@ -1,54 +1,54 @@
-# Test Upload of Unexpected File Types
+# 测试意外文件类型上传
 
 |ID          |
 |------------|
 |WSTG-BUSL-08|
 
-## Summary
+## 概述
 
-Many applications' business processes allow for the upload and manipulation of data that is submitted via files. But the business process must check the files and only allow certain "approved" file types. Deciding what files are "approved" is determined by the business logic and is application/system specific. The risk is that by allowing users to upload files, attackers may submit an unexpected file type that could be executed and adversely impact the application or system through attacks that may deface the site, perform remote commands, browse the system files, browse the local resources, attack other servers, or exploit the local vulnerabilities, just to name a few.
+许多应用程序的业务流程允许上传和处理通过文件提交的数据。但业务流程必须检查文件，仅允许某些"已批准"文件类型。决定哪些文件是"已批准"由业务逻辑决定，是特定于应用程序/系统的。风险在于，通过允许用户上传文件，攻击者可能提交意外的文件类型，这些文件可能被执行，并对应用程序或系统产生不利影响，可能导致网站被篡改、执行远程命令、浏览系统文件、浏览本地资源、攻击其他服务器或利用本地漏洞，仅举几例。
 
-Vulnerabilities related to the upload of unexpected file types is unique in that the upload should quickly reject a file if it does not have a specific extension. Additionally, this is different from uploading malicious files in that in most cases an incorrect file format may not by it self be inherently "malicious" but may be detrimental to the saved data. For example if an application accepts Windows Excel files, if a similar database file is uploaded it may be read but data extracted may be moved to incorrect locations.
+与上传意外文件类型相关的漏洞是独特的，因为如果文件没有特定扩展名，上传应快速拒绝。此外，这不同于上传恶意文件，因为在大多数情况下，错误的文件格式本身可能不是固有"恶意的"，但可能对保存的数据有害。例如，如果应用程序接受Windows Excel文件，如果上传了类似的数据库文件，它可能被读取，但提取的数据可能移动到错误的位置。
 
-The application may be expecting only certain file types to be uploaded for processing, such as `.csv` or `.txt` files. The application may not validate the uploaded file by extension (for low assurance file validation) or content (high assurance file validation). This may result in unexpected system or database results within the application/system or give attackers additional methods to exploit the application/system.
+应用程序可能仅期望某些文件类型上传处理，如`.csv`或`.txt`文件。应用程序可能不通过扩展名验证上传的文件（用于低保证文件验证）或内容（高保证文件验证）。这可能导致应用程序/系统内意外的系统或数据库结果，或为攻击者提供额外方法来利用应用程序/系统。
 
-### Example
+### 示例
 
-Suppose a picture sharing application allows users to upload a `.gif` or `.jpg` graphic file to the site. What if an attacker is able to upload an HTML file with a `<script>` tag in it or PHP file? The system may move the file from a temporary location to the final location where the PHP code can now be executed against the application or system.
+假设图片分享应用程序允许用户将`.gif`或`.jpg`图形文件上传到网站。如果攻击者能够上传带有`<script>`标签的HTML文件或PHP文件，会发生什么？系统可能将文件从临时位置移动到最终位置，其中PHP代码现在可以针对应用程序或系统执行。
 
-## Test Objectives
+## 测试目标
 
-- Review the project documentation for file types that are rejected by the system.
-- Verify that the unwelcomed file types are rejected and handled safely.
-- Verify that file batch uploads are secure and do not allow any bypass against the set security measures.
+- 审查项目文档，寻找系统拒绝的文件类型。
+- 验证不受欢迎的文件类型被拒绝并安全处理。
+- 验证批量文件上传是安全的，不允许绕过安全措施。
 
-## How to Test
+## 如何测试
 
-### Specific Testing Method
+### 特定测试方法
 
-- Study the applications logical requirements.
-- Prepare a library of files that are "not approved" for upload that may contain files such as: jsp, exe, or HTML files containing script.
-- In the application navigate to the file submission or upload mechanism.
-- Submit the "not approved" file for upload and verify that they are properly prevented from uploading
-- Check if the site only does file type checks in client-side JavaScript
-- Check if the site only checks the file type by "Content-Type" in HTTP request.
-- Check if the site only checks the file type by the file extension.
-- Check if other uploaded files can be accessed directly by specified URL.
-- Check if the uploaded file can include code or script injection.
-- Check if there is any file path checking for uploaded files. Especially, hackers may compress files with specified path in ZIP so that the extracted files can be uploaded to intended path after uploading and unzipping.
+- 研究应用程序的逻辑需求。
+- 准备一个"未批准"上传文件库，其中可能包含文件，如jsp、exe或包含脚本的HTML文件。
+- 在应用程序中导航到文件提交或上传机制。
+- 提交"未批准"文件进行上传，并验证它们被正确阻止上传
+- 检查站点是否仅在客户端JavaScript中执行文件类型检查
+- 检查站点是否仅通过HTTP请求中的"Content-Type"检查文件类型。
+- 检查站点是否仅通过文件扩展名检查文件类型。
+- 检查其他上传的文件是否可以通过指定URL直接访问。
+- 检查上传的文件是否包含代码或脚本注入。
+- 检查上传文件是否有任何文件路径检查。特别地，黑客可能在ZIP中以指定路径压缩文件，以便在上传和解压后可以将文件上传到目标路径。
 
-## Related Test Cases
+## 相关测试用例
 
-- [Test File Extensions Handling for Sensitive Information](../02-Configuration_and_Deployment_Management_Testing/03-Test_File_Extensions_Handling_for_Sensitive_Information.md)
-- [Test Upload of Malicious Files](09-Test_Upload_of_Malicious_Files.md)
+- [测试敏感信息的文件扩展名处理](../02-Configuration_and_Deployment_Management_Testing/03-Test_File_Extensions_Handling_for_Sensitive_Information.md)
+- [测试恶意文件上传](09-Test_Upload_of_Malicious_Files.md)
 
-## Remediation
+## 修复
 
-Applications should be developed with mechanisms to only accept and manipulate "acceptable" files that the rest of the application functionality is ready to handle and expecting. Some specific examples include: deny lists or allow lists of file extensions, using "Content-Type" from the header, or using a file type recognizer, all to only allow specified file types into the system.
+应用程序应以仅接受和操作"可接受"文件的机制开发，这些文件是应用程序其余功能准备好处理和期望的。一些具体示例包括：拒绝或允许文件扩展名列表、使用来自头部的"Content-Type"、或使用文件类型识别器，仅允许指定文件类型进入系统。
 
-## References
+## 参考资料
 
-- [OWASP - Unrestricted File Upload](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
-- [File upload security best practices: Block a malicious file upload](https://www.computerweekly.com/answer/File-upload-security-best-practices-Block-a-malicious-file-upload)
-- [Stop people uploading malicious PHP files via forms](https://stackoverflow.com/questions/602539/stop-people-uploading-malicious-php-files-via-forms)
-- [CWE-434: Unrestricted Upload of File with Dangerous Type](https://cwe.mitre.org/data/definitions/434.html)
+- [OWASP - 不受限制的文件上传](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
+- [文件上传安全最佳实践：阻止恶意文件上传](https://www.computerweekly.com/answer/File-upload-security-best-practices-Block-a-malicious-file-upload)
+- [阻止人们通过表单上传恶意PHP文件](https://stackoverflow.com/questions/602539/stop-people-uploading-malicious-php-files-via-forms)
+- [CWE-434：危险类型文件的不受限制上传](https://cwe.mitre.org/data/definitions/434.html)

@@ -1,103 +1,103 @@
-# Testing for Weak Lock Out Mechanism
+# 测试弱锁定机制
 
 |ID          |
 |------------|
 |WSTG-ATHN-03|
 
-## Summary
+## 概述
 
-Account lockout mechanisms are used to mitigate brute force attacks. Some of the attacks that can be defeated by using lockout mechanism:
+账户锁定机制用于缓解暴力破解攻击。可以使用锁定机制防御的一些攻击包括：
 
-- Login password or username guessing attack.
-- Code guessing on any 2FA functionality or Security Questions.
+- 登录密码或用户名猜测攻击。
+- 任何双因素认证（2FA）功能或安全问题的代码猜测攻击。
 
-Account lockout mechanisms require a balance between protecting accounts from unauthorized access and protecting users from being denied authorized access. Accounts are typically locked after 3 to 5 unsuccessful attempts and can only be unlocked after a predetermined period of time, via a self-service unlock mechanism, or intervention by an administrator.
+账户锁定机制需要在保护账户免受未授权访问和保护用户免遭拒绝已授权访问之间取得平衡。账户通常在 3 到 5 次不成功的尝试后被锁定，只能通过以下方式解锁：经过一段预定时间后、通过自助解锁机制，或由管理员干预解锁。
 
-Despite it being easy to conduct brute force attacks, the result of a successful attack is dangerous as the attacker will have full access on the user account and with it all the functionality and services they have access to.
+尽管暴力破解攻击很容易发起，但成功攻击的后果是危险的，因为攻击者将获得用户账户的完全访问权，以及他们有权访问的所有功能和服务。
 
-## Test Objectives
+## 测试目标
 
-- Evaluate the account lockout mechanism's ability to mitigate brute force password guessing.
-- Evaluate the unlock mechanism's resistance to unauthorized account unlocking.
+- 评估账户锁定机制缓解暴力密码猜测的能力。
+- 评估解锁机制抵抗未授权账户解锁的能力。
 
-## How to Test
+## 如何测试
 
-### Lockout Mechanism
+### 锁定机制
 
-To test the strength of lockout mechanisms, you will need access to an account that you are willing or can afford to lock. If you have only one account with which you can log on to the web application, perform this test at the end of your test plan to avoid losing testing time by being locked out.
+要测试锁定机制的强度，你需要拥有一个你愿意或可以承受被锁定的账户。如果你只有一个可以登录 Web 应用程序的账户，请在测试计划结束时进行此测试，以避免因被锁定而损失测试时间。
 
-To evaluate the account lockout mechanism's ability to mitigate brute force password guessing, attempt an invalid log in by using the incorrect password a number of times, before using the correct password to verify that the account was locked out. An example test may be as follows:
+为了评估账户锁定机制缓解暴力密码猜测的能力，在使用正确密码验证账户是否被锁定之前，尝试使用错误密码多次无效登录。示例测试可能如下：
 
-1. Attempt to log in with an incorrect password 3 times.
-2. Successfully log in with the correct password, thereby showing that the lockout mechanism doesn't trigger after 3 incorrect authentication attempts.
-3. Attempt to log in with an incorrect password 4 times.
-4. Successfully log in with the correct password, thereby showing that the lockout mechanism doesn't trigger after 4 incorrect authentication attempts.
-5. Attempt to log in with an incorrect password 5 times.
-6. Attempt to log in with the correct password. The application returns "Your account is locked out.", thereby confirming that the account is locked out after 5 incorrect authentication attempts.
-7. Attempt to log in with the correct password 5 minutes later. The application returns "Your account is locked out.", thereby showing that the lockout mechanism does not automatically unlock after 5 minutes.
-8. Attempt to log in with the correct password 10 minutes later. The application returns "Your account is locked out.", thereby showing that the lockout mechanism does not automatically unlock after 10 minutes.
-9. Successfully log in with the correct password 15 minutes later, thereby showing that the lockout mechanism automatically unlocks after a 10 to 15 minute period.
+1. 使用错误密码尝试登录 3 次。
+2. 使用正确密码成功登录，从而表明锁定机制在 3 次错误认证尝试后不会触发。
+3. 使用错误密码尝试登录 4 次。
+4. 使用正确密码成功登录，从而表明锁定机制在 4 次错误认证尝试后不会触发。
+5. 使用错误密码尝试登录 5 次。
+6. 尝试使用正确密码登录。应用程序返回"您的账户已被锁定"，从而确认账户在 5 次错误认证尝试后被锁定。
+7. 5 分钟后尝试使用正确密码登录。应用程序返回"您的账户已被锁定"，从而表明锁定机制不会在 5 分钟后自动解锁。
+8. 10 分钟后尝试使用正确密码登录。应用程序返回"您的账户已被锁定"，从而表明锁定机制不会在 10 分钟后自动解锁。
+9. 15 分钟后使用正确密码成功登录，从而表明锁定机制在 10 到 15 分钟后自动解锁。
 
-#### Unique Lockout Mechanisms
+#### 独特的锁定机制
 
-There are more unique implementations of lockout mechanisms in use that are still acceptable. One of which is AWS's [Cognito](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html#authentication-flow-lockout-behavior). It uses a simple scaling algorithm that mitigates brute-force attacks while not enabling long-term denial-of-service attacks against the affected user. After 5 failed sign-in attempts with a password, the user is locked out for one second. The lockout duration doubles with each failed attempt, with a maximum of 15 minutes. Sign-in attempts made during the lockout period are exceptions referred to as `Password attempts exceeded`, and in most implementations are not returned to the user who initiated the sign-in. If they aren't shown to the user, a tester may think that no lockout mechanism is being used, as 200 rapid attempts to sign-in would generate a lot of the exceptions, and very few legitimate failed sign-in attempts.
-  
-The math behind the mechanism is: `2^(n-5)`, with `n` being the number of failed sign-in attempts. The resulting number is the amount of seconds that the user is locked out. To reset the lockout count to zero, the user must sign-in successfully or wait the 15 minutes.
+还有一些更独特的锁定机制实现仍在可接受范围内。其中之一是 AWS 的 [Cognito](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html#authentication-flow-lockout-behavior)。它使用一个简单的扩展算法来缓解暴力破解攻击，同时不会对受影响的用户造成长期的拒绝服务攻击。在使用密码进行 5 次失败的登录尝试后，用户将被锁定一秒。锁定持续时间每次失败尝试后会加倍，最长为 15 分钟。锁定期间进行的登录尝试会产生称为"密码尝试超过限制"的异常，在大多数实现中不会返回给发起登录的用户。如果异常未向用户显示，测试人员可能认为没有使用锁定机制，因为 200 次快速登录尝试会产生大量异常，而很少有合法的失败登录尝试。
 
-To test for this using a fuzzing tool, such as Burp Suite's Intruder, navigate into the "Resource Pool". Then set the maximum concurrent requests to 1 and the delay between requests to 2 seconds. Attempt the invalid authentication 200 times, then attempt to use the valid credentials 3 times directly after the fuzzing tool finishes. Wait 2 minutes and attempt to sign-in. If sign-in is then successful, Cognito may be in use. Further testing can then be performed to validate the use of Cognito by attempting to push the lockout time higher, but it may be easier to validate this information with the client.
+该机制的数学原理是：`2^(n-5)`，其中 `n` 是失败的登录尝试次数。结果数字是用户被锁定的秒数。要将锁定计数重置为零，用户必须成功登录或等待 15 分钟。
 
-A CAPTCHA may hinder brute force attacks, but they can come with their own set of weaknesses, and should not replace a lockout mechanism. A CAPTCHA mechanism may be bypassed if implemented incorrectly. CAPTCHA flaws include:
+要使用模糊测试工具（如 Burp Suite 的 Intruder）进行测试，请导航到"资源池"。然后将最大并发请求设置为 1，请求之间的延迟设置为 2 秒。尝试无效认证 200 次，然后在模糊测试工具完成后立即尝试使用有效凭据 3 次。等待 2 分钟后再尝试登录。如果登录成功，则可能正在使用 Cognito。可以进行进一步测试以验证 Cognito 的使用，方法是尝试将锁定时间推高，但通过客户端验证此信息可能更容易。
 
-1. Easily defeated challenge, such as arithmetic or limited question set.
-2. CAPTCHA checks for HTTP response code instead of response success.
-3. CAPTCHA server-side logic defaults to a successful solve.
-4. CAPTCHA challenge result is never validated server-side.
-5. CAPTCHA input field or parameter is manually processed, and is improperly validated or escaped.
+验证码可能会阻碍暴力破解攻击，但它们可能有自己的弱点集，不应取代锁定机制。验证码机制如果实施不当可能会被绕过。验证码的缺陷包括：
 
-To evaluate CAPTCHA effectiveness:
+1. 容易被破解的挑战，如算术题或有限的问题集。
+2. 验证码检查 HTTP 响应码而不是响应成功状态。
+3. 验证码服务器端逻辑默认为成功解答。
+4. 验证码挑战结果从未在服务器端验证。
+5. 验证码输入字段或参数被手动处理，且未正确验证或转义。
 
-1. Assess CAPTCHA challenges and attempt automating solutions depending on difficulty.
-2. Attempt to submit request without solving CAPTCHA via the normal UI mechanism(s).
-3. Attempt to submit request with intentional CAPTCHA challenge failure.
-4. Attempt to submit request without solving CAPTCHA (assuming some default values may be passed by client-side code, etc) while using a testing proxy (request submitted directly server-side).
-5. Attempt to fuzz CAPTCHA data entry points (if present) with common injection payloads or special characters sequences.
-6. Check if the solution to the CAPTCHA might be the alt-text of the image(s), filename(s), or a value in an associated hidden field.
-7. Attempt to re-submit previously identified known good responses.
-8. Check if clearing cookies causes the CAPTCHA to be bypassed (for example if the CAPTCHA is only shown after a number of failures).
-9. If the CAPTCHA is part of a multi-step process, attempt to simply access or complete a step beyond the CAPTCHA (for example if CAPTCHA is the first step in a login process, try simply submitting the second step [username and password]).
-10. Check for alternative methods that might not have CAPTCHA enforced, such as an API endpoint meant to facilitate mobile app access.
+要评估验证码的有效性：
 
-Repeat this process to every possible functionality that could require a lockout mechanism.
+1. 评估验证码挑战，并根据难度尝试自动化解决方案。
+2. 尝试通过正常 UI 机制提交请求而不解答验证码。
+3. 尝试在验证码挑战故意失败的情况下提交请求。
+4. 尝试在不解验证码的情况下提交请求（假设客户端代码可能会传递一些默认值等），同时使用测试代理（直接服务器端提交请求）。
+5. 如果存在验证码数据入口点，使用常见注入负载或特殊字符序列对其进行模糊测试。
+6. 检查验证码的解决方案是否可能是图片的替代文本、文件名或相关隐藏字段中的值。
+7. 尝试重新提交先前识别的已知良好响应。
+8. 检查清除 cookies 是否会导致验证码被绕过（例如，如果验证码是在多次失败后才显示的）。
+9. 如果验证码是多步骤流程的一部分，尝试简单访问或完成验证码之后的步骤（例如，如果验证码是登录过程的第一步，尝试直接提交第二步[用户名和密码]）。
+10. 检查可能没有强制执行验证码的替代方法，例如为方便移动应用访问而设置的 API 端点。
 
-### Unlock Mechanism
+对每个可能需要锁定机制的功能重复此过程。
 
-To evaluate the unlock mechanism's resistance to unauthorized account unlocking, initiate the unlock mechanism and look for weaknesses. Typical unlock mechanisms may involve secret questions or an emailed unlock link. The unlock link should be a unique one-time link, to stop an attacker from guessing or replaying the link and performing brute force attacks in batches.
+### 解锁机制
 
-Note that an unlock mechanism should only be used for unlocking accounts. It is not the same as a password recovery mechanism, yet could follow the same security practices.
+要评估解锁机制抵抗未授权账户解锁的能力，启动解锁机制并寻找弱点。典型的解锁机制可能涉及安全问题或通过电子邮件发送的解锁链接。解锁链接应该是唯一的一次性链接，以阻止攻击者猜测或重放链接并批量发起暴力破解攻击。
 
-## Remediation
+请注意，解锁机制只能用于解锁账户。它与密码恢复机制不同，但可以遵循相同的安全实践。
 
-Apply account unlock mechanisms depending on the risk level. In order from lowest to highest assurance:
+## 修复
 
-1. Time-based lockout and unlock.
-2. Self-service unlock (sends unlock email to registered email address).
-3. Manual administrator unlock.
-4. Manual administrator unlock with positive user identification.
+根据风险级别应用账户解锁机制。从低到高的保证级别排序：
 
-Factors to consider when implementing an account lockout mechanism:
+1. 基于时间的锁定和解锁。
+2. 自助解锁（向注册邮箱发送解锁邮件）。
+3. 手动管理员解锁。
+4. 带用户身份验证的手动管理员解锁。
 
-1. What is the risk of brute force password guessing against the application?
-2. Is a CAPTCHA sufficient to mitigate this risk?
-3. Is a client-side lockout mechanism being used (e.g., JavaScript)? (If so, disable the client-side code to test.)
-4. Number of unsuccessful log in attempts before lockout. If the lockout threshold is too low then valid users may be locked out too often. If the lockout threshold is too high then the more attempts an attacker can make to brute force the account before it will be locked. Depending on the application's purpose, a range of 5 to 10 unsuccessful attempts is a typical lockout threshold.
-5. How will accounts be unlocked?
-    1. Manually by an administrator: this is the most secure lockout method, but may cause inconvenience to users and take up the administrator's "valuable" time.
-        1. Note that the administrator should also have a recovery method in case his account gets locked.
-        2. This unlock mechanism may lead to a denial-of-service attack if an attacker's goal is to lock the accounts of all users of the web application.
-    2. After a period of time: What is the lockout duration? Is this sufficient for the application being protected? E.g. a 5 to 30 minute lockout duration may be a good compromise between mitigating brute force attacks and inconveniencing valid users.
-    3. Via a self-service mechanism: As stated before, this self-service mechanism must be secure enough to avoid that the attacker can unlock accounts himself.
+实施账户锁定机制时需要考虑的因素：
 
-## References
+1. 针对应用程序的暴力密码猜测风险是什么？
+2. 验证码是否足以缓解此风险？
+3. 是否正在使用客户端锁定机制（例如 JavaScript）？（如果是，禁用客户端代码进行测试。）
+4. 锁定前允许的不成功登录尝试次数。如果锁定阈值过低，则有效用户可能过于频繁地被锁定。如果锁定阈值过高，则攻击者在账户被锁定之前可以尝试更多次暴力破解账户。根据应用程序的目的，5 到 10 次不成功尝试是典型的锁定阈值。
+5. 如何解锁账户？
+    1. 由管理员手动解锁：这是最安全的锁定方法，但可能会给用户带来不便，并占用管理员的"宝贵"时间。
+        1. 请注意，管理员也应该有恢复方法，以防其账户被锁定。
+        2. 如果攻击者的目标是锁定 Web 应用程序所有用户的账户，此解锁机制可能导致拒绝服务攻击。
+    2. 经过一段时间后：锁定持续时间是多少？这对于受保护的应用程序来说是否足够？例如，5 到 30 分钟的锁定持续时间可能在缓解暴力破解攻击和给有效用户带来不便之间取得良好的平衡。
+    3. 通过自助服务机制：如前所述，此自助服务机制必须足够安全，以避免攻击者能够自行解锁账户。
 
-- See the OWASP article on [Brute Force](https://owasp.org/www-community/attacks/Brute_force_attack) Attacks.
-- [Forgot Password CS](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html).
+## 参考资料
+
+- 参阅 OWASP 关于[暴力破解](https://owasp.org/www-community/attacks/Brute_force_attack)攻击的文章。
+- [忘记密码速查表](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)。

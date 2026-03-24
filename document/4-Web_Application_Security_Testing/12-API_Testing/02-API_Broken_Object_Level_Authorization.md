@@ -1,86 +1,86 @@
-# API Broken Object Level Authorization
+# API对象级别授权损坏
 
 |ID          |
 |------------|
 |WSTG-APIT-02|
 
-## Summary
+## 概述
 
-Broken Object Level Authorization (BOLA) occurs when an API does not properly enforce authorization checks for each object accessed by the client. Attackers can manipulate object identifiers in API requests (such as IDs, GUIDs, or tokens) to access or modify resources they are not authorized to. This vulnerability is critical in APIs due to their direct access to underlying objects and the prevalence of APIs in modern applications.
+当API不正确地对客户端访问的每个对象实施授权检查时，会发生对象级别授权损坏（BOLA）。攻击者可以操纵API请求中的对象标识符（如ID、GUID或令牌）来访问或修改他们未被授权访问的资源。由于API直接访问底层对象以及API在现代应用程序中的普遍性，此漏洞在API中很关键。
 
-Exploiting BOLA can lead to unauthorized access to sensitive data, user impersonation, horizontal privilege escalation (accessing other users' resources), and vertical privilege escalation (gaining unauthorized admin-level access).
+利用BOLA可能导致未授权访问敏感数据、用户模拟、水平权限提升（访问其他用户的资源）和垂直权限提升（获得未授权的管理员级访问）。
 
-## Test Objectives
+## 测试目标
 
-- The objective of this test is to identify whether the API enforces proper **object-level authorization** checks, ensuring that users can only access and manipulate objects they are authorized to interact with.
+- 此测试的目的是识别API是否实施正确的**对象级授权**检查，确保用户只能访问和操作他们被授权交互的对象。
 
-## How to Test
+## 如何测试
 
-### Understand API Endpoints and Object References
+### 了解API端点和对象引用
 
-Review API documentation (e.g. OpenAPI specification), traffic, or use an interception proxy (e.g., **Burp Suite**, **ZAP**) to identify endpoints that accept object identifiers of interest. These could be in the form of **IDs**, **UUIDs**, or other references.
+审查API文档（如OpenAPI规范）、流量或使用拦截代理（如**Burp Suite**、**ZAP**）识别接受感兴趣的对象标识符的端点。这些可能是**ID**、**UUID**或其他引用的形式。
 
-Examples:
+示例：
 
 - `GET /api/users/{user_id}`
 - `GET /api/orders/{order_id}`
 - `POST /graphql`\
         `query: {user(id: "123") }`
 
-With the knowledge gained in the previous step, review and collect third-party object identifiers (e.g. user IDs, orders IDs etc) that can be used subsequently in the object identifiers manipulation.
+通过上一步获得的知识，收集可用于后续对象标识符操作的第三方对象标识符（如用户ID、订单ID等）。
 
-Additionaly, generate a list of potential object identifiers for brute-force. For example, if an API is retrieving a purchase order from an authenticated user, generate various purchase order IDs for testing.
+另外，生成潜在对象标识符列表以进行暴力破解。例如，如果API从认证用户检索采购订单，生成各种采购订单ID用于测试。
 
-### Manipulate Object Identifiers in API Requests
+### 在API请求中操纵对象标识符
 
-With the goal to determine if users can access or modify objects they do not own by altering object identifiers in API request, change the object identifier (e.g., user ID, order ID) in the URL or request body.
-  
-Example: Modify a request like `GET /api/users/123/profile` (where 123 is the current user ID) to `GET /api/users/124/profile` (where 124 is another user's ID).
+目标是确定用户是否可以通过更改URL或请求体中的对象标识符（如用户ID、订单ID）来访问或修改他们不拥有的对象。
 
-Depending on the application context, utilize two different accounts to perform the tests. With an account A, create resources that exclusively belongs to that account (e.g. purchase order) and with an account B, try to access the resource from account A (e.g. purchase order).
+示例：将`GET /api/users/123/profile`（其中123是当前用户ID）的请求修改为`GET /api/users/124/profile`（其中124是另一个用户的ID）。
 
-### Test Object-Level Access with Different HTTP Methods
+根据应用程序上下文，使用两个不同账户执行测试。使用账户A创建仅属于该账户的资源（如采购订单），并使用账户B尝试访问账户A的资源（如采购订单）。
 
-Test various **HTTP methods** for BOLA vulnerabilities:
+### 使用不同HTTP方法测试对象级访问
 
-- **GET**: Try accessing unauthorized objects by manipulating the object ID in the request.
-- **POST/PUT/PATCH**: Attempt to create or modify objects that belong to other users.
-- **DELETE**: Try to delete an object owned by another user.
+测试各种**HTTP方法**的BOLA漏洞：
 
-### Test BOLA in GraphQL APIs
+- **GET**：尝试通过操纵请求中的对象ID访问未授权对象。
+- **POST/PUT/PATCH**：尝试创建或修改属于其他用户的对象。
+- **DELETE**：尝试删除属于另一个用户的对象。
 
-For **GraphQL APIs**, send a query with a modified object ID in the query parameters (see [Testing GraphQL](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/12-API_Testing/01-Testing_GraphQL)):
+### 在GraphQL API中测试BOLA
 
-Example: `query { user(id: "124") { name, email } }`.
+对于**GraphQL API**，在查询参数中发送带有修改对象ID的查询（请参阅[测试GraphQL](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/12-API_Testing/01-Testing_GraphQL)）：
 
-### Test for Bulk Object Access
+示例：`query { user(id: "124") { name, email } }`.
 
-Test if the API allows unauthorized **bulk access** to objects. This could happen in endpoints that return lists of objects.
+### 测试批量对象访问
 
-Example: `GET /api/users` returns data for all users instead of only the authenticated user’s data.
+测试API是否允许未授权**批量访问**对象。这可能发生在返回对象列表的端点中。
 
-## Indicators of BOLA
+示例：`GET /api/users`返回所有用户的数据，而不是仅返回认证用户的数据。
 
-- **Successful exploitation**: If modifying an object ID in the request returns data or allows actions on objects that belong to other users, the API is vulnerable to BOLA.
-- **Error responses**: Properly secured APIs in general would return `403 Forbidden` or `401 Unauthorized` for unauthorized object access. A `200 OK` response for another user's object indicates BOLA.
-- **Inconsistent responses**: If some endpoints enforce authorization and others do not, it points to incomplete or inconsistent security controls.
+## BOLA指标
 
-## Remediation
+- **成功利用**：如果修改请求中的对象ID返回属于其他用户的数据或允许对他们不拥有的对象执行操作，则API容易受到BOLA影响。
+- **错误响应**：通常，安全API对于未授权对象访问会返回`403 Forbidden`或`401 Unauthorized`。对另一个用户的对象返回`200 OK`表示BOLA。
+- **不一致响应**：如果某些端点实施授权而其他端点不实施，则表示安全控制不完整或不一致。
 
-- **Object Ownership Checks**: Ensure that object-level authorization checks are performed for every API request. Always verify that the user making the request is authorized to access the requested object.
-- **Role-Based Access Control (RBAC)**: Implement RBAC policies that define which roles can access or modify specific objects.
-- **Least Privilege Principle**: Apply the principle of least privilege to ensure that users can only access the minimum set of objects they need for their role.
-- **Use UUIDs or Non-Sequential IDs**: Prefer non-predictable, non-sequential object identifiers (e.g., **UUIDs** instead of simple integers) to make enumeration and brute-force attacks harder.
+## 修复
 
-## Tools
+- **对象所有权检查**：确保对每个API请求执行对象级授权检查。始终验证发出请求的用户有权访问所请求的对象。
+- **基于角色的访问控制（RBAC）：** 实施定义哪些角色可以访问或修改特定对象的RBAC策略。
+- **最小权限原则：** 应用最小权限原则以确保用户只能访问其角色所需的最小对象集。
+- **使用UUID或非顺序ID：** 优先使用不可预测、非顺序的对象标识符（如**UUID**而非简单整数）使枚举和暴力攻击更加困难。
 
-- **ZAP**: Automated scanners or manual proxy tools can help test object references in API requests.
-- **Burp Suite**: Use the **Repeater** or **Intruder** tools to manipulate object IDs and send multiple requests to test access control.
-- **Postman**: Send requests with altered object IDs and observe the responses.
-- **Fuzzing Tools**: Use fuzzers to brute-force object IDs and check for unauthorized access.
+## 工具
 
-## References
+- **ZAP**：自动扫描器或手动代理工具可帮助测试API请求中的对象引用。
+- **Burp Suite**：使用**Repeater**或**Intruder**工具操纵对象ID并发送多个请求以测试访问控制。
+- **Postman**：发送带有更改对象ID的请求并观察响应。
+- **模糊测试工具：** 使用模糊器暴力破解对象ID并检查未授权访问。
 
-- [OWASP API Security Top 10: BOLA](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
-- [OWASP Testing Guide: Testing for Insecure Direct Object References (IDOR)](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References)
-- [OWASP Testing Guide: Testing for GraphQL](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/12-API_Testing/01-Testing_GraphQL)  
+## 参考资料
+
+- [OWASP API安全Top 10：BOLA](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
+- [OWASP测试指南：测试不安全直接对象引用（IDOR）](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References)
+- [OWASP测试指南：测试GraphQL](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/12-API_Testing/01-Testing_GraphQL)

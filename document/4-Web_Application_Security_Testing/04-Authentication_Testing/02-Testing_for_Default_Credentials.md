@@ -1,76 +1,76 @@
-# Testing for Default Credentials
+# 测试默认凭据
 
 |ID          |
 |------------|
 |WSTG-ATHN-02|
 
-## Summary
+## 概述
 
-Many web applications and hardware devices have default passwords for the built-in administrative account. Although in some cases these can be randomly generated, they are often static, meaning that they can be easily guessed or obtained by an attacker.
+许多 Web 应用程序和硬件设备为内置管理员账户设置了默认密码。尽管在某些情况下这些密码是随机生成的，但它们通常是静态的，这意味着攻击者可以很容易地猜测或获取这些密码。
 
-Additionally, when new users are created on the applications, these may have predefined passwords set. These could either be generated automatically by the application, or manually created by staff. In both cases, if they are not generated in a secure manner, the passwords may be possible for an attacker to guess.
+此外，当在应用程序中创建新用户时，这些用户可能具有预定义的密码。这些密码可能是由应用程序自动生成的，也可能是由工作人员手动创建的。在这两种情况下，如果这些密码不是以安全的方式生成的，攻击者就有可能猜到这些密码。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether the application has any user accounts with default passwords.
-- Review whether new user accounts are created with weak or predictable passwords.
+- 确定应用程序是否存在使用默认密码的用户账户。
+- 审查新用户账户是否使用弱密码或可预测的密码创建。
 
-## How to Test
+## 如何测试
 
-### Testing for Vendor Default Credentials
+### 测试供应商默认凭据
 
-The first step to identifying default passwords is to identify the software that is in use. This is covered in detail in the [Information Gathering](../01-Information_Gathering/README.md) section of the guide.
+识别默认密码的第一步是确定正在使用的软件。这在指南的[信息收集](../01-Information_Gathering/README.md)部分有详细说明。
 
-Once the software has been identified, try to find whether it uses default passwords, and if so, what they are. This should include:
+一旦识别了软件，尝试查找它是否使用默认密码，如果有，密码是什么。这应包括：
 
-- Searching for "[SOFTWARE] default password".
-- Reviewing the manual or vendor documentation.
-- Checking common default password databases, such as [CIRT.net](https://cirt.net/passwords), [SecLists Default Passwords](https://github.com/danielmiessler/SecLists/tree/master/Passwords/Default-Credentials) or [DefaultCreds-cheat-sheet](https://github.com/ihebski/DefaultCreds-cheat-sheet/blob/main/DefaultCreds-Cheat-Sheet.csv).
-- Inspecting the application source code (if available).
-- Installing the application on a virtual machine and inspecting it.
-- Inspecting the physical hardware for stickers (often present on network devices).
+- 搜索"【软件名称】默认密码"。
+- 查阅手册或供应商文档。
+- 检查常见默认密码数据库，如 [CIRT.net](https://cirt.net/passwords)、[SecLists 默认密码](https://github.com/danielmiessler/SecLists/tree/master/Passwords/Default-Credentials) 或 [DefaultCreds-cheat-sheet](https://github.com/ihebski/DefaultCreds-cheat-sheet/blob/main/DefaultCreds-Cheat-Sheet.csv)。
+- 检查应用程序源代码（如果可用）。
+- 在虚拟机上安装应用程序并进行检查。
+- 检查物理设备上的标签（通常存在于网络设备上）。
 
-If a default password can't be found, try common options such as:
+如果找不到默认密码，尝试常见选项，例如：
 
-- "admin", "password", "12345", or other [common default passwords](https://github.com/nixawk/fuzzdb/blob/master/bruteforce/passwds/default_devices_users%2Bpasswords.txt).
-- An empty or blank password.
-- The serial number or MAC address of the device.
+- "admin"、"password"、"12345"或其他[常见默认密码](https://github.com/nixawk/fuzzdb/blob/master/bruteforce/passwds/default_devices_users%2Bpasswords.txt)。
+- 空密码或空白密码。
+- 设备的序列号或 MAC 地址。
 
-If the username is unknown, there are various options for enumerating users, discussed in the [Testing for Account Enumeration](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md) guide. Alternatively, try common options such as "admin", "root", or "system".
+如果用户名未知，有多种枚举用户的方法，详见[测试账户枚举](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)指南。或者，尝试常见选项，如 "admin"、"root" 或 "system"。
 
-### Testing for Organization Default Passwords
+### 测试组织默认密码
 
-When staff within an organization manually create passwords for new accounts, they may do so in a predictable way. This can often be:
+当组织内的工作人员为新账户手动创建密码时，他们可能以可预测的方式创建密码。这通常包括：
 
-- A single common password such as "Password1".
-- Organization specific details, such as the organization name or address.
-- Passwords that follow a simple pattern, such as "Monday123" if account is created on a Monday.
+- 一个共同的简单密码，如 "Password1"。
+- 组织特定的信息，如组织名称或地址。
+- 遵循简单模式的密码，如 "Monday123"（如果账户是在星期一创建的）。
 
-These types of passwords are often difficult to identify from a black-box perspective, unless they can successfully be guessed or brute-forced. However, they are easy to identify when performing grey-box or white-box testing.
+这类密码从黑盒测试的角度很难识别，除非能够成功猜测或暴力破解。但是，在进行灰盒测试或白盒测试时很容易发现。
 
-### Testing for Application Generated Default Passwords
+### 测试应用程序生成的默认密码
 
-If the application automatically generates passwords for new user accounts, these may also be predictable. In order to test these, create multiple accounts on the application with similar details at the same time, and compare the passwords that are given for them.
+如果应用程序自动为新用户账户生成密码，这些密码可能也是可预测的。为了测试这些，创建多个具有相似信息的账户在同一时间，比较分配给它们的密码。
 
-The passwords may be based on:
+密码可能基于：
 
-- A single static string shared between accounts.
-- A hashed or obfuscated part of the account details, such as `md5($username)`.
-- A time-based algorithm.
-- A weak pseudo-random number generator (PRNG).
+- 账户间共享的单个静态字符串。
+- 账户详情的哈希或混淆部分，如 `md5($username)`。
+- 基于时间的算法。
+- 弱伪随机数生成器（PRNG）。
 
-This type of issue of often difficult to identify from a black-box perspective.
+这类问题从黑盒测试的角度通常很难识别。
 
-## Tools
+## 工具
 
 - [Burp Intruder](https://portswigger.net/burp/documentation/desktop/tools/intruder)
 - [THC Hydra](https://github.com/vanhauser-thc/thc-hydra)
 - [Nikto 2](https://www.cirt.net/nikto2)
 - [Nuclei](https://github.com/projectdiscovery/nuclei)
-    - [Default Login - Nuclei Templates](https://github.com/projectdiscovery/nuclei-templates/tree/6b26c63d8f63b2a812a478f14c4c098b485d54b4/http/default-logins)
+    - [默认登录 - Nuclei 模板](https://github.com/projectdiscovery/nuclei-templates/tree/6b26c63d8f63b2a812a478f14c4c098b485d54b4/http/default-logins)
 
-## References
+## 参考资料
 
 - [CIRT](https://cirt.net/passwords)
-- [SecLists Default Passwords](https://github.com/danielmiessler/SecLists/tree/master/Passwords/Default-Credentials)
+- [SecLists 默认密码](https://github.com/danielmiessler/SecLists/tree/master/Passwords/Default-Credentials)
 - [DefaultCreds-cheat-sheet](https://github.com/ihebski/DefaultCreds-cheat-sheet/blob/main/DefaultCreds-Cheat-Sheet.csv)

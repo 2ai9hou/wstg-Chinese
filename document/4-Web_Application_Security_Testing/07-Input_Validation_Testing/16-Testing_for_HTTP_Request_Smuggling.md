@@ -1,42 +1,42 @@
-# Testing for HTTP Request Smuggling
+# 测试HTTP请求走私
 
 |ID          |
 |------------|
 |WSTG-INPV-16|
 
-## Summary
+## 概述
 
-HTTP Request Smuggling is a class of vulnerabilities caused by inconsistencies in how HTTP requests are parsed by frontend and backend components. When intermediaries such as reverse proxies, load balancers, or API gateways interpret request boundaries differently from backend servers, attackers may inject or "smuggle" hidden requests that are processed out of sequence.
+HTTP请求走私是一类漏洞，由前端和后端组件如何解析HTTP请求的差异引起。当代理、负载均衡器或API网关等中间人解释请求边界的方式与后端服务器不同时，攻击者可能注入或"走私"隐藏请求，这些请求将以意外顺序处理。
 
-Modern infrastructures significantly expand the attack surface by introducing HTTP/2, protocol downgrades (HTTP/2 → HTTP/1.1), and cleartext upgrades (H2C), where request normalization and translation logic frequently diverges from RFC expectations.
+现代基础设施通过引入HTTP/2、协议降级（HTTP/2 → HTTP/1.1）和明文升级（H2C）显著扩大了攻击面，在这些地方，请求规范化和转换逻辑经常偏离RFC预期。
 
-Request smuggling exploits arise when two or more HTTP parsers disagree on where a request begins or ends. Historically, this discrepancy was most commonly observed in conflicting interpretations of the `Content-Length` (CL) and `Transfer-Encoding` (TE) headers.
+请求走私漏洞产生于两个或多个HTTP解析器对请求开始或结束位置不一致的情况。从历史上看，这种差异最常见于对`Content-Length`（CL）和`Transfer-Encoding`（TE）头的冲突解释。
 
-In modern architectures, additional desynchronization vectors emerge from:
+在现代架构中，额外的去同步向量来自：
 
-- HTTP/2 to HTTP/1.1 translation layers
-- Cleartext HTTP/2 (H2C) upgrade mechanisms
-- Header normalization mismatches
-- Reintroduced forbidden headers during protocol downgrade
-- Connection reuse across protocol boundaries
+- HTTP/2到HTTP/1.1转换层
+- 明文HTTP/2（H2C）升级机制
+- 头规范化不匹配
+- 协议降级期间重新引入禁止的头
+- 跨协议边界连接重用
 
-These behaviors can lead to persistent desynchronization, cache poisoning, credential hijacking, and access control bypass.
+这些行为可能导致持久去同步、缓存中毒、凭据劫持和访问控制绕过。
 
-## Test Objectives
+## 测试目标
 
-- Identify request boundary inconsistencies between frontend and backend components
-- Detect classic CL/TE desynchronization vulnerabilities
-- Evaluate protocol translation logic (HTTP/2 → HTTP/1.1)
-- Assess H2C upgrade handling and downgrade safety
-- Confirm backend request queue poisoning
+- 识别前端和后端组件之间的请求边界不一致
+- 检测经典CL/TE去同步漏洞
+- 评估协议转换逻辑（HTTP/2 → HTTP/1.1）
+- 评估H2C升级处理和降级安全性
+- 确认后端请求队列中毒
 
-## How to Test
+## 如何测试
 
-### Black-Box Testing
+### 黑盒测试
 
-#### Testing for CL.TE Desynchronization
+#### 测试CL.TE去同步
 
-In a CL.TE scenario, the frontend uses `Content-Length` to determine request size, while the backend honors `Transfer-Encoding`.
+在CL.TE场景中，前端使用`Content-Length`确定请求大小，而后端遵循`Transfer-Encoding`。
 
 ```http
 POST / HTTP/1.1
@@ -50,15 +50,15 @@ GET /404 HTTP/1.1
 Foo: x
 ```
 
-Expected Result:
+预期结果：
 
-- Backend stops parsing at the `0` chunk
-- Smuggled request remains buffered
-- Subsequent legitimate requests are corrupted or return unexpected responses (e.g., 404)
+- 后端在`0`块处停止解析
+- 走私请求保留在缓冲区中
+- 后续合法请求被破坏或返回意外响应（如404）
 
-#### Testing for TE.CL Desynchronization
+#### 测试TE.CL去同步
 
-In a TE.CL scenario, the frontend processes chunked encoding correctly, but the backend relies on `Content-Length`.
+在TE.CL场景中，前端正确处理分块编码，而后端依赖`Content-Length`。
 
 ```http
 POST / HTTP/1.1
@@ -73,27 +73,27 @@ Content-Length: 0
 0
 ```
 
-Expected Result:
+预期结果：
 
-- Backend stops early
-- Remaining payload is interpreted as a new request
-- Unauthorized endpoint access or request poisoning may occur
+- 后端提前停止
+- 剩余payload被解释为新请求
+- 可能发生未授权端点访问或请求中毒
 
-#### Testing for TE.TE (Obfuscated Transfer-Encoding)
+#### 测试TE.TE（混淆的Transfer-Encoding）
 
-If both servers support `Transfer-Encoding`, header obfuscation may cause one parser to ignore it.
+如果两个服务器都支持`Transfer-Encoding`，头混淆可能导致其中一个解析器忽略它。
 
-Common techniques include:
+常用技术包括：
 
-- Whitespace manipulation
-- Header duplication
-- Non-standard separators
+- 空格操作
+- 头重复
+- 非标准分隔符
 
 ```http
 POST / HTTP/1.1
 Host: vulnerable-website.com
 Content-Length: 44
-Transfer-Encoding:\tchunked
+Transfer-Encoding:	chunked
 Transfer-Encoding: identity
 
 0
@@ -102,47 +102,47 @@ GET /404 HTTP/1.1
 Foo: bar
 ```
 
-### Modern Attack Vectors
+### 现代攻击向量
 
-#### HTTP/2 to HTTP/1.1 Desynchronization
+#### HTTP/2到HTTP/1.1去同步
 
-In many deployments, clients communicate with edge servers using HTTP/2, while backend services still operate over HTTP/1.1. During protocol translation, intermediaries must reconstruct HTTP/1.1 requests from HTTP/2 frames.
+在许多部署中，客户端使用HTTP/2与边缘服务器通信，而后端服务仍通过HTTP/1.1运行。在协议转换期间，中间人必须从HTTP/2帧重构HTTP/1.1请求。
 
-Common failure points include:
+常见故障点包括：
 
-- Incorrect reconstruction of `Content-Length`
-- Reintroduction of hop-by-hop headers
-- Multiple logical requests collapsed into a single backend request
+- `Content-Length`重构不正确
+- 重新引入逐跳头
+- 多个逻辑请求折叠为单个后端请求
 
-> Note: HTTP/2 downgrading is not inherently vulnerable by itself.  
-> Exploitation becomes possible when protocol translation reconstructs an HTTP/1.1 request that violates backend parsing assumptions, leading to request boundary desynchronization.
+> 注意：HTTP/2降级本身并非固有漏洞。
+> 当协议转换重构违反后端解析假设的HTTP/1.1请求时，可利用性变得可能，导致请求边界去同步。
 
-Testing Approach:
+测试方法：
 
-- Send multiple HTTP/2 DATA frames with conflicting length semantics
-- Observe backend behavior via timing discrepancies or response splitting
-- Monitor for request queue poisoning
+- 发送具有冲突长度语义的多个HTTP/2 DATA帧
+- 通过时序差异或响应拆分观察后端行为
+- 监控请求队列中毒
 
-##### Example: HTTP/2 Downgrade Smuggling via Request Reconstruction
+##### 示例：通过请求重构进行HTTP/2降级走私
 
-In this scenario, the client communicates with the frontend over HTTP/2, while the backend only supports HTTP/1.1. The intermediary reconstructs an HTTP/1.1 request from multiple HTTP/2 DATA frames.
+在此场景中，客户端通过HTTP/2与前端通信，而后端仅支持HTTP/1.1。中间人从多个HTTP/2 DATA帧重构HTTP/1.1请求。
 
-**HTTP/2 (Conceptual Representation):**
+**HTTP/2（概念表示）：**
 
-- DATA frame 1:
+- DATA帧1：
 
 ```http
 0\r\n\r\n
 ```
 
-- DATA frame 2:
+- DATA帧2：
 
 ```http
 GET /admin HTTP/1.1
 Host: internal
 ```
 
-**Reconstructed HTTP/1.1 Request (Backend View):**
+**重构的HTTP/1.1请求（后端视图）：**
 
 ```http
 POST / HTTP/1.1
@@ -153,16 +153,16 @@ GET /admin HTTP/1.1
 Host: internal
 ```
 
-If the frontend treats the request as complete while the backend continues parsing buffered data, the second request may be processed out of sequence, resulting in request smuggling.
+如果前端将请求视为完整，而后端继续解析缓冲数据，则第二个请求可能以意外顺序处理，导致请求走私。
 
-> Implicit Downgrades:
-> Even in the absence of an explicit `Upgrade: h2c` mechanism, many CDNs and reverse proxies silently downgrade HTTP/2 client connections to HTTP/1.1 when forwarding requests to backend services.  
-> These implicit downgrades expand the smuggling attack surface, especially when combined with connection reuse and insufficient request normalization.
+> 隐式降级：
+> 即使在没有明确`Upgrade: h2c`机制的情况下，许多CDN和反向代理在将请求转发到后端服务时，也会悄然将HTTP/2客户端连接降级为HTTP/1.1。
+> 这些隐式降级扩大了走私攻击面，特别是与连接重用和请求规范化不足相结合时。
 
-#### H2C Smuggling (Cleartext HTTP/2 Upgrade)
+#### H2C走私（明文HTTP/2升级）
 
-H2C allows upgrading an HTTP/1.1 connection to HTTP/2 using the `Upgrade: h2c` mechanism.  
-Unlike protocol downgrades, H2C smuggling occurs during an in-place protocol transition, where frontend and backend components may temporarily disagree on the active parsing state of the same connection, potentially leaving residual bytes in the backend buffer.
+H2C允许使用`Upgrade: h2c`机制将HTTP/1.1连接升级到HTTP/2。
+与协议降级不同，H2C走私发生在就地协议转换期间，前端和后端组件可能在同一连接的解析状态上暂时不同意，可能在后端缓冲区中留下残留字节。
 
 ```http
 POST / HTTP/1.1
@@ -177,48 +177,48 @@ GET /admin HTTP/1.1
 Host: internal
 ```
 
-Risk Factors:
+风险因素：
 
-- Partial upgrade acceptance
-- Backend continues parsing as HTTP/1.1
-- Smuggled request processed post-upgrade
+- 部分升级接受
+- 后端继续解析为HTTP/1.1
+- 升级后处理走私请求
 
-#### Request Queue Poisoning via Protocol Downgrade
+#### 通过协议降级的请求队列中毒
 
-Some proxies downgrade HTTP/2 requests to HTTP/1.1 but fail to fully sanitize:
+某些代理将HTTP/2请求降级到HTTP/1.1，但未能完全规范化：
 
 - `Content-Length`
-- Duplicated headers
-- Invalid pseudo-header ordering
+- 重复头
+- 无效伪头顺序
 
-Attackers can exploit this to poison persistent backend connections, impacting multiple users.
+攻击者可以利用此漏洞毒化持久后端连接，影响多个用户。
 
-### Indicators of Vulnerability
+### 漏洞指标
 
-- Inconsistent responses across identical requests
-- Unexpected 404 or 400 responses
-- Delayed or mismatched responses
-- Cross-user response leakage
+- 跨相同请求的响应不一致
+- 意外的404或400响应
+- 延迟或不匹配的响应
+- 跨用户响应泄露
 
-## Remediation
+## 修复
 
-- Enforce strict RFC-compliant parsing
-- Normalize request handling across all intermediaries
-- Disable H2C where not required
-- Avoid protocol downgrades on untrusted connections
-- Terminate and revalidate backend connections upon parsing errors
+- 强制执行严格的RFC兼容解析
+- 规范化所有中间人之间的请求处理
+- 在不需要的地方禁用H2C
+- 避免对不可信连接进行协议降级
+- 在解析错误时终止并重新验证后端连接
 
-## Tools
+## 工具
 
-- [HTTP Request Smuggler (Burp Suite Extension)](https://portswigger.net/bappstore/aaaa60ef945341e8a450217a54a11646)
-- [Smuggler (Python) by defparam](https://github.com/defparam/smuggler)
+- [HTTP请求走私者（Burp Suite扩展）](https://portswigger.net/bappstore/aaaa60ef945341e8a450217a54a11646)
+- [Smuggler（Python）by defparam](https://github.com/defparam/smuggler)
 - [h2csmuggler by Bishop Fox](https://github.com/BishopFox/h2csmuggler)
 
-## References
+## 参考资料
 
-- [James Kettle, "HTTP Desync Attacks: Request Smuggling Reborn" (PortSwigger Research)](https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn)
-- [James Kettle, "HTTP/2: The Sequel is Always Worse" (PortSwigger Research)](https://portswigger.net/research/http2)
-- [Jake Miller, "h2c Smuggling: Request Smuggling Via HTTP/2 Cleartext" (Bishop Fox)](https://bishopfox.com/blog/h2c-smuggling-request)
-- [Amit Klein, Chaim Linhart, Ronen Heled, Steve Orrin: "HTTP Request Smuggling" (2005)](https://web.archive.org/web/20210816212852/https://www.cgisecurity.com/lib/http-request-smuggling.pdf)
-- [RFC 7230, Section 3.3.3: Message Body Length](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.3)
-- [RFC 7540: Hypertext Transfer Protocol Version 2 (HTTP/2)](https://datatracker.ietf.org/doc/html/rfc7540)
+- [James Kettle，"HTTP去同步攻击：请求走私重生"（PortSwigger研究）](https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn)
+- [James Kettle，"HTTP/2：续集总是更糟"（PortSwigger研究）](https://portswigger.net/research/http2)
+- [Jake Miller，"h2C走私：通过HTTP/2明文请求走私"（Bishop Fox）](https://bishopfox.com/blog/h2c-smuggling-request)
+- [Amit Klein, Chaim Linhart, Ronen Heled, Steve Orrin:"HTTP请求走私"（2005）](https://web.archive.org/web/20210816212852/https://www.cgisecurity.com/lib/http-request-smuggling.pdf)
+- [RFC 7230，第3.3.3节：消息正文长度](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.3)
+- [RFC 7540：超文本传输协议版本2（HTTP/2）](https://datatracker.ietf.org/doc/html/rfc7540)

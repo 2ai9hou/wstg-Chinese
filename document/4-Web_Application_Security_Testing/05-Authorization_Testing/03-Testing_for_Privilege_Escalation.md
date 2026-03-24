@@ -1,34 +1,34 @@
-# Testing for Privilege Escalation
+# 测试权限提升
 
 |ID          |
 |------------|
 |WSTG-ATHZ-03|
 
-## Summary
+## 概述
 
-This section describes the issue of escalating privileges from one stage to another. During this phase, the tester should verify that it is not possible for a user to modify their privileges or roles inside the application in ways that could allow privilege escalation attacks.
+本节描述了将权限从一级别提升到另一级别的问题。在此阶段，测试人员应验证用户不可能以可能导致权限提升攻击的方式修改应用程序中的权限或角色。
 
-Privilege escalation occurs when a user gets access to more resources or functionality than they are normally allowed, and such elevation or changes should have been prevented by the application. This is usually caused by a flaw in the application. The result is that the application performs actions with more privileges than those intended by the developer or system administrator.
+当用户获得超出其正常允许范围的更多资源或功能访问权限时，就会发生权限提升，而这种提升或变更本应被应用程序阻止。这通常是由应用程序的缺陷引起的。结果是应用程序以比开发人员或系统管理员预期更多权限执行操作。
 
-The degree of escalation depends on what privileges the attacker is authorized to possess, and what privileges can be obtained in a successful exploit. For example, a programming error that allows a user to gain extra privilege after successful authentication limits the degree of escalation, because the user is already authorized to hold some privilege. Likewise, a remote attacker gaining superuser privilege without any authentication presents a greater degree of escalation.
+权限提升的程度取决于攻击者被授权拥有的权限，以及在成功利用中可以获得的权限。例如，允许用户在成功认证后获得额外权限的编程错误限制了提权的程度，因为用户已经被授权持有某些权限。同样，无需任何身份验证即可获得超级用户权限的远程攻击者表现出更大程度的权限提升。
 
-Usually, people refer to *vertical escalation* when it is possible to access resources granted to more privileged accounts (e.g., acquiring administrative privileges for the application), and to *horizontal escalation* when it is possible to access resources granted to a similarly configured account (e.g., in an online banking application, accessing information related to a different user).
+通常，当能够访问授予更高权限账户的资源时（如获得应用程序的管理权限），人们称之为*垂直提权*；当能够访问授予配置相似的账户的资源时（如在在线银行应用程序中访问不同用户的信息），称之为*水平提权*。
 
-## Test Objectives
+## 测试目标
 
-- Identify injection points related to privilege manipulation.
-- Fuzz or otherwise attempt to bypass security measures.
+- 识别与权限操作相关的注入点。
+- 模糊测试或以其他方式尝试绕过安全措施。
 
-## How to Test
+## 如何测试
 
-### Testing for Role/Privilege Manipulation
+### 测试角色/权限操作
 
-In every portion of the application where a user can create information in the database (e.g., making a payment, adding a contact, or sending a message), can receive information (statement of account, order details, etc.), or delete information (drop users, messages, etc.), it is necessary to record that functionality. The tester should try to access such functions as another user in order to verify if it is possible to access a function that should not be permitted by the user's role/privilege (but might be permitted as another user).
+在应用程序中用户可以创建信息（如进行支付、添加联系人或发送消息）、接收信息（如账户对账单、订单详情）或删除信息（如删除用户、消息）的每个部分，有必要记录该功能。测试人员应尝试作为另一个用户访问这些功能，以验证是否可能访问用户角色/权限不允许（但可能作为另一个用户允许）的功能。
 
-#### Manipulation of User Group
+#### 用户组操作
 
-For example:
-The following HTTP POST allows the user that belongs to `grp001` to access order #0001:
+例如：
+以下 HTTP POST 允许属于 `grp001` 的用户访问订单 #0001：
 
 ```http
 POST /user/viewOrder.jsp HTTP/1.1
@@ -38,25 +38,25 @@ Host: www.example.com
 groupID=grp001&orderID=0001
 ```
 
-Verify if a user that does not belong to `grp001` can modify the value of the parameters `groupID` and `orderID` to gain access to that privileged data.
+验证不属于 `grp001` 的用户是否可以修改 `groupID` 和 `orderID` 参数的值以获得对该特权数据的访问。
 
-#### Manipulation of User Profile
+#### 用户配置文件操作
 
-For example:
-The following server's answer shows a hidden field in the HTML returned to the user after a successful authentication.
+例如：
+以下服务器响应显示在成功认证后返回给用户的 HTML 中的隐藏字段：
 
 ```html
-HTTP/1.1 200 OK
-Server: Netscape-Enterprise/6.0
-Date: Wed, 1 Apr 2006 13:51:20 GMT
-Set-Cookie: USER=aW78ryrGrTWs4MnOd32Fs51yDqp; path=/; domain=www.example.com
-Set-Cookie: SESSION=k+KmKeHXTgDi1J5fT7Zz; path=/; domain= www.example.com
-Cache-Control: no-cache
-Pragma: No-cache
-Content-length: 247
-Content-Type: text/html
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Connection: close
+HTTP/1.1 200 OK
+Server: Netscape-Enterprise/6.0
+Date: Wed, 1 Apr 2006 13:51:20 GMT
+Set-Cookie: USER=aW78ryrGrTWs4MnOd32Fs51yDqp; path=/; domain=www.example.com
+Set-Cookie: SESSION=k+KmKeHXTgDi1J5fT7Zz; path=/; domain= www.example.com
+Cache-Control: no-cache
+Pragma: No-cache
+Content-length: 247
+Content-Type: text/html
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Connection: close
 
 <form  name="autoriz" method="POST" action = "visual.jsp">
 <input type="hidden" name="profile" value="SysAdmin">\
@@ -66,130 +66,130 @@ Connection: close
 </tr>
 ```
 
-What if the tester modifies the value of the variable `profile` to `SysAdmin`? Is it possible to become **administrator**?
+如果测试人员将变量 `profile` 的值修改为 `SysAdmin` 会怎样？是否可能成为**管理员**？
 
-#### Manipulation of Condition Value
+#### 条件值操作
 
-For example:
-In an environment where the server sends an error message contained as a value in a specific parameter in a set of answer codes, as the following:
+例如：
+在服务器将错误消息作为一组响应代码中特定参数的值发送的环境中，如下所示：
 
 ```text
 @0`1`3`3``0`UC`1`Status`OK`SEC`5`1`0`ResultSet`0`PVValid`-1`0`0` Notifications`0`0`3`Command  Manager`0`0`0` StateToolsBar`0`0`0`
 StateExecToolBar`0`0`0`FlagsToolBar`0
 ```
 
-The server gives an implicit trust to the user. It believes that the user will answer with the above message closing the session.
+服务器给予用户隐式信任。它相信用户将用上述消息关闭会话。
 
-In this condition, verify that it is not possible to escalate privileges by modifying the parameter values. In this particular example, by modifying the `PVValid` value from `-1` to `0` (no error conditions), it may be possible to authenticate as administrator to the server.
+在这种情况下，验证通过修改参数值来提升权限是否不可能。在这个特定示例中，通过将 `PVValid` 值从 `-1` 修改为 `0`（无错误条件），可能可以作为管理员对服务器进行身份验证。
 
-#### Manipulation of IP Address
+#### IP 地址操作
 
-Some sites limit access or count the number of failed login attempts based on IP address.
+一些站点根据 IP 地址限制访问或计算失败登录尝试次数。
 
-For example:
+例如：
 
 ```text
-X-Forwarded-For: 8.1.1.1
+X-Forwarded-For: 8.1.1.1
 ```
 
-In this case, if the site uses the value of `X-forwarded-For` as client IP address, tester may change the IP value of the `X-forwarded-For` HTTP header to workaround the IP source identification.
+在这种情况下，如果站点使用 `X-forwarded-For` 的值作为客户端 IP 地址，测试人员可能需要更改 `X-forwarded-For` HTTP 头的 IP 值以绕过 IP 源识别。
 
-### Testing for Vertical Bypassing Authorization Schema
+### 测试垂直绕过授权架构
 
-A vertical authorization bypass is specific to the case that an attacker obtains a role higher than their own. Testing for this bypass focuses on verifying how the vertical authorization schema has been implemented for each role. For every function, page, specific role, or request that the application executes, it is necessary to verify if it is possible to:
+垂直授权绕过专门针对攻击者获得比自己更高角色的情况。对这种绕过的测试集中在验证垂直授权架构如何为每个角色实现的。对于应用程序执行的每个功能、页面、特定角色或请求，有必要验证是否可能：
 
-- Access resources that should be accessible only to a higher role user.
-- Operate functions on resources that should be operative only by a user that holds a higher or specific role identity.
+- 访问仅应供更高角色用户访问的资源。
+- 操作仅应供持有更高或特定角色身份的用户执行的功能。
 
-For each role:
+对于每个角色：
 
-1. Register a user.
-2. Establish and maintain two different sessions based on the two different roles.
-3. For every request, change the session identifier from the original to another role's session identifier and evaluate the responses for each.
-4. An application will be considered vulnerable if the weaker privileged session contains the same data, or indicate successful operations on higher privileged functions.
+1. 注册一个用户。
+2. 基于两个不同的角色建立并保持两个不同的会话。
+3. 对于每个请求，将会话标识符从原始会话更改为另一角色的会话标识符，并评估每个的响应。
+4. 如果权限较弱的会话包含相同的数据，或表明在更高权限功能上成功操作，则该应用程序被认为是存在漏洞的。
 
-#### Banking Site Roles Scenario
+#### 银行站点角色场景
 
-The following table illustrates the system roles on a banking site. Each role binds with specific permissions for the event menu functionality:
+下表说明了一个银行站点的系统角色。每个角色与事件菜单功能的特定权限绑定：
 
-|      ROLE     |     PERMISSION    | ADDITIONAL PERMISSION |
-|---------------|-------------------|-----------------------|
-| Administrator | Full Control      | Delete                |
-| Manager       | Modify, Add, Read | Add                   |
-| Staff         | Read, Modify      | Modify                |
-| Customer      | Read Only         |                       |
+|      角色     |     权限    | 附加权限 |
+|---------------|-------------|----------|
+| 管理员        | 完全控制    | 删除     |
+| 经理          | 修改、添加、读取 | 添加  |
+| 员工          | 读取、修改  | 修改     |
+| 客户          | 只读        |          |
 
-The application will be considered vulnerable if the:
+在以下情况下，应用程序将被视为存在漏洞：
 
-1. Customer could operate administrator, manager or staff functions;
-2. Staff user could operate manager or administrator functions;
-3. Manager could operate administrator functions.
+1. 客户可以操作管理员、经理或员工功能；
+2. 员工用户可以操作经理或管理员功能；
+3. 经理可以操作管理员功能。
 
-Suppose that the `deleteEvent` function is part of the administrator account menu of the application, and it is possible to access it by requesting the following URL: `https://www.example.com/account/deleteEvent`. Then, the following HTTP request is generated when calling the `deleteEvent` function:
+假设 `deleteEvent` 功能是应用程序管理员账户菜单的一部分，并且可以通过请求以下 URL 访问：`https://www.example.com/account/deleteEvent`。然后，在调用 `deleteEvent` 功能时生成以下 HTTP 请求：
 
 ```http
 POST /account/deleteEvent HTTP/1.1
 Host: www.example.com
-[other HTTP headers]
+[其他 HTTP 头]
 Cookie: SessionID=ADMINISTRATOR_USER_SESSION
 
 EventID=1000001
 ```
 
-The valid response:
+有效响应：
 
 ```http
 HTTP/1.1 200 OK
-[other HTTP headers]
+[其他 HTTP 头]
 
 {"message": "Event was deleted"}
 ```
 
-The attacker may try and execute the same request:
+攻击者可能尝试执行相同的请求：
 
 ```http
 POST /account/deleteEvent HTTP/1.1
 Host: www.example.com
-[other HTTP headers]
+[其他 HTTP 头]
 Cookie: SessionID=CUSTOMER_USER_SESSION
 
 EventID=1000002
 ```
 
-If the response of the attacker’s request contains the same data `{"message": "Event was deleted"}` the application is vulnerable.
+如果攻击者请求的响应包含相同的数据 `{"message": "Event was deleted"}`，则该应用程序存在漏洞。
 
-#### Administrator Page Access
+#### 管理员页面访问
 
-Suppose that the administrator menu is part of the administrator account.
+假设管理员菜单是管理员账户的一部分。
 
-The application will be considered vulnerable if any role other than administrator could access the administrator menu. Sometimes, developers perform authorization validation at the GUI level only, and leave the functions without authorization validation, thus potentially resulting in a vulnerability.
+如果除管理员以外的任何角色可以访问管理员菜单，则该应用程序将被视为存在漏洞。有时，开发人员仅在 GUI 级别执行授权验证，而不对功能进行授权验证，因此可能导致漏洞。
 
-### URL Traversal
+### URL 遍历
 
-Try to traverse the site and check if some of pages that may miss the authorization check.
+尝试遍历站点并检查是否有某些页面可能缺少授权检查。
 
-For example:
+例如：
 
 ```text
 /../.././userInfo.html
 ```
 
-### WhiteBox
+### 白盒测试
 
-If the URL authorization check is only done by partial URL match, then it's likely testers or hackers may workaround the authorization by URL encoding techniques.
+如果 URL 授权检查仅通过部分 URL 匹配完成，那么测试人员或黑客可能通过 URL 编码技术绕过授权。
 
-For example:
+例如：
 
 ```text
-startswith(), endswith(), contains(), indexOf()
+startswith(), endswith(), contains(), indexOf()
 ```
 
-## References
+## 参考资料
 
-### Whitepapers
+### 白皮书
 
-- [Wikipedia - Privilege Escalation](https://en.wikipedia.org/wiki/Privilege_escalation)
+- [Wikipedia - 权限提升](https://en.wikipedia.org/wiki/Privilege_escalation)
 
-## Tools
+## 工具
 
 - [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)

@@ -1,54 +1,54 @@
-# Test User Registration Process
+# 测试用户注册流程
 
 |ID          |
 |------------|
 |WSTG-IDNT-02|
 
-## Summary
+## 概述
 
-Some websites offer a user registration process that automates (or semi-automates) the provisioning of system access to users. The identity requirements for access vary from positive identification to none at all, depending on the security requirements of the system. Many public applications completely automate the registration and provisioning process because the size of the user base makes it impossible to manage manually. However, many corporate applications will provision users manually, so this test case may not apply.
+一些网站提供用户注册流程，该流程自动化（或半自动化）为用户配置系统访问。访问的身份要求从正面身份验证到完全不验证不等，具体取决于系统的安全要求。许多公共应用程序完全自动化了注册和配置流程，因为用户群规模使得手动管理变得不可能。然而，许多企业应用程序会手动配置用户，因此此测试用例可能不适用。
 
-## Test Objectives
+## 测试目标
 
-- Verify that the identity requirements for user registration are aligned with business and security requirements.
-- Validate the registration process.
+- 验证用户注册的身份要求是否符合业务和安全要求。
+- 验证注册流程。
 
-## How to Test
+## 如何测试
 
-Verify that the identity requirements for user registration are aligned with business and security requirements:
+验证用户注册的身份要求是否符合业务和安全要求：
 
-1. Can anyone register for access?
-2. Are registrations vetted by a human prior to provisioning, or are they automatically granted if the criteria are met?
-3. Can the same person or identity register multiple times?
-4. Can users register for different roles or permissions?
-5. What proof of identity is required for a registration to be successful?
-6. Are registered identities verified?
+1. 任何人都可以注册访问吗？
+2. 在配置之前，注册是否经过人工审查，还是在满足条件时自动授予？
+3. 同一个人或身份可以多次注册吗？
+4. 用户可以注册不同的角色或权限吗？
+5. 成功注册需要哪些身份证明？
+6. 注册的身份是否经过验证？
 
-Validate the registration process:
+验证注册流程：
 
-1. Can identity information be easily forged or faked?
-2. Can the exchange of identity information be manipulated during registration?
+1. 身份信息是否容易被伪造或仿造？
+2. 注册过程中身份信息的交换是否可以被操纵？
 
-### Example
+### 示例
 
-In the WordPress example below, the only identification requirement is an email address that is accessible to the registrant.
+在下面的 WordPress 示例中，唯一的身份要求是注册人可以访问的电子邮件地址。
 
-![WordPress Registration Page](images/Wordpress_registration_page.jpg)\
-*Figure 4.3.2-1: WordPress Registration Page*
+![WordPress 注册页面](images/Wordpress_registration_page.jpg)\
+*图 4.3.2-1：WordPress 注册页面*
 
-In contrast, in the Google example below the identification requirements include name, date of birth, country, mobile phone number, email address and CAPTCHA response. While only two of these can be verified (email address and mobile number), the identification requirements are stricter than WordPress.
+相比之下，在下面的 Google 示例中，身份要求包括姓名、出生日期、国家、手机号码、电子邮件地址和 CAPTCHA 响应。虽然其中只有两个可以验证（电子邮件地址和手机号码），但身份要求比 WordPress 更严格。
 
-![Google Registration Page](images/Google_registration_page.jpg)\
-*Figure 4.3.2-2: Google Registration Page*
+![Google 注册页面](images/Google_registration_page.jpg)\
+*图 4.3.2-2：Google 注册页面*
 
-## Remediation
+## 修复建议
 
-Implement identification and verification requirements that correspond to the security requirements of the information the credentials protect.
+实施与凭证所保护信息的安全要求相对应的身份验证要求。
 
-## Tools
+## 工具
 
-A HTTP proxy can be a useful tool to test this control.
+HTTP 代理可以成为测试此控制的有效工具。
 
-## References
+## 参考资料
 
-[User Registration Design](https://mashable.com/2011/06/09/user-registration-design/)
+[用户注册设计](https://mashable.com/2011/06/09/user-registration-design/)

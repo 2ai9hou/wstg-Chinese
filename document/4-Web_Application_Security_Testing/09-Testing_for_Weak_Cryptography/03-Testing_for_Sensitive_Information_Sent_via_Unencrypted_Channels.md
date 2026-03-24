@@ -1,47 +1,47 @@
-# Testing for Sensitive Information Sent via Unencrypted Channels
+# 测试通过未加密通道发送的敏感信息
 
 |ID          |
 |------------|
 |WSTG-CRYP-03|
 
-## Summary
+## 概述
 
-Sensitive data must be protected when it is transmitted through the network. If data is transmitted over HTTPS or encrypted in another way the protection mechanism must not have limitations or vulnerabilities, as explained in the broader article [Testing for Weak Transport Layer Security](01-Testing_for_Weak_Transport_Layer_Security.md) and in other OWASP documentation:
+敏感数据在通过网络传输时必须受到保护。如果数据通过HTTPS或以另一种方式加密，保护机制不得有局限性或漏洞，如更广泛的文章[测试弱传输层安全性](01-Testing_for_Weak_Transport_Layer_Security.md)和其他OWASP文档中所解释：
 
-- [OWASP Top 10 2017 A3-Sensitive Data Exposure](https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure).
-- [OWASP ASVS - Verification V9](https://github.com/OWASP/ASVS/blob/master/4.0/en/0x17-V9-Communications.md).
-- [Transport Layer Protection Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html).
+- [OWASP Top 10 2017 A3-敏感数据暴露](https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure)。
+- [OWASP ASVS - 验证V9](https://github.com/OWASP/ASVS/blob/master/4.0/en/0x17-V9-Communications.md)。
+- [传输层保护速查表](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html)。
 
-As a rule of thumb if data must be protected when it is stored, this data must also be protected during transmission. Some examples for sensitive data are:
+根据经验，如果数据在存储时必须受到保护，则数据在传输期间也必须受到保护。敏感数据的一些示例包括：
 
-- Information used in authentication (e.g. Credentials, PINs, Session identifiers, Tokens, Cookies…)
-- Information protected by laws, regulations or specific organizational policy (e.g. Credit Cards, Customers data)
+- 用于认证的信息（例如，凭据、PIN、会话标识符、令牌、Cookie……）
+- 受法律、法规或特定组织策略保护的信息（例如，信用卡、客户数据）
 
-If the application transmits sensitive information via unencrypted channels - e.g. HTTP - it is considered a security risk. Attackers can take over accounts by [sniffing network traffic](https://owasp.org/www-community/attacks/Manipulator-in-the-middle_attack). Some examples are Basic authentication which sends authentication credentials in plain-text over HTTP, form based authentication credentials sent via HTTP, or plain-text transmission of any other information considered sensitive due to regulations, laws, organizational policy or application business logic.
+如果应用程序通过未加密的通道（例如HTTP）传输敏感信息，则视为安全风险。攻击者可以通过[嗅探网络流量](https://owasp.org/www-community/attacks/Manipulator-in-the-middle_attack)来接管账户。一些示例是通过HTTP以明文形式发送认证凭据的基本认证、通过HTTP发送的表单认证凭据，或由于法规、法律、组织政策或应用程序业务逻辑而被视为敏感的任何其他信息的明文传输。
 
-Examples for Personal Identifying Information (PII) are:
+个人身份信息（PII）的示例包括：
 
-- Social security numbers
-- Bank account numbers
-- Passport information
-- Healthcare related information
-- Medical insurance information
-- Student information
-- Credit and debit card numbers
-- Driver's license and State ID information
+- 社会安全号码
+- 银行账号
+- 护照信息
+- 与医疗相关的信息
+- 医疗保险信息
+- 学生信息
+- 信用卡和借记卡号码
+- 驾驶执照和州身份证信息
 
-## Test Objectives
+## 测试目标
 
-- Identify sensitive information transmitted through the various channels.
-- Assess the privacy and security of the channels used.
+- 识别通过各种通道传输的敏感信息。
+- 评估所用通道的隐私和安全性。
 
-## How to Test
+## 如何测试
 
-Various types of information that must be protected, could be transmitted by the application in clear text. To check if this information is transmitted over HTTP instead of HTTPS, capture traffic between a client and web application server that needs credentials. For any message containing sensitive data, verify the exchange occurred using HTTPS. See more information about insecure transmission of credentials [OWASP Top 10 2017 A3-Sensitive Data Exposure](https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure) or [Transport Layer Protection Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html).
+应用程序可能以明文形式传输的各种类型的信息必须受到保护。要检查这些信息是通过HTTP而不是HTTPS传输的，请捕获客户端与需要凭据的Web应用服务器之间的流量。对于任何包含敏感数据的消息，验证交换是使用HTTPS进行的。有关凭据的不安全传输的更多信息，请参阅[OWASP Top 10 2017 A3-敏感数据暴露](https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure)或[传输层保护速查表](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html)。
 
-### Example 1: Basic Authentication over HTTP
+### 示例1：通过HTTP的基本认证
 
-A typical example is the usage of Basic Authentication over HTTP. When using Basic Authentication, user credentials are encoded rather than encrypted, and are sent as HTTP headers. In the example below the tester uses [curl](https://curl.haxx.se/) to test for this issue. Note how the application uses Basic authentication, and HTTP rather than HTTPS.
+一个典型的例子是通过HTTP使用基本认证。使用基本认证时，用户凭据被编码而不是加密，并作为HTTP头发送。在下面的示例中，测试人员使用[curl](https://curl.haxx.se/)测试此问题。请注意应用程序如何使用基本认证，以及使用HTTP而不是HTTPS。
 
 ```bash
 $ curl -kis http://example.com/restricted/
@@ -56,9 +56,9 @@ Content-Type: text/html
 <body bgcolor=white> <h1>401 Authorization Required</h1>  Invalid login credentials!  </body></html>
 ```
 
-### Example 2: Form-Based Authentication Performed over HTTP
+### 示例2：通过HTTP执行的基于表单的认证
 
-Another typical example is authentication forms which transmit user authentication credentials over HTTP. In the example below one can see HTTP being used in the `action` attribute of the form. It is also possible to see this issue by examining the HTTP traffic with an interception proxy.
+另一个典型示例是通过HTTP传输用户认证凭据的认证表单。在下面的示例中，可以看到在表单的`action`属性中使用了HTTP。也可以通过使用拦截代理检查HTTP流量来查看此问题。
 
 ```html
 <form action="http://example.com/login">
@@ -68,9 +68,9 @@ Another typical example is authentication forms which transmit user authenticati
 </form>
 ```
 
-### Example 3: Cookie Containing Session ID Sent over HTTP
+### 示例3：通过HTTP发送的包含会话ID的Cookie
 
-The Session ID Cookie must be transmitted over protected channels. If the cookie does not have the [secure flag](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md) set, it is permitted for the application to transmit it unencrypted. Note below the setting of the cookie is done without the Secure flag, and the entire log in process is performed in HTTP and not HTTPS.
+会话ID Cookie必须通过受保护的通道传输。如果Cookie没有设置[安全标志](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md)，则允许应用程序未加密传输它。请注意，在没有安全标志的情况下设置cookie，整个登录过程在HTTP而不是HTTPS中执行。
 
 ```http
 https://secure.example.com/login
@@ -106,39 +106,39 @@ Content-Length: 730
 Date: Tue, 25 Dec 2013 00:00:00 GMT
 ```
 
-### Example 4: Password Reset, Change Password or Other Account Manipulation over HTTP
+### 示例4：通过HTTP的密码重置、更改密码或其他账户操作
 
-If the web application has features that allow a user to change an account or call a different service with credentials, verify all of those interactions use HTTPS. The interactions to test include the following:
+如果Web应用程序具有允许用户更改账户或使用凭据调用其他服务的功能，请验证所有这些交互都使用HTTPS。要测试的交互包括：
 
-- Forms that allow users to handle a forgotten password or other credentials
-- Forms that allow users to edit credentials
-- Forms that require the user to authenticate with another provider (for example, payment processing)
+- 允许用户处理忘记密码或其他凭据的表单
+- 允许用户编辑凭据的表单
+- 要求用户使用其他提供者（例如支付处理）进行认证的表单
 
-### Example 5: Testing Password Sensitive Information in Source Code or Logs
+### 示例5：在源代码或日志中测试密码敏感信息
 
-Use one of the following techniques to search for sensitive information.
+使用以下技术之一搜索敏感信息。
 
-Checking if password or encryption key is hardcoded in the source code or configuration files.
+检查密码或加密密钥是否硬编码在源代码或配置文件中。
 
 `grep -r –E "Pass | password | pwd |user | guest| admin | encry | key | decrypt | sharekey " ./PathToSearch/`
 
-Checking if logs or source code may contain phone number, email address, ID or any other PII. Change the regular expression based on the format of the PII.
+检查日志或源代码是否可能包含电话号码、电子邮件地址、ID或任何其他PII。根据PII的格式更改正则表达式。
 
 `grep -r " {2\}[0-9]\{6\} "  ./PathToSearch/`
 
-## Remediation
+## 修复
 
-Use HTTPS for the whole web site and redirect any HTTP requests to HTTPS.
+为整个网站使用HTTPS，并将任何HTTP请求重定向到HTTPS。
 
-## Tools
+## 工具
 
 - [curl](https://curl.haxx.se/)
 - [grep](https://man7.org/linux/man-pages/man1/egrep.1.html)
 - [Wireshark](https://www.wireshark.org/)
 - [TCPDUMP](https://www.tcpdump.org/)
 
-## References
+## 参考资料
 
-- [OWASP Insecure Transport](https://owasp.org/www-community/vulnerabilities/Insecure_Transport)
-- [OWASP HTTP Strict Transport Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html)
-- [Let's Encrypt](https://letsencrypt.org)
+- [OWASP 不安全传输](https://owasp.org/www-community/vulnerabilities/Insecure_Transport)
+- [OWASP HTTP严格传输安全速查表](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html)
+- [让我们加密](https://letsencrypt.org)

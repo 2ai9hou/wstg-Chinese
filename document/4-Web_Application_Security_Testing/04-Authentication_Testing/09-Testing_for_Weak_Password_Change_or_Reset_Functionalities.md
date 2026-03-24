@@ -1,196 +1,196 @@
-# Testing for Weak Password Change or Reset Functionalities
+# 测试弱密码更改或重置功能
 
 |ID          |
 |------------|
 |WSTG-ATHN-09|
 
-## Summary
+## 概述
 
-For any application that requires the user to authenticate with a password, there must be a mechanism by which the user can regain access to their account if they forget their password. Although this can sometimes be a manual process that involves contacting the owner of the website or a support team, users are frequently allowed to carry out a self-service password reset, and to regain access to their account by providing some other evidence of their identity.
+对于任何需要用户使用密码进行认证的应用程序，必须有一种机制，让用户在忘记密码时能够重新获得对其账户的访问权。虽然这有时可能是一个涉及联系网站所有者或支持团队的手动过程，但用户通常被允许执行自助密码重置，并通过提供其他身份证明来重新获得对其账户的访问权。
 
-As this functionality provides a direct route to compromise the user's account, it is crucial that it is implemented securely.
+由于此功能提供了直接危害用户账户的途径，因此安全地实现它至关重要。
 
-## Test Objectives
+## 测试目标
 
-- Determine whether the password change and reset functionality allows accounts to be compromised.
+- 确定密码更改和重置功能是否允许账户被危害。
 
-## How to Test
+## 如何测试
 
-### Information Gathering
+### 信息收集
 
-The first step is to gather information about what mechanisms are available to allow the user to reset their password on the application. If there are multiple interfaces on the same site (such as a web interface, mobile application, and API) then these should all be reviewed, in case they provide different functionality.
+第一步是收集有关应用程序中有哪些机制允许用户重置密码的信息。如果同一站点有多个界面（如 Web 界面、移动应用程序和 API），则应全部审查，以防它们提供不同的功能。
 
-Once this has been established, determine what information is required in order for a user to initiate a password reset. This can be the username or email address (both of which may be obtained from public information), but it could also be an internally-generated user ID.
+一旦确定了这一点，确定用户需要提供哪些信息才能发起密码重置。这可能是用户名或电子邮件地址（两者都可能从公开信息中获得），但也可能是内部生成的用户 ID。
 
-### General Concerns
+### 一般注意事项
 
-Regardless of the specific methods used to reset passwords, there are a number of common areas that need to be considered:
+无论使用何种特定方法重置密码，都需要考虑一些常见领域：
 
-- Is the password reset process weaker than the authentication process?
+- 密码重置过程是否比认证过程弱？
 
-  The password reset process provides an alternative mechanism to access a user's account, and so should be at least as secure as the usual authentication process. However, it can provide an easier way to compromise the account, especially if it uses weaker authentication factors such as security questions.
+  密码重置过程提供了访问用户账户的替代机制，因此应该至少与通常的认证过程一样安全。但是，如果它使用较弱认证因素（如安全问题），可能会提供更容易危害账户的途径。
 
-  Additionally, the password reset process may bypass the requirement to use Multi-Factor Authentication (MFA), which can substantially reduce the security of the application.
+  此外，密码重置过程可能会绕过使用多因素认证（MFA）的要求，这可能会大大降低应用程序的安全性。
 
-- Is there rate limiting or other protection against automated attacks?
+- 是否有速率限制或其他保护措施防止自动化攻击？
 
-  As with any authentication mechanism, the password reset process should have protection against automated or brute-force attacks. There are a variety of different methods that can be used to achieve this, such as rate limiting or the use of CAPTCHA. These are particularly important on functionality that triggers external actions (such as sending an email or SMS), or when the user is entering a password reset token.
+  与任何认证机制一样，密码重置过程应具有防止自动化或暴力破解攻击的保护。可以使用多种不同的方法来实现这一点，例如速率限制或使用验证码。这些在触发外部操作的功能（如发送电子邮件或 SMS）上，或当用户输入密码重置令牌时尤为重要。
 
-  It is also possible to protect against brute-force attacks by locking out the account from the password reset process after a certain number of consecutive attempts. This could also prevent a legitimate user from being able to reset their password and regain access to their account, however.
+  也可以通过在一定数量的连续尝试后锁定账户来进行密码重置功能来防止暴力破解攻击。但是，这也可能阻止合法用户重置密码并重新获得对其账户的访问权。
 
-- Is it vulnerable to common attacks?
+- 是否容易受到常见攻击？
 
-  As well as the specific areas discussed in this guide, it's also important to check for other common vulnerabilities such as SQL injection or cross-site scripting.
+  除了本指南中讨论的特定领域外，检查其他常见漏洞也很重要，如 SQL 注入或跨站脚本。
 
-- Does the reset process allow user enumeration?
+- 重置过程是否允许用户枚举？
 
-  See the [Testing for Account Enumeration](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md) guide for further information.
+  有关更多信息，请参阅[测试账户枚举](../03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account.md)指南。
 
-### Email - New Password Sent
+### 电子邮件 - 发送新密码
 
-In this model, the user is sent a new password via email once they have proved their identity. This is considered less secure for two main reasons:
+在此模型中，用户在证明其身份后，会通过电子邮件收到一个新密码。这被认为安全性较低，主要有两个原因：
 
-- The password is sent to the user in an unencrypted form.
-- The password for the account is changed when the request is made, effectively locking the user out of their account until they receive the email. By making repeated requests, it is possible to prevent a user from being able to access their account.
+- 密码以未加密形式发送给用户。
+- 账户密码在请求时会被更改，实际上将用户锁定在账户之外，直到他们收到电子邮件。通过重复请求，可能会阻止用户访问其账户。
 
-Where this approach is used, the following areas should be reviewed:
+在使用此方法时，应审查以下领域：
 
-- Is the user forced to change the password on initial login?
+- 用户是否需要在首次登录时强制更改密码？
 
-  The new password is sent over unencrypted email, and may sit in the user's inbox indefinitely if they don't delete the email. As such, the user should be required to change the password as soon as they log in for the first time.
+  新密码通过未加密的电子邮件发送，如果用户不删除电子邮件，可能会永久保存在用户的收件箱中。因此，应要求用户在首次登录后立即更改密码。
 
-- Is the password securely generated?
+- 密码是否以安全方式生成？
 
-  The password should be generated using a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG), and should be sufficiently long to prevent password guessing or brute-force attacks. For a secure user-friendly experience, it should be generated using a secure passphrase-style approach (i.e, combining multiple words), rather than a string of random characters.
+  密码应使用加密安全的伪随机数生成器（CSPRNG）生成，并且应该足够长，以防止密码猜测或暴力破解攻击。为了安全的用户体验，应使用安全的 passphrase 风格方法（即组合多个单词）生成，而不是随机字符字符串。
 
-- Is the user's existing password sent to them?
+- 是否将用户的现有密码发送给他们？
 
-  Rather than generating a new password for the user, some applications will send the user their existing password. This is a very insecure approach, as it exposes their current password over unencrypted email. Additionally, if the site is able to recover the existing password, this implies that passwords are either stored using reversible encryption, or (more likely) in unencrypted plain text, both of which represent a serious security weakness.
+  有些应用程序不会为用户生成新密码，而是将现有密码发送给他们。这是一种非常不安全的方法，因为它会在未加密的电子邮件中暴露他们的当前密码。此外，如果站点能够恢复现有密码，则意味着密码要么使用可逆加密存储，要么（更可能的是）以未加密的明文形式存储，两者都代表严重的安全弱点。
 
-- Are the emails sent from a domain with anti-spoofing protection?
+- 电子邮件是否从具有反欺骗保护的域名发送？
 
-  The domain should implement SPF, DKIM, and DMARC to prevent attackers from spoofing emails from it, which could be used as part of a social engineering attack.
+  域名应实施 SPF、DKIM 和 DMARC，以防止攻击者欺骗来自该域名的电子邮件，这可能被用作社会工程攻击的一部分。
 
-- Is email considered sufficiently secure?
+- 电子邮件是否被认为足够安全？
 
-  Emails are typically sent unencrypted, and in many cases the user's email account will not be protected by MFA. It may also be shared between multiple individuals, particularly in a corporate environment.
+  电子邮件通常以未加密方式发送，在许多情况下，用户的电子邮件账户不会受到 MFA 保护。在企业环境中，它也可能被多个个人共享。
 
-  Consider whether email-based password reset functionality is appropriate, based on the context of the application that is being tested.
+  根据被测试应用程序的上下文，考虑基于电子邮件的密码重置功能是否合适。
 
-### Email - Link Sent
+### 电子邮件 - 发送链接
 
-In this model, the user is emailed a link that contains a token. They can then click this link, and are prompted to enter a new password on the site. This is the most common approach used for password reset, but is more complex to implement than the previously discussed approach. The key areas to test are:
+在此模型中，用户收到一封包含令牌的电子邮件链接。然后他们可以点击此链接，并在站点上被提示输入新密码。这是用于密码重置的最常见方法，但比前面讨论的方法更复杂。要测试的关键领域包括：
 
-- Does the link use HTTPS?
+- 链接是否使用 HTTPS？
 
-  If the token is sent over unencrypted HTTP, it may be possible for an attacker to intercept it.
+  如果令牌通过未加密的 HTTP 发送，攻击者可能能够拦截它。
 
-- Can the link be used multiple times?
+- 链接是否可以多次使用？
 
-  Links should expire after they are used, otherwise they provide a persistent backdoor for the account.
+  链接在使用后应过期，否则它们会为账户提供持久的后门。
 
-- Does the link expire if it remains unused?
+- 如果链接未使用是否会过期？
 
-  Links should be time limited. Exactly how long is appropriate will depend on the site, but it should rarely be more than an hour.
+  链接应该有时间限制。确切的时间长度应取决于站点，但很少应该超过一个小时。
 
-- Is the token sufficiently long and random?
+- 令牌是否足够长且随机？
 
-  The security of the process is entirely reliant on an attacker not being able to guess or brute-force a token. The tokens should be generated with a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG), and should be sufficiently long that it is impractical for an attacker to guess or brute-force. At least 128 bits (or 32 hex characters) is a sufficient minimum to make such an online attack impractical.
+  整个过程的安全性完全依赖于攻击者无法猜测或暴力破解令牌。令牌应使用加密安全的伪随机数生成器（CSPRNG）生成，并且应该足够长，以至于攻击者实际无法猜测或暴力破解。至少 128 位（或 32 个十六进制字符）是使此类在线攻击不切实际的足够最小值。
 
-  Tokens should never be generated based on known values, such as by taking the MD5 hash of the user's email with `md5($email)`, or using GUIDs which may use insecure PRNG functions, or may not even be random depending on the type.
+  令牌永远不应基于已知值生成，例如使用用户的电子邮件的 MD5 哈希 `md5($email)`，或使用可能使用不安全 PRNG 函数的 GUID，或者根据类型可能甚至不是随机的。
 
-  Testers should also verify how password reset tokens are stored on the server. If reset tokens are stored in plaintext in the database, an attacker who gains database access may be able to reuse them to reset user passwords. A more secure implementation stores a hashed version of the token and compares the hash during validation.
+  测试人员还应验证密码重置令牌在服务器上的存储方式。如果重置令牌以明文形式存储在数据库中，则能够访问数据库的攻击者可能能够重用它们来重置用户密码。更安全的实现存储令牌的哈希版本，并在验证期间比较哈希。
 
-  An alternative approach to random tokens is to use a cryptographically signed token such as a JWT. In this case, the usual JWT checks should be carried out (is the signature verified, can the "nONe" algorithm be used, can the HMAC key be brute-forced, etc). See the [Testing JSON Web Tokens](../06-Session_Management_Testing/10-Testing_JSON_Web_Tokens.md) guide for further information.
+  随机令牌的替代方法是使用加密签名令牌，如 JWT。在这种情况下，应进行通常的 JWT 检查（是否验证了签名，是否可以使用"nONe"算法，是否可以暴力破解 HMAC 密钥等）。有关更多信息，请参阅[测试 JSON Web 令牌](../06-Session_Management_Testing/10-Testing_JSON_Web_Tokens.md)指南。
 
-- Does the link contain a user ID?
+- 链接是否包含用户 ID？
 
-  Sometimes the password reset link may include a user ID as well as a token, such as `reset.php?userid=1&token=123456`. In this case, it may be possible to modify the `userid` parameter to reset other users' passwords.
+  有时密码重置链接可能包括用户 ID 以及令牌，例如 `reset.php?userid=1&token=123456`。在这种情况下，可能能够修改 `userid` 参数来重置其他用户的密码。
 
-- Can you inject a different host header?
+- 能否注入不同的主机头？
 
-  If the application trusts the value of the `Host` header and uses this to generate the password reset link, it may be possible to steal tokens by injecting a modified `Host` header into the request. See the [Testing for Host Header Injection](../07-Input_Validation_Testing/17-Testing_for_Host_Header_Injection.md) guide for further information.
+  如果应用程序信任 `Host` 头的值并使用它来生成密码重置链接，则可能通过在请求中注入修改后的 `Host` 头来窃取令牌。有关更多信息，请参阅[测试主机头注入](../07-Input_Validation_Testing/17-Testing_for_Host_Header_Injection.md)指南。
 
-- Is the link exposed to third parties?
+- 链接是否暴露给第三方？
 
-  If the page that the user is taken to includes content from other parties (such as loading scripts from other domains), then the reset token in the URL may be exposed in the HTTP `Referer` header sent in these requests. The `Referrer-Policy` HTTP header can be used to protect against this, so check if one is defined for the page.
+  如果用户访问的页面包含来自其他方的内容（如从其他域加载脚本），则 URL 中的重置令牌可能在这些请求中发送的 HTTP `Referer` 头中暴露。可以使用 `Referrer-Policy` HTTP 头来防止这种情况，因此请检查是否为页面定义了该头。
 
-  Additionally, if the page includes any tracking, analytics or advertising scripts, the token will also be exposed to them.
+  此外，如果页面包含任何跟踪、分析或广告脚本，令牌也将暴露给它们。
 
-- Are the emails sent from a domain with anti-spoofing protection?
+- 电子邮件是否从具有反欺骗保护的域名发送？
 
-  The domain should implement SPF, DKIM, and DMARC to prevent attackers from spoofing emails from it, which could be used as part of a social engineering attack.
+  域名应实施 SPF、DKIM 和 DMARC，以防止攻击者欺骗来自该域名的电子邮件，这可能被用作社会工程攻击的一部分。
 
-- Is email considered sufficiently secure?
+- 电子邮件是否被认为足够安全？
 
-  Emails are typically sent unencrypted, and in many cases the user's email account will not be protected by MFA. It may also be shared between multiple individuals, particularly in a corporate environment.
+  电子邮件通常以未加密方式发送，在许多情况下，用户的电子邮件账户不会受到 MFA 保护。在企业环境中，它也可能被多个个人共享。
 
-  Consider whether email-based password reset functionality is appropriate, based on the context of the application that is being tested.
+  根据被测试应用程序的上下文，考虑基于电子邮件的密码重置功能是否合适。
 
-### Tokens Sent Over SMS or Phone Call
+### 通过 SMS 或电话发送的令牌
 
-Rather than sending a token in an email, an alternative approach is to send it via SMS or an automated phone call, which the user will then enter on the application. The key areas to test are:
+替代方法是通过 SMS 或自动电话呼叫发送令牌，而不是在电子邮件中发送令牌，用户随后将在应用程序中输入。这是一个关键测试领域：
 
-- Is the token sufficiently long and random?
+- 令牌是否足够长且随机？
 
-  Tokens sent this way are typically shorter, as they are intended to be manually typed by the user, rather than being embedded in a link. It's fairly common for applications to use six numeric digits, which only provides ~20 bits of security (feasible for an online brute-force attack), rather than the typically longer email token.
+  以这种方式发送的令牌通常较短，因为它们是供用户手动输入的，而不是嵌入在链接中的。应用程序通常使用六位数字，这是很常见的，这只提供约 20 位的安全性（对于在线暴力破解攻击是可行的），而不是通常更长的电子邮件令牌。
 
-  This makes it much more important that the password reset functionality is protected against brute-force attacks.
+  这使得密码重置功能防止暴力破解攻击变得更加重要。
 
-- Can the token be used multiple times?
+- 令牌是否可以多次使用？
 
-  Tokens should be invalidated after they are used, otherwise they provide a persistent backdoor for the account.
+  令牌在使用后应失效，否则它们会为账户提供持久的后门。
 
-- Does the token expire if it remains unused?
+- 如果令牌未使用是否会过期？
 
-  As the shorter tokens are more susceptible to brute-force attacks, a shorter expiration time should be implemented to limit the window available for an attacker to carry out an attack.
+  由于较短的令牌更容易受到暴力破解攻击，应该实施较短的过期时间来限制攻击者进行攻击的窗口。
 
-- Are appropriate rate limiting and restrictions in place?
+- 是否有适当的速率限制和限制？
 
-  Sending an SMS or triggering an automated phone call to a user is significantly more disruptive than sending an email, and could be used to harass a user, or even carry out a denial of service attack against their phone. The application should implement rate limiting to prevent this.
+  向用户发送 SMS 或触发自动电话呼叫比发送电子邮件更具破坏性，可用于骚扰用户，甚至对用户的电话发起拒绝服务攻击。应用程序应实施速率限制以防止这种情况。
 
-  Additionally, SMS messages and phone calls often incur financial costs for the sending party. If an attacker is able to cause a large number of messages to be sent, this could result in significant costs for the website operator. This is especially true if they are sent to international or premium rate numbers. However, allowing international numbers may be a requirement of the application.
+  此外，SMS 消息和电话呼叫通常会给发送方带来财务成本。如果攻击者能够导致大量消息被发送，这可能给网站运营商带来重大成本。对于国际号码或高级号码尤其如此。但是，允许国际号码可能是应用程序的要求。
 
-- Is SMS or a phone call considered sufficiently secure?
+- SMS 或电话被认为足够安全吗？
 
-  [A variety of attacks](https://www.ncsc.gov.uk/guidance/protecting-sms-messages-used-in-critical-business-processes#section_4) have been demonstrated that would allow an attacker to effectively hijack SMS messages, there are conflicting views about whether SMS is sufficiently secure to be used as an authentication factor.
+  已经演示了[各种攻击](https://www.ncsc.gov.uk/guidance/protecting-sms-messages-used-in-critical-business-processes#section_4)，这些攻击将允许攻击者有效劫持 SMS 消息，但对于 SMS 是否足够安全以用作认证因素，存在相互矛盾的观点。
 
-  It is usually possible to answer an automated phone call with physical access to a device, without needing any kind of PIN or fingerprint to unlock the phone. In some circumstances (such as a shared office environment), this could allow an internal attacker to trivially reset another user's password by walking over to their desk when they are out of office.
+  通常可以在物理访问设备的情况下接听自动电话，而无需任何 PIN 或指纹来解锁手机。在某些情况下（如共享办公环境），这可能允许内部攻击者在其外出时简单地走到他人的办公桌前重置另一个用户的密码。
 
-  Consider whether SMS or automated phone calls are appropriate, based on the context of the application that is being tested.
+  根据被测试应用程序的上下文，考虑 SMS 或自动电话是否合适。
 
-### Security Questions
+### 安全问题
 
-Rather than sending them a link or new password, security questions can be used as a mechanism to authenticate the user. This is considered to be a weak approach, and should not be used if better options are available.
+安全问题可用作认证用户的机制，而不是向他们发送链接或新密码。这被认为是一种较弱的方法，如果可以的话，不应该使用。
 
-See the [Testing for Weak Security Questions](08-Testing_for_Weak_Security_Question_Answer.md) guide for further information.
+有关更多信息，请参阅[测试弱安全问题](08-Testing_for_Weak_Security_Question_Answer.md)指南。
 
-### Authenticated Identity and Configuration Changes
+### 已认证身份和配置更改
 
-If the application supports the ability to modify an account's primary identifier (such as an email address or phone number) that is utilized in the password change and reset functionalities the user should be forced to re-authenticate. When the primary identifier used in the password change functionality is able to be modified without re-authentication it allows the re-authentication in the password change functionality to be bypassed. Overall, anything that impacts the security of the account (email, MFA, backup settings, etc.) should require re-authentication before it can be modified.
+如果应用程序支持修改账户的主要标识符（如在密码更改和重置功能中使用的电子邮件地址或电话号码），则应强制用户重新认证。当密码更改功能中使用的主要标识符能够在不重新认证的情况下被修改时，允许绕过密码更改功能中的重新认证。总体而言，任何影响账户安全性的内容（电子邮件、MFA、备份设置等）在修改前都需要重新认证。
 
-For example: An application has a password reset flow that sends a reset link to the account's email address. The application also requires re-authentication if the password is attempted to be changed from the perspective of an authenticated user. If an attacker gains access to the account (via a stolen cookie, physical access to the computer, etc.) and changes the account's email address without needing to re-authenticate, then the password reset flow can be used to change the password, bypassing the authenticated password change flow.
+例如：一个应用程序有一个密码重置流程，将重置链接发送到账户的电子邮件地址。如果从已认证用户的角度尝试更改密码，应用程序也需要重新认证。如果攻击者获得账户访问权限（通过被盗的 cookie、物理访问计算机等）并无需重新认证即可更改账户的电子邮件地址，则密码重置流程可用于更改密码，绕过已认证的密码更改流程。
 
-### Authenticated Password Changes
+### 已认证密码更改
 
-Once the user has proved their identity (either through a password reset link, a recovery code, or by logging in on the application) they should be able to change their password. The key areas to test are:
+一旦用户证明了其身份（无论是通过密码重置链接、恢复代码，还是通过在应用程序上登录），他们应该能够更改密码。要测试的关键领域包括：
 
-- When setting the password, can you specify the user ID?
+- 在设置密码时，能否指定用户 ID？
 
-  If the user ID is included in the password reset request and is not validated, it may be possible to modify it and change other users' passwords.
+  如果用户 ID 包含在密码重置请求中且未被验证，则可能能够修改它并更改其他用户的密码。
 
-- Is the user required to re-authenticate?
+- 是否需要用户重新认证？
 
-  If a logged-in user tries to change their password, they should be asked to re-authenticate with their current password in order to protect against an attacker gaining temporary access to an unattended session. If the user has MFA enabled, then they would typically re-authenticate with that, rather than their password.
+  如果已登录用户尝试更改密码，应要求他们使用当前密码重新认证，以保护攻击者获得对无人值守会话的临时访问。如果用户启用了 MFA，他们通常会使用 MFA 而不是密码重新认证。
 
-- Is the password change form vulnerable to CSRF?
+- 密码更改表单是否容易受到 CSRF？
 
-  If the user isn't required to re-authenticate, then it may be possible to carry out a CSRF attack against the password reset form, allowing their account to be compromised. See the [Testing for Cross-Site Request Forgery](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md) guide for further information.
+  如果不需要用户重新认证，则可能对密码重置表单发起 CSRF 攻击，从而危害他们的账户。有关更多信息，请参阅[测试跨站请求伪造](../06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery.md)指南。
 
-- Is a strong and effective password policy applied?
+- 是否应用了强有效的密码策略？
 
-  The password policy should be consistent across the registration, password change, and password reset functionality. See the [Testing for Weak Authentication Methods](07-Testing_for_Weak_Authentication_Methods.md) guide for further information.
+  密码策略应在注册、密码更改和密码重置功能中保持一致。 有关更多信息，请参阅[测试弱认证方法](07-Testing_for_Weak_Authentication_Methods.md)指南。
 
-## References
+## 参考资料
 
-- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
+- [OWASP 忘记密码速查表](https://cheatseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)

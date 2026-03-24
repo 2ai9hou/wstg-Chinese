@@ -1,36 +1,36 @@
-# Testing for Weak Authentication Methods
+# 测试弱认证方法
 
 |ID          |
 |------------|
 |WSTG-ATHN-07|
 
-## Summary
+## 概述
 
-The most prevalent and most easily administered authentication mechanism is a static password. The password represents the keys to the kingdom, but is often subverted by users in the name of usability. In each of the recent high profile hacks that have revealed user credentials, it is lamented that most common passwords are still: `123456`, `password` and `qwerty`.
+最普遍、最容易管理的认证机制是静态密码。密码代表通往王国的钥匙，但往往因为可用性的缘故而被用户破坏。在最近曝光用户凭据的高调黑客事件中，人们哀叹最常见的密码仍然是：`123456`、`password` 和 `qwerty`。
 
-Additionally, applications may utilize alternative credentials that are treated the same as a password, but are considerably weaker, such as a birthdates, social security numbers, PINs, or security questions. In some scenarios, these more easily guessed credentials may act as the only user supplied value for authentication.
+此外，应用程序可能使用与密码被视为相同的替代凭据，但安全性要低得多，例如生日、社会安全号码、PIN 或安全问题。在某些场景中，这些更容易猜测的凭据可能作为认证时用户提供的唯一值。
 
-## Test Objectives
+## 测试目标
 
-- Determine the resistance of the application against brute force password guessing using available password dictionaries by evaluating the length, complexity, reuse, and aging requirements of passwords.
+- 通过评估密码的长度、复杂性、重复使用和老化要求，确定应用程序抵抗使用可用密码字典进行暴力密码猜测的能力。
 
-## How to Test
+## 如何测试
 
-1. What characters are permitted and forbidden for use within a password? Is the user required to use characters from different character sets such as lower and uppercase letters, digits and special symbols?
-2. How often can a user change their password? How quickly can a user change their password after a previous change? Users may bypass password history requirements by changing their password 5 times in a row so that after the last password change they have configured their initial password again.
-3. When must a user change their password?
-    - Both [NIST](https://pages.nist.gov/800-63-3/sp800-63b.html#memsecretver) and [NCSC](https://www.ncsc.gov.uk/collection/passwords/updating-your-approach#PasswordGuidance:UpdatingYourApproach-Don'tenforceregularpasswordexpiry) recommend **against** forcing regular password expiry, although it may be required by standards such as PCI DSS.
-4. How often can a user reuse a password? Does the application maintain a history of the user's previous used 8 passwords?
-5. How different must the next password be from the last password?
-6. Is the user prevented from using his username or other account information (such as first or last name) in the password?
-7. What are the minimum and maximum password lengths that can be set, and are they appropriate for the sensitivity of the account and application?
-8. Is it possible to set common passwords such as `Password1` or `123456`?
-9. Is the credential chosen for the user by the application, such as a social security number or a birthdate? Is the credential that's utilized in lieu of a standard password easily obtainable, predictable, or susceptible to brute-force attacks?
+1. 密码中允许和禁止使用哪些字符？是否要求用户使用不同字符集的字符，如大小写字母、数字和特殊符号？
+2. 用户多久可以更改一次密码？用户在一次更改后多久可以再次更改密码？用户可能通过连续更改密码 5 次来绕过密码历史要求，这样在最后一次密码更改后，他们就再次配置了初始密码。
+3. 用户必须何时更改密码？
+    - [NIST](https://pages.nist.gov/800-63-3/sp800-63b.html#memsecretver) 和 [NCSC](https://www.ncsc.gov.uk/collection/passwords/updating-your-approach#PasswordGuidance:UpdatingYourApproach-Don'tenforceregularpasswordexpiry) 都建议**不要**强制定期密码过期，尽管某些标准（如 PCI DSS）可能要求这样做。
+4. 用户多久可以重复使用一次密码？应用程序是否保持用户先前使用的 8 个密码的历史记录？
+5. 下一个密码必须与上一个密码有多大不同？
+6. 是否禁止用户在密码中使用用户名或其他账户信息（如名或姓）？
+7. 可以设置的最小和最大密码长度是多少，它们是否适合账户和应用程序的敏感性？
+8. 是否可以设置常见密码，如 `Password1` 或 `123456`？
+9. 应用程序是否为用户选择了凭据，如社会安全号码或生日？用于代替标准密码的凭据是否容易获取、可预测或容易受到暴力攻击？
 
-## Remediation
+## 修复
 
-To mitigate the risk of easily guessed passwords facilitating unauthorized access there are two solutions: introduce additional authentication controls (i.e. two-factor authentication) or introduce a strong password policy. The simplest and cheapest of these is the introduction of a strong password policy that ensures password length, complexity, reuse and aging; although ideally both of them should be implemented.
+为了降低容易猜测的密码导致未授权访问的风险，有两种解决方案：引入额外的认证控制（即双因素认证）或引入强密码策略。其中最简单、最便宜的是引入强密码策略，确保密码长度、复杂性、重复使用和老化；尽管最好同时实施两者。
 
-## References
+## 参考资料
 
-- [Brute Force Attacks](https://owasp.org/www-community/attacks/Brute_force_attack)
+- [暴力破解攻击](https://owasp.org/www-community/attacks/Brute_force_attack)
